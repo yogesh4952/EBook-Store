@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "d2IWDkm5Klo=",
+  "success": true,
+  "projectFilePath": "/home/yogesh/code/EBookStore/server/server.csproj",
+  "expectedPackageFiles": [
+    "/home/yogesh/.nuget/packages/microsoft.aspnetcore.app.ref/10.0.10/microsoft.aspnetcore.app.ref.10.0.10.nupkg.sha512"
+  ],
+  "logs": []
+}
