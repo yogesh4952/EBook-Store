@@ -45,9 +45,18 @@ const Navbar = () => {
 
       {/* Icons */}
       <div className="flex justify-end gap-5 items-center">
-        <CiHeart size={32} />
-        <AiOutlineShoppingCart size={32} />
-        <MdOutlinePerson3 size={32} />
+        <CiHeart
+          className="cursor-pointer hover:scale-105 transition-all"
+          size={32}
+        />
+        <AiOutlineShoppingCart
+          className="cursor-pointer hover:scale-105 transition-all"
+          size={32}
+        />
+        <MdOutlinePerson3
+          className="cursor-pointer hover:scale-105 transition-all"
+          size={32}
+        />
       </div>
     </nav>
   );
