@@ -50,7 +50,7 @@ const Login = () => {
                 <span>Get personalized recommendations</span>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 ">
                 <FaPeopleGroup className="text-xl text-amber-300" />
                 <span>Join thousands of passionate readers</span>
               </div>
@@ -106,12 +106,12 @@ const Login = () => {
         <p className="my-8 text-center text-gray-500">or continue with</p>
 
         <div className="space-y-4">
-          <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:bg-gray-50">
+          <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:cursor-pointer hover:bg-gray-50">
             <FaGoogle />
             Continue with Google
           </button>
 
-          <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:bg-gray-50">
+          <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:cursor-pointer hover:bg-gray-50">
             <FaFacebook />
             Continue with Facebook
           </button>
