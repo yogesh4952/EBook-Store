@@ -1,7 +1,8 @@
 namespace EbookStore.Controllers.Authenticaiton;
 
-using EbookStore.Entities.U;
-using Microsoft.AspNetCore.Components;
+using EbookStore.Dtos.LoginDto;
+using EbookStore.Entities.User;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -10,10 +11,15 @@ using Microsoft.AspNetCore.Mvc;
 public class AuthController : ControllerBase
 {
 
+    public static User user = new();
     [HttpPost("register")]
-    public ActionResult<User> register()
+    public ActionResult<User> register(UserDto request)
     {
+        var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
+        request.Password = hashedPassword;
 
+        request.Password = hashedPassword;
+        return Ok(request);
     }
 
 }
