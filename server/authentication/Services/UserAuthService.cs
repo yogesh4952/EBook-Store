@@ -15,15 +15,13 @@ public class AuthService
         _context = context;
     }
 
-
-    public async Task Register(RegisterDto dto)
+    public async Task<User> Register(RegisterDto dto)
     {
         var exisitingUsers = await _context.Users.FirstOrDefaultAsync(x => x.Email == dto.Email);
 
         if (exisitingUsers != null)
         {
             throw new Exception("Email already exists!");
-
         }
 
         var hasher = new PasswordHasher<User>();
@@ -33,6 +31,9 @@ public class AuthService
         user.FirstName = dto.FirstName;
         user.LastName = dto.LastName;
 
+        _context.Users.Add(user);
 
+        await _context.SaveChangesAsync();
+        return user;
     }
 }

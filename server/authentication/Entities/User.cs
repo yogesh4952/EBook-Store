@@ -1,7 +1,3 @@
-using EbookStore.Enums.Authenticaiton;
-
-
-
 namespace EbookStore.Entities.User
 {
 
@@ -16,7 +12,7 @@ namespace EbookStore.Entities.User
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
-        public UserRole Role { get; set; }
+        public UserRole Role { get; set; } = UserRole.User;
 
         public DateTime CreatedAt { get; set; }
 

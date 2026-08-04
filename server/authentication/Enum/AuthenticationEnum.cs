@@ -1,8 +1,6 @@
-namespace EbookStore.Enums.Authenticaiton;
-
 public enum UserRole
 {
-    User,
-    Admin,
-    Vendor
+    User = 0,
+    Vendor = 1,
+    Admin = 2
 }
