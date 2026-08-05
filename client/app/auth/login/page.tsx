@@ -8,6 +8,11 @@ import {
 import { FaPeopleGroup, FaShield } from "react-icons/fa6";
 
 const Login = () => {
+  const handleLogin = async () => {
+    try {
+      
+    } catch (error) {}
+  };
   return (
     <div className="grid min-h-[750px] grid-cols-2 gap-8">
       {/* LEFT SIDE */}

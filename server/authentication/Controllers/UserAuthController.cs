@@ -1,5 +1,6 @@
 namespace EbookStore.Controllers.Authenticaiton;
 
+using EbookStore.Dtos.LoginDto;
 using EbookStore.Dtos.RegisterDto;
 using EbookStore.Entities.User;
 using EbookStore.Services;
@@ -23,6 +24,14 @@ public class AuthController : ControllerBase
     {
         var user = await _authService.Register(dto);
 
+        return Ok(user);
+    }
+
+
+    [HttpPost("login")]
+    public async Task<ActionResult<User>> Login(LoginDto dto)
+    {
+        var user = await _authService.Login(dto);
         return Ok(user);
     }
 

@@ -1,4 +1,5 @@
 using EbookStore.Data;
+using EbookStore.Middleware;
 using EbookStore.Services;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -21,6 +22,9 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

@@ -1,4 +1,5 @@
 using EbookStore.Data;
+using EbookStore.Dtos.LoginDto;
 using EbookStore.Dtos.RegisterDto;
 using EbookStore.Entities.User;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +35,28 @@ public class AuthService
         _context.Users.Add(user);
 
         await _context.SaveChangesAsync();
+        return user;
+    }
+
+    public async Task<User> Login(LoginDto dto)
+    {
+        var hasher = new PasswordHasher<User>();
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+        if (user == null)
+            throw new BadHttpRequestException("Email doesn't exist.");
+
+        var result = hasher.VerifyHashedPassword(
+            user,
+            user.PasswordHash,
+            dto.Password
+        );
+
+        if (result == PasswordVerificationResult.Failed)
+            throw new BadHttpRequestException("Incorrect password.");
+
         return user;
     }
 }
