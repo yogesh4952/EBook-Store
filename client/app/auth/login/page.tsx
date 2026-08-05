@@ -16,21 +16,22 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const data = { email, password };
+      const input = { email, password };
       const result = await fetch("/api/login", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(input),
         headers: {
-          "Content-Type": "application/json",
+          "Content-type": "application/json",
         },
       });
+
+      const data = await result.json();
       if (!result.ok) {
-        toast.error("Error while login");
+        toast.error(data.message || result.statusText || "Error while login");
         return;
       }
 
       toast.success("Login successful");
-      console.log(result);
     } catch (error) {
       toast.error("Internal server error");
       console.error(error);
