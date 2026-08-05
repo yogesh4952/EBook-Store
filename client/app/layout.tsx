@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,6 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-background px-6 py-4">
+      <Toaster position="top-right" />
       <body className={inter.variable}>{children}</body>
     </html>
   );

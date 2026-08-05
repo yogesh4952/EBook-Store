@@ -8,6 +8,7 @@ import {
   FaJediOrder,
 } from "react-icons/fa";
 import { FaPeopleGroup, FaShield } from "react-icons/fa6";
+import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,15 +17,22 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       const data = { email, password };
-      const res = await fetch("http:localhost:5089/api/Auth/login", {
+      const result = await fetch("/api/login", {
         method: "POST",
         body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-      if (res.ok) {
-        alert("Login success");
+      if (!result.ok) {
+        toast.error("Error while login");
+        return;
       }
-      console.log(res.text);
+
+      toast.success("Login successful");
+      console.log(result);
     } catch (error) {
+      toast.error("Internal server error");
       console.error(error);
     }
   };
@@ -101,6 +109,7 @@ const Login = () => {
 
             <input
               type="email"
+              value={email}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEmail(e.target.value)
               }
@@ -113,6 +122,7 @@ const Login = () => {
 
             <input
               type="password"
+              value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setPassword(e.target.value)
               }
