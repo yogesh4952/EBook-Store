@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import {
   FaBookmark,
   FaFacebook,
@@ -8,10 +10,23 @@ import {
 import { FaPeopleGroup, FaShield } from "react-icons/fa6";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const handleLogin = async () => {
     try {
-      
-    } catch (error) {}
+      const data = { email, password };
+      const res = await fetch("http:localhost:5089/api/Auth/login", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        alert("Login success");
+      }
+      console.log(res.text);
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <div className="grid min-h-[750px] grid-cols-2 gap-8">
@@ -86,6 +101,9 @@ const Login = () => {
 
             <input
               type="email"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
               className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
             />
           </div>
@@ -95,6 +113,9 @@ const Login = () => {
 
             <input
               type="password"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
               className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
             />
           </div>
@@ -104,7 +125,10 @@ const Login = () => {
           Forgot Password?
         </p>
 
-        <button className="mt-8 h-12 w-full rounded-lg bg-primary text-white transition hover:opacity-90">
+        <button
+          className="mt-8 h-12 w-full rounded-lg bg-primary text-white transition hover:opacity-90"
+          onClick={() => handleLogin()}
+        >
           Login
         </button>
 
