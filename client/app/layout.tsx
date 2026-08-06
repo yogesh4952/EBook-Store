@@ -19,8 +19,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-background px-6 py-4">
-      <Toaster position="top-right" />
-      <body className={inter.variable}>{children}</body>
+      <body className={inter.variable}>
+        <Toaster position="top-right" />
+
+        {children}
+      </body>
     </html>
   );
 }

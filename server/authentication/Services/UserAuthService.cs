@@ -10,10 +10,12 @@ namespace EbookStore.Services;
 public class AuthService
 {
     private readonly AppDbContext _context;
+    private readonly JwtGenerator _jwtGenerator;
 
-    public AuthService(AppDbContext context)
+    public AuthService(AppDbContext context, JwtGenerator jwtGenerator)
     {
         _context = context;
+        _jwtGenerator = jwtGenerator;
     }
 
     public async Task<User> Register(RegisterDto dto)
@@ -38,7 +40,7 @@ public class AuthService
         return user;
     }
 
-    public async Task<User> Login(LoginDto dto)
+    public async Task<LoginResponseDto> Login(LoginDto dto)
     {
         var hasher = new PasswordHasher<User>();
 
@@ -57,6 +59,12 @@ public class AuthService
         if (result == PasswordVerificationResult.Failed)
             throw new BadHttpRequestException("Incorrect password.");
 
-        return user;
+        string token = _jwtGenerator.Generate(user);
+        return new LoginResponseDto
+        {
+            Token = token,
+            Email = user.Email,
+            FirstName = user.FirstName
+        };
     }
 }
