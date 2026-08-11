@@ -10,9 +10,9 @@ namespace EbookStore.Services;
 public class AuthService
 {
     private readonly AppDbContext _context;
-    private readonly JwtGenerator _jwtGenerator;
+    private readonly JwtHandler _jwtGenerator;
 
-    public AuthService(AppDbContext context, JwtGenerator jwtGenerator)
+    public AuthService(AppDbContext context, JwtHandler jwtGenerator)
     {
         _context = context;
         _jwtGenerator = jwtGenerator;
@@ -66,5 +66,12 @@ public class AuthService
             Email = user.Email,
             FirstName = user.FirstName
         };
+    }
+
+
+    // In AuthService.cs
+    public async Task<User?> GetByEmail(string email)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 }

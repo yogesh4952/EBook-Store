@@ -4,11 +4,11 @@ using System.Text;
 using EbookStore.Entities.User;
 using Microsoft.IdentityModel.Tokens;
 
-public class JwtGenerator
+public class JwtHandler
 {
     private readonly IConfiguration _configuration;
 
-    public JwtGenerator(IConfiguration configuration)
+    public JwtHandler(IConfiguration configuration)
     {
         _configuration = configuration;
     }
@@ -22,7 +22,7 @@ public class JwtGenerator
             new Claim(ClaimTypes.Role,$"{user.Role}"),
     };
 
-        var jwtKey = _configuration["Jwt:Key"] ?? _configuration["JWT:KEY"];
+        var jwtKey = _configuration["Jwt:Key"];
         if (string.IsNullOrWhiteSpace(jwtKey))
         {
             throw new InvalidOperationException("JWT key is not configured.");
@@ -45,5 +45,12 @@ public class JwtGenerator
           );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public JwtSecurityToken DecodeToken(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        return jwtToken;
     }
 }
