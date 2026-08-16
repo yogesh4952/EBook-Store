@@ -88,7 +88,7 @@ const Login = () => {
 
           {/* Bottom */}
           <div className="bg-white/80 text-black rounded px-4 py-2 ">
-            <p className="text-5xl text-primary">"</p>
+            <p className="text-5xl text-primary">&quot;</p>
             <p>A room without books is like a body without soul.</p>
             <p className="text-primary">- Marcus Tullius Cicero</p>
           </div>

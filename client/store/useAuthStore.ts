@@ -20,10 +20,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   fetchUser: async () => {
     set({ loading: true });
     try {
-      const res = await fetch("/api/auth/me");
+      const res = await fetch("/api/me");
       if (res.ok) {
         const data = await res.json();
-        set({ user: data.user, loading: false });
+        set({ user: data, loading: false });
       } else {
         set({ user: null, loading: false });
       }
@@ -33,8 +33,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch("/api/logout", { method: "POST" });
     set({ user: null });
-    window.location.href = "/login";
+    window.location.href = "/auth/login";
   },
 }));

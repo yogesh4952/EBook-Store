@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EBook Store — Frontend (client)
 
-## Getting Started
+Next.js 16 (React 19) frontend for the EBook Store. The app uses a
+Backend-for-Frontend (BFF) pattern: the browser only talks to Next.js
+route handlers, which proxy to the Go API and manage the auth cookie.
 
-First, run the development server:
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The frontend is fully **static** — it needs no `.env` and no backend to
+start. All configuration lives in **`lib/config.ts`**:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```ts
+export const BACKEND_URL = "http://localhost:8080"; // point at the Go API
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit that single file to change where the app talks to.
 
-## Learn More
+## Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/
+├── (public)/          # public pages (uses Navbar layout)
+├── auth/login/        # login page
+├── api/               # BFF route handlers
+│   ├── login/         # POST → proxies to Go /api/Auth/login, sets httpOnly cookie
+│   ├── me/            # GET  → proxies to Go /api/Auth/me with the JWT
+│   └── logout/        # POST → clears the auth cookie
+components/common/     # shared UI (Navbar)
+helper/                # small utilities (JWT expiry parsing)
+lib/config.ts          # ★ static config — edit values here
+store/                 # Zustand state (auth)
+middleware.ts          # route protection based on the accessToken cookie
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Auth flow
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Browser POSTs credentials to `/api/login`.
+2. The BFF calls the Go API, gets a JWT, and stores it in an `httpOnly`
+   cookie named `accessToken`.
+3. `/api/me` sends that cookie's token as `Authorization: Bearer` to the
+   Go API and returns the user.
+4. `middleware.ts` redirects unauthenticated visitors to `/auth/login`.
 
-## Deploy on Vercel
+## Build & lint
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run build
+npm run lint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Docker
+
+A minimal `Dockerfile` is included for static deployment (`next start`).

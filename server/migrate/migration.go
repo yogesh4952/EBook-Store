@@ -1,0 +1,21 @@
+package main
+
+import (
+	"log"
+
+	"github.com/yogesh4952/ebookstore/initializers"
+	"github.com/yogesh4952/ebookstore/models"
+)
+
+func init() {
+	initializers.LoadEnv()
+	initializers.InitDb()
+}
+func main() {
+	err := initializers.DB.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Printf("Error during automigrations: %v", err)
+	} else {
+		log.Print("Succesfully migrated")
+	}
+}

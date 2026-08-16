@@ -1,12 +1,13 @@
 import { getTokenRemainingSeconds } from "@/helper/jwtExp";
+import { AUTH_COOKIE_NAME, API_ENDPOINTS } from "@/lib/config";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const cookieStore = await cookies();
-    const response = await fetch(`${process.env.BACKEND_URL}/api/Auth/login`, {
+    const response = await fetch(API_ENDPOINTS.login, {
       method: "POST",
       body: JSON.stringify(body),
       headers: {
@@ -39,16 +40,16 @@ export async function POST(request: Request) {
     }
     const maxAge: number = getTokenRemainingSeconds(accessToken);
     cookieStore.set({
-      name: "accessToken",
+      name: AUTH_COOKIE_NAME,
       value: accessToken,
-      httpOnly: process.env.NODE_ENV == "production",
+      httpOnly: true,
       path: "/",
       maxAge: maxAge,
-      secure: process.env.NODE_ENV == "production",
+      secure: false,
     });
 
     return NextResponse.json(data);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         message: "Internal Server Error",
