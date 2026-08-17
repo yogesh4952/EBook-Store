@@ -5,16 +5,20 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	authhandler "github.com/yogesh4952/ebookstore/auth/handler"
+	authrepo "github.com/yogesh4952/ebookstore/auth/repository"
+	authservice "github.com/yogesh4952/ebookstore/auth/service"
 	"github.com/yogesh4952/ebookstore/initializers"
 	userhandler "github.com/yogesh4952/ebookstore/user/handler"
 	userrepo "github.com/yogesh4952/ebookstore/user/repository"
-	"github.com/yogesh4952/ebookstore/user/service"
+	userservice "github.com/yogesh4952/ebookstore/user/service"
 )
 
 func init() {
 
 	initializers.LoadEnv()
 	initializers.InitDb()
+	initializers.InitRedis()
 }
 
 func main() {
@@ -28,8 +32,12 @@ func main() {
 
 	//userDependency injection
 	userRepo := userrepo.NewUserRepository(initializers.DB)
-	userService := service.NewUserService(userRepo)
+	userService := userservice.NewUserService(userRepo)
 	userHandler := userhandler.NewUserHandler(userService)
+
+	authRepo := authrepo.NewAuthRepository(initializers.DB, initializers.RDB)
+	authService := authservice.NewAuthService(authRepo)
+	authHandler := authhandler.NewAuthHandler(authService)
 
 	apiRoutes := router.Group("/api")
 	{
@@ -37,8 +45,13 @@ func main() {
 		{
 			userRoutes.GET("", userHandler.ListUser)
 		}
+
+		auhtRoutes := apiRoutes.Group("/auth")
+		{
+			auhtRoutes.POST("/send-otp", authHandler.SendOTP)
+
+		}
 	}
 
-	// 4. Run server on dynamic port
 	router.Run(":" + port)
 }
