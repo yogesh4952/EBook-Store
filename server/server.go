@@ -4,28 +4,40 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/yogesh4952/ebookstore/initializers"
+	userhandler "github.com/yogesh4952/ebookstore/user/handler"
+	userrepo "github.com/yogesh4952/ebookstore/user/repository"
+	"github.com/yogesh4952/ebookstore/user/service"
 )
 
-func main() {
-	// 1. Load environment variables first
+func init() {
+
 	initializers.LoadEnv()
 	initializers.InitDb()
+}
 
-	// 2. Read PORT after LoadEnv() has executed
+func main() {
+
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // Sensible fallback default
+		port = "8080"
 	}
 
-	// 3. Initialize Gin router
 	router := gin.Default()
 
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	//userDependency injection
+	userRepo := userrepo.NewUserRepository(initializers.DB)
+	userService := service.NewUserService(userRepo)
+	userHandler := userhandler.NewUserHandler(userService)
+
+	apiRoutes := router.Group("/api")
+	{
+		userRoutes := apiRoutes.Group("/users")
+		{
+			userRoutes.GET("", userHandler.ListUser)
+		}
+	}
 
 	// 4. Run server on dynamic port
 	router.Run(":" + port)

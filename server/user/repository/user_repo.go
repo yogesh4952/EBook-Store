@@ -1,12 +1,15 @@
 package userrepo
 
 import (
-	"github.com/yogesh4952/ebookstore/models"
+	"errors"
+
+	"github.com/yogesh4952/ebookstore/user/models"
 	"gorm.io/gorm"
 )
 
 type UserRepo interface {
 	findByEmail(email string) (*models.User, error)
+	FetchAllUsers() ([]models.User, error)
 }
 
 type userRepository struct {
@@ -25,5 +28,18 @@ func (u *userRepository) findByEmail(email string) (*models.User, error) {
 		return nil, err
 	}
 	return &user, nil
+
+}
+func (u *userRepository) FetchAllUsers() ([]models.User, error) {
+	var users []models.User
+
+	err := u.db.Find(&users).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []models.User{}, nil
+		}
+		return nil, err
+	}
+	return users, nil
 
 }

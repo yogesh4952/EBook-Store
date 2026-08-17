@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/yogesh4952/ebookstore/initializers"
-	"github.com/yogesh4952/ebookstore/models"
+	"github.com/yogesh4952/ebookstore/user/models"
 )
 
 func init() {
