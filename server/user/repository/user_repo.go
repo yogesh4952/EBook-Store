@@ -8,7 +8,7 @@ import (
 )
 
 type UserRepo interface {
-	findByEmail(email string) (*models.User, error)
+	FindByEmail(email string) (*models.User, error)
 	FetchAllUsers() ([]models.User, error)
 }
 
@@ -20,7 +20,7 @@ func NewUserRepository(db *gorm.DB) *userRepository {
 	return &userRepository{db: db}
 }
 
-func (u *userRepository) findByEmail(email string) (*models.User, error) {
+func (u *userRepository) FindByEmail(email string) (*models.User, error) {
 	var user models.User
 
 	err := u.db.Where("email = ? ", email).First(&user).Error

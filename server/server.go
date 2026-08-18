@@ -36,7 +36,7 @@ func main() {
 	userHandler := userhandler.NewUserHandler(userService)
 
 	authRepo := authrepo.NewAuthRepository(initializers.DB, initializers.RDB)
-	authService := authservice.NewAuthService(authRepo)
+	authService := authservice.NewAuthService(authRepo, userRepo)
 	authHandler := authhandler.NewAuthHandler(authService)
 
 	apiRoutes := router.Group("/api")
@@ -49,6 +49,7 @@ func main() {
 		auhtRoutes := apiRoutes.Group("/auth")
 		{
 			auhtRoutes.POST("/send-otp", authHandler.SendOTP)
+			auhtRoutes.POST("/login", authHandler.Login)
 
 		}
 	}

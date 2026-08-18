@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/yogesh4952/ebookstore/auth/repository"
@@ -13,14 +14,20 @@ import (
 type AuthService interface {
 	SendOTP(ctx context.Context, email string) error
 	VerifyOTP(ctx context.Context, email, inputOTP string) (*models.User, string, error)
+	Login(ctx context.Context, email string) (string, error)
+}
+
+type UserLookup interface {
+	FindByEmail(email string) (*models.User, error)
 }
 
 type authService struct {
-	repo repository.AuthRepository
+	repo      repository.AuthRepository
+	userStore UserLookup
 }
 
-func NewAuthService(repo repository.AuthRepository) AuthService {
-	return &authService{repo: repo}
+func NewAuthService(repo repository.AuthRepository, userStore UserLookup) AuthService {
+	return &authService{repo: repo, userStore: userStore}
 }
 
 // SendOTP is a func that sent otp to the user and store in redis
@@ -67,4 +74,23 @@ func (s *authService) VerifyOTP(ctx context.Context, email, inputOTP string) (*m
 	user := &models.User{Email: email}
 
 	return user, token, nil
+}
+
+func (s *authService) Login(ctx context.Context, email string) (string, error) {
+	// Use the exported lookup function from the user repository package.
+	// The concrete repository exposes an exported helper FindByEmail.
+	user, err := s.userStore.FindByEmail(email)
+
+	if err != nil {
+		return "", fmt.Errorf("error fetching user with email %s: %w", email, err)
+	}
+
+	token, err := utils.GenerateJwt(user, time.Hour)
+
+	if err != nil {
+		return "", fmt.Errorf("Error creating jwt token: %w", err)
+	}
+
+	// TODO: generate and return a real JWT/token. Returning placeholder for now.
+	return token, nil
 }
