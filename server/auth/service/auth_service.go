@@ -13,8 +13,8 @@ import (
 
 type AuthService interface {
 	SendOTP(ctx context.Context, email string) error
-	VerifyOTP(ctx context.Context, email, inputOTP string) (*models.User, string, error)
-	Login(ctx context.Context, email string) (string, error)
+	VerifyOTP(ctx context.Context, email, inputOTP string) (bool, error)
+	Login(ctx context.Context, email, inputotp string) (string, error)
 }
 
 type UserLookup interface {
@@ -51,46 +51,44 @@ func (s *authService) SendOTP(ctx context.Context, email string) error {
 
 // VerifyOTP is a func that is used to compare the otp from user written and the otp store in the redis
 
-func (s *authService) VerifyOTP(ctx context.Context, email, inputOTP string) (*models.User, string, error) {
+func (s *authService) VerifyOTP(ctx context.Context, email, inputOTP string) (bool, error) {
 	storedOTP, err := s.repo.GetOTP(ctx, email)
 	if err != nil {
-		return nil, "", err
+		return false, err
 	}
 
 	// 2. Compare inputs
 	if storedOTP != inputOTP {
-		return nil, "", errors.New("invalid verification code")
+		return false, errors.New("invalid verification code")
 	}
 
 	// 3. Delete from Redis immediately (Single-use enforcement)
 	_ = s.repo.DeleteOTP(ctx, email)
 
-	// 5. Generate authentication token placeholder
-	token := "sample_jwt_access_token"
-
-	// Create a user object. At this stage we only have the email from the
-	// verification step; further user data can be fetched or created as
-	// needed by the caller or additional service logic.
-	user := &models.User{Email: email}
-
-	return user, token, nil
+	return true, nil
 }
 
-func (s *authService) Login(ctx context.Context, email string) (string, error) {
-	// Use the exported lookup function from the user repository package.
-	// The concrete repository exposes an exported helper FindByEmail.
-	user, err := s.userStore.FindByEmail(email)
-
+func (s *authService) Login(ctx context.Context, email, inputOTP string) (string, error) {
+	storedOTP, err := s.repo.GetOTP(ctx, email)
 	if err != nil {
-		return "", fmt.Errorf("error fetching user with email %s: %w", email, err)
+		return "", errors.New("verification code expired or not requested")
+	}
+
+	if storedOTP != inputOTP {
+		return "", errors.New("invalid verification code")
+	}
+
+	_ = s.repo.DeleteOTP(ctx, email)
+
+	user, err := s.userStore.FindByEmail(email)
+	if err != nil {
+		return "", fmt.Errorf("user not found for email %s: %w", email, err)
 	}
 
 	token, err := utils.GenerateJwt(user, time.Hour)
-
 	if err != nil {
-		return "", fmt.Errorf("Error creating jwt token: %w", err)
+		return "", fmt.Errorf("failed to create token: %w", err)
 	}
 
-	// TODO: generate and return a real JWT/token. Returning placeholder for now.
 	return token, nil
 }

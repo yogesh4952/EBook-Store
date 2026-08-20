@@ -21,6 +21,7 @@ type SendOTPRequest struct {
 
 type LoginPayload struct {
 	Email string `json:"email" binding:"required,email"`
+	OTP   string `json:"otp" binding:"required,len=6"`
 }
 type VerifyOTPRequest struct {
 	Email string `json:"email" binding:"required,email"`
@@ -51,7 +52,26 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 
-	user, token, err := h.service.VerifyOTP(c.Request.Context(), req.Email, req.OTP)
+	isVerified, err := h.service.VerifyOTP(c.Request.Context(), req.Email, req.OTP)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "Login successful",
+		"verified": isVerified,
+	})
+}
+
+func (h *AuthHandler) Login(c *gin.Context) {
+	var req LoginPayload
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	token, err := h.service.Login(c.Request.Context(), req.Email, req.OTP)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -60,28 +80,5 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
 		"token":   token,
-		"user":    user,
 	})
-}
-
-func (h *AuthHandler) Login(c *gin.Context) {
-	var req LoginPayload
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	token, err := h.service.Login(c.Request.Context(), req.Email)
-
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Login Successfully",
-		"token":   token,
-	})
-
 }
