@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import OtpVerification from "@/components/OtpVerification";
 import { useState } from "react";
 import {
   FaBookmark,
@@ -13,7 +13,8 @@ import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const router = useRouter();
+
+  const [step, setStep] = useState(2);
 
   const handleSendOtp = async () => {
     try {
@@ -34,10 +35,8 @@ const Login = () => {
       }
 
       toast.success("OTP sent in email successful");
-      console.log(email);
-      sessionStorage.setItem("verify_email", email);
 
-      router.push("/auth/otp-verification");
+      setStep((prev) => prev + 1);
     } catch (error) {
       toast.error("Internal server error");
       console.error(error);
@@ -100,57 +99,63 @@ const Login = () => {
           </div>
         </div>
       </div>
-
       {/* RIGHT SIDE */}
-      <div className="flex flex-col justify-center">
-        <h1 className="text-4xl font-bold">Login to your account</h1>
+      {/* Multi step */}
+      {step == 1 ? (
+        <>
+          <div className="flex flex-col justify-center">
+            <h1 className="text-4xl font-bold">Login to your account</h1>
 
-        <p className="mt-3 text-gray-500">
-          Enter your credentials to access your account.
-        </p>
+            <p className="mt-3 text-gray-500">
+              Enter your credentials to access your account.
+            </p>
 
-        {/* FORM */}
-        <div className="mt-10 space-y-6">
-          <div>
-            <label className="mb-2 block font-medium">Email</label>
+            {/* FORM */}
+            <div className="mt-10 space-y-6">
+              <div>
+                <label className="mb-2 block font-medium">Email</label>
 
-            <input
-              type="email"
-              value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
-              className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
-            />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEmail(e.target.value)
+                  }
+                  className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
+                />
+              </div>
+            </div>
+
+            <button
+              className="mt-8 h-12 w-full rounded-lg bg-primary text-white transition hover:opacity-90"
+              onClick={() => handleSendOtp()}
+            >
+              Send-OTP
+            </button>
+
+            <p className="my-8 text-center text-gray-500">or continue with</p>
+
+            <div className="space-y-4">
+              <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:cursor-pointer hover:bg-gray-50">
+                <FaGoogle />
+                Continue with Google
+              </button>
+
+              <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:cursor-pointer hover:bg-gray-50">
+                <FaFacebook />
+                Continue with Facebook
+              </button>
+            </div>
+
+            <p className="mt-10 flex items-center justify-center gap-2 text-sm text-gray-500">
+              <FaShield />
+              We never share your data with anyone.
+            </p>
           </div>
-        </div>
-
-        <button
-          className="mt-8 h-12 w-full rounded-lg bg-primary text-white transition hover:opacity-90"
-          onClick={() => handleSendOtp()}
-        >
-          Send-OTP
-        </button>
-
-        <p className="my-8 text-center text-gray-500">or continue with</p>
-
-        <div className="space-y-4">
-          <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:cursor-pointer hover:bg-gray-50">
-            <FaGoogle />
-            Continue with Google
-          </button>
-
-          <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:cursor-pointer hover:bg-gray-50">
-            <FaFacebook />
-            Continue with Facebook
-          </button>
-        </div>
-
-        <p className="mt-10 flex items-center justify-center gap-2 text-sm text-gray-500">
-          <FaShield />
-          We never share your data with anyone.
-        </p>
-      </div>
+        </>
+      ) : (
+        <OtpVerification email={email} onBack={() => setStep(1)} />
+      )}
     </div>
   );
 };
