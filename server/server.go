@@ -9,6 +9,7 @@ import (
 	authrepo "github.com/yogesh4952/ebookstore/auth/repository"
 	authservice "github.com/yogesh4952/ebookstore/auth/service"
 	"github.com/yogesh4952/ebookstore/initializers"
+	"github.com/yogesh4952/ebookstore/middleware"
 	userhandler "github.com/yogesh4952/ebookstore/user/handler"
 	userrepo "github.com/yogesh4952/ebookstore/user/repository"
 	userservice "github.com/yogesh4952/ebookstore/user/service"
@@ -52,6 +53,7 @@ func main() {
 			auhtRoutes.POST("/login", authHandler.Login)
 
 		}
+		apiRoutes.GET("/", middleware.AuthRequired())
 	}
 
 	router.Run(":" + port)

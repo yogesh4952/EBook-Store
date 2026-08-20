@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -39,4 +41,29 @@ func GenerateJwt(user *models.User, duration time.Duration) (string, error) {
 	}
 
 	return signedToken, nil
+}
+
+func ValidateJwt(tokenString string) (*CustomClaims, error) {
+	secretKey := os.Getenv("jwt_secret")
+	bytes := []byte(secretKey)
+
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if token.Method != jwt.SigningMethodHS256 {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Method.Alg())
+		}
+		return bytes, nil
+	},
+		jwt.WithValidMethods([]string{"HS256"}),
+		jwt.WithIssuer("my-backend-service"),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(*CustomClaims)
+
+	if !ok || !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+	return claims, nil
 }
