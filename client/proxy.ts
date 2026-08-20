@@ -6,8 +6,14 @@ export function proxy(request: NextRequest) {
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value.trim();
   const { pathname } = request.nextUrl;
 
-  const isAuthPage =
-    pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register");
+  const isAuthPage = [
+    "/auth/login",
+    "/auth/register",
+    "/auth/otp-verification",
+    "/auth/forgot-password",
+    "/auth/reset-password",
+    "/auth/verify-email",
+  ].some((prefix) => pathname.startsWith(prefix));
 
   if (!token && !isAuthPage) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
@@ -29,6 +35,6 @@ export const config = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      * - Static media extensions (.png, .jpg, .svg, .css, .js, etc.)
      */
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js)$).*)",
   ],
 };

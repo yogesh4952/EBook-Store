@@ -32,6 +32,12 @@ func NewAuthService(repo repository.AuthRepository, userStore UserLookup) AuthSe
 
 // SendOTP is a func that sent otp to the user and store in redis
 func (s *authService) SendOTP(ctx context.Context, email string) error {
+
+	_, err := s.userStore.FindByEmail(email)
+
+	if err != nil {
+		return errors.New("Invalid email")
+	}
 	otp, err := utils.GenerateOTP()
 
 	if err != nil {

@@ -36,11 +36,15 @@ func (h *AuthHandler) SendOTP(c *gin.Context) {
 	}
 
 	if err := h.service.SendOTP(c.Request.Context(), req.Email); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to send OTP, please try again",
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
+		"success": true,
 		"message": "OTP verification code sent to your email",
 	})
 }

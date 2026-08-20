@@ -14,7 +14,8 @@ export const AUTH_COOKIE_NAME = "accessToken";
 
 /** Backend endpoints (kept in sync with the Go API route table). */
 export const API_ENDPOINTS = {
-  login: `${BACKEND_URL}/api/Auth/login`,
-  register: `${BACKEND_URL}/api/Auth/register`,
-  me: `${BACKEND_URL}/api/Auth/me`,
+  login: `${BACKEND_URL}/api/auth/login`,
+  register: `${BACKEND_URL}/api/auth/register`,
+  me: `${BACKEND_URL}/api/auth/me`,
+  sendOtp: `${BACKEND_URL}/api/auth/send-otp`,
 } as const;

@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   FaBookmark,
@@ -12,12 +13,13 @@ import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
 
-  const handleLogin = async () => {
+  const handleSendOtp = async () => {
     try {
-      const input = { email, password };
-      const result = await fetch("/api/login", {
+      let input = { email };
+
+      const result = await fetch("/api/auth/send-otp", {
         method: "POST",
         body: JSON.stringify(input),
         headers: {
@@ -31,7 +33,11 @@ const Login = () => {
         return;
       }
 
-      toast.success("Login successful");
+      toast.success("OTP sent in email successful");
+      console.log(email);
+      sessionStorage.setItem("verify_email", email);
+
+      router.push("/auth/otp-verification");
     } catch (error) {
       toast.error("Internal server error");
       console.error(error);
@@ -42,7 +48,7 @@ const Login = () => {
       {/* LEFT SIDE */}
       <div
         className="relative overflow-hidden rounded-3xl bg-cover bg-center"
-        style={{ backgroundImage: "url('/login.jpg')" }}
+        style={{ backgroundImage: "url('/loginbanner.jpg')" }}
       >
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/45" />
@@ -117,30 +123,13 @@ const Login = () => {
               className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
             />
           </div>
-
-          <div>
-            <label className="mb-2 block font-medium">Password</label>
-
-            <input
-              type="password"
-              value={password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
-              }
-              className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
-            />
-          </div>
         </div>
-
-        <p className="mt-4 cursor-pointer text-right font-semibold text-primary hover:underline">
-          Forgot Password?
-        </p>
 
         <button
           className="mt-8 h-12 w-full rounded-lg bg-primary text-white transition hover:opacity-90"
-          onClick={() => handleLogin()}
+          onClick={() => handleSendOtp()}
         >
-          Login
+          Send-OTP
         </button>
 
         <p className="my-8 text-center text-gray-500">or continue with</p>
