@@ -104,7 +104,6 @@ func (s *authService) Login(ctx context.Context, email, inputOTP string) (string
 }
 
 func (s *authService) Register(ctx context.Context, payload *authmodels.RegisterPayload) (string, error) {
-	fmt.Println(payload.Role)
 	if !payload.Role.IsValid() {
 
 		return "", auth.ErrInvalid

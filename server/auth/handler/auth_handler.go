@@ -2,7 +2,6 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -100,7 +99,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(req.Role)
 
 	result, err := h.service.Register(c.Request.Context(), &req)
 

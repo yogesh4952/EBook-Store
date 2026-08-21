@@ -14,7 +14,7 @@ import { toast } from "sonner";
 const Login = () => {
   const [email, setEmail] = useState("");
 
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(1);
 
   const handleSendOtp = async () => {
     try {
