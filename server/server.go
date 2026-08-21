@@ -51,6 +51,7 @@ func main() {
 		{
 			auhtRoutes.POST("/send-otp", authHandler.SendOTP)
 			auhtRoutes.POST("/login", authHandler.Login)
+			auhtRoutes.POST("/register", authHandler.Register)
 
 		}
 		apiRoutes.GET("/", middleware.AuthRequired())

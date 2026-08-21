@@ -22,3 +22,11 @@ type User struct {
 	Age       uint      `json:"age"`
 	Createdat time.Time `json:"created_at"`
 }
+
+func (r Role) IsValid() bool {
+	switch r {
+	case RoleAdmin, RoleVendor, RoleCustomer:
+		return true
+	}
+	return false
+}

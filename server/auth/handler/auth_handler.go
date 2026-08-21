@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/yogesh4952/ebookstore/auth"
+	authmodels "github.com/yogesh4952/ebookstore/auth/models"
 	"github.com/yogesh4952/ebookstore/auth/service"
 )
 
@@ -85,4 +89,46 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		"message": "Login successful",
 		"token":   token,
 	})
+}
+func (h *AuthHandler) Register(c *gin.Context) {
+	var req authmodels.RegisterPayload
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	fmt.Println(req.Role)
+
+	result, err := h.service.Register(c.Request.Context(), &req)
+
+	if err != nil {
+		if errors.Is(err, auth.ErrDuplicateEmail) {
+			c.JSON(http.StatusConflict, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+
+		if errors.Is(err, auth.ErrInvalid) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "An unexpected error occurred",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": result,
+	})
+
 }

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/yogesh4952/ebookstore/auth"
+	authmodels "github.com/yogesh4952/ebookstore/auth/models"
 	"github.com/yogesh4952/ebookstore/auth/repository"
 	"github.com/yogesh4952/ebookstore/pkg/utils"
 	"github.com/yogesh4952/ebookstore/user/models"
@@ -15,6 +17,7 @@ type AuthService interface {
 	SendOTP(ctx context.Context, email string) error
 	VerifyOTP(ctx context.Context, email, inputOTP string) (bool, error)
 	Login(ctx context.Context, email, inputotp string) (string, error)
+	Register(ctx context.Context, data *authmodels.RegisterPayload) (string, error)
 }
 
 type UserLookup interface {
@@ -22,7 +25,8 @@ type UserLookup interface {
 }
 
 type authService struct {
-	repo      repository.AuthRepository
+	repo repository.AuthRepository
+
 	userStore UserLookup
 }
 
@@ -97,4 +101,31 @@ func (s *authService) Login(ctx context.Context, email, inputOTP string) (string
 	}
 
 	return token, nil
+}
+
+func (s *authService) Register(ctx context.Context, payload *authmodels.RegisterPayload) (string, error) {
+	fmt.Println(payload.Role)
+	if !payload.Role.IsValid() {
+
+		return "", auth.ErrInvalid
+	}
+	user := &models.User{
+		Firstname: payload.Firstname,
+		Lastname:  payload.Lastname,
+		Email:     payload.Email,
+		Role:      payload.Role,
+		Age:       payload.Age,
+	}
+
+	err := s.repo.RegisterUser(ctx, user)
+	if err != nil {
+		if errors.Is(err, auth.ErrDuplicateEmail) {
+
+			return "", auth.ErrDuplicateEmail
+		}
+
+		return "", fmt.Errorf("registration failed: %w", err)
+	}
+
+	return "User registered successfully", nil
 }
