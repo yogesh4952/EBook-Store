@@ -10,6 +10,7 @@ import (
 	authservice "github.com/yogesh4952/ebookstore/auth/service"
 	"github.com/yogesh4952/ebookstore/initializers"
 	"github.com/yogesh4952/ebookstore/middleware"
+	"github.com/yogesh4952/ebookstore/pkg/utils"
 	userhandler "github.com/yogesh4952/ebookstore/user/handler"
 	userrepo "github.com/yogesh4952/ebookstore/user/repository"
 	userservice "github.com/yogesh4952/ebookstore/user/service"
@@ -36,8 +37,10 @@ func main() {
 	userService := userservice.NewUserService(userRepo)
 	userHandler := userhandler.NewUserHandler(userService)
 
+	jwtManager := utils.NewJwtManager()
+	emailService := utils.NewEmailService()
 	authRepo := authrepo.NewAuthRepository(initializers.DB, initializers.RDB)
-	authService := authservice.NewAuthService(authRepo, userRepo)
+	authService := authservice.NewAuthService(authRepo, userRepo, jwtManager, emailService)
 	authHandler := authhandler.NewAuthHandler(authService)
 
 	apiRoutes := router.Group("/api")

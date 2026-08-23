@@ -8,7 +8,13 @@ import (
 	"os"
 )
 
-func GenerateOTP() (string, error) {
+type EmailService struct{}
+
+func NewEmailService() *EmailService {
+	return &EmailService{}
+}
+
+func (e *EmailService) GenerateOTP() (string, error) {
 	max := big.NewInt(1000000)
 
 	n, err := rand.Int(rand.Reader, max)
@@ -18,7 +24,7 @@ func GenerateOTP() (string, error) {
 	return fmt.Sprintf("%06d", n.Int64()), nil
 }
 
-func SentOTPEmail(toEmail, otp string) error {
+func (e *EmailService) SentOTPEmail(toEmail, otp string) error {
 	from := os.Getenv("SMTP_EMAIL")
 	password := os.Getenv("SMTP_PASSWORD")
 	smtpHost := os.Getenv("SMTP_HOST")

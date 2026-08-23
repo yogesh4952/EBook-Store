@@ -9,7 +9,6 @@ import (
 	"github.com/yogesh4952/ebookstore/auth"
 	authmodels "github.com/yogesh4952/ebookstore/auth/models"
 	"github.com/yogesh4952/ebookstore/auth/repository"
-	"github.com/yogesh4952/ebookstore/pkg/utils"
 	"github.com/yogesh4952/ebookstore/user/models"
 )
 
@@ -24,25 +23,44 @@ type UserLookup interface {
 	FindByEmail(email string) (*models.User, error)
 }
 
-type authService struct {
-	repo repository.AuthRepository
-
-	userStore UserLookup
+type TokenGenerator interface {
+	GenerateJwt(user *models.User, duration time.Duration) (string, error)
 }
 
-func NewAuthService(repo repository.AuthRepository, userStore UserLookup) AuthService {
-	return &authService{repo: repo, userStore: userStore}
+type EmailSender interface {
+	SentOTPEmail(toEmail, otp string) error
+	GenerateOTP() (string, error)
+}
+
+type authService struct {
+	repo         repository.AuthRepository
+	userStore    UserLookup
+	tokenGen     TokenGenerator
+	emailService EmailSender
+}
+
+func NewAuthService(
+	repo repository.AuthRepository,
+	userStore UserLookup,
+	tokenGen TokenGenerator,
+	emailService EmailSender,
+) AuthService {
+	return &authService{
+		repo:         repo,
+		userStore:    userStore,
+		tokenGen:     tokenGen,
+		emailService: emailService,
+	}
 }
 
 // SendOTP is a func that sent otp to the user and store in redis
 func (s *authService) SendOTP(ctx context.Context, email string) error {
 
-	_, err := s.userStore.FindByEmail(email)
-
-	if err != nil {
-		return errors.New("Invalid email")
+	if _, err := s.userStore.FindByEmail(email); err != nil {
+		return errors.New("invalid email")
 	}
-	otp, err := utils.GenerateOTP()
+
+	otp, err := s.emailService.GenerateOTP()
 
 	if err != nil {
 		return errors.New("Failed to generate verification code")
@@ -52,10 +70,7 @@ func (s *authService) SendOTP(ctx context.Context, email string) error {
 		return errors.New("Failed to save verification session")
 	}
 
-	go func() {
-		_ = utils.SentOTPEmail(email, otp)
-	}()
-	return nil
+	return s.emailService.SentOTPEmail(email, otp)
 
 }
 
@@ -79,28 +94,17 @@ func (s *authService) VerifyOTP(ctx context.Context, email, inputOTP string) (bo
 }
 
 func (s *authService) Login(ctx context.Context, email, inputOTP string) (string, error) {
-	storedOTP, err := s.repo.GetOTP(ctx, email)
-	if err != nil {
-		return "", errors.New("verification code expired or not requested")
+	ok, err := s.VerifyOTP(ctx, email, inputOTP)
+	if !ok || err != nil {
+		return "", errors.New("invalid or expired verification code")
 	}
-
-	if storedOTP != inputOTP {
-		return "", errors.New("invalid verification code")
-	}
-
-	_ = s.repo.DeleteOTP(ctx, email)
 
 	user, err := s.userStore.FindByEmail(email)
 	if err != nil {
 		return "", fmt.Errorf("user not found for email %s: %w", email, err)
 	}
 
-	token, err := utils.GenerateJwt(user, time.Hour)
-	if err != nil {
-		return "", fmt.Errorf("failed to create token: %w", err)
-	}
-
-	return token, nil
+	return s.tokenGen.GenerateJwt(user, time.Hour)
 }
 
 func (s *authService) Register(ctx context.Context, payload *authmodels.RegisterPayload) (string, error) {

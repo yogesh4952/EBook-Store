@@ -10,13 +10,19 @@ import (
 	"github.com/yogesh4952/ebookstore/user/models"
 )
 
+type JwtManager struct{}
+
+func NewJwtManager() *JwtManager {
+	return &JwtManager{}
+}
+
 type CustomClaims struct {
 	UserId uint   `json:"user_id"`
 	Email  string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJwt(user *models.User, duration time.Duration) (string, error) {
+func (j *JwtManager) GenerateJwt(user *models.User, duration time.Duration) (string, error) {
 	secretKey := os.Getenv("jwt_secret")
 
 	bytes := []byte(secretKey)
