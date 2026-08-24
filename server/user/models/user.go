@@ -1,7 +1,7 @@
 package models
 
 import (
-	"time"
+	"gorm.io/gorm"
 )
 
 type Role string
@@ -14,13 +14,12 @@ const (
 )
 
 type User struct {
-	Id        uint
-	Firstname string    `json:"first_name"`
-	Lastname  string    `json:"last_name"`
-	Email     string    `json:"email"`
-	Role      Role      `json:"role"`
-	Age       uint      `json:"age"`
-	Createdat time.Time `json:"created_at"`
+	gorm.Model
+	Firstname string `json:"first_name"`
+	Lastname  string `json:"last_name"`
+	Email     string `json:"email"`
+	Role      Role   `json:"role"`
+	Age       uint   `json:"age"`
 }
 
 func (r Role) IsValid() bool {

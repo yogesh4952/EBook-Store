@@ -27,7 +27,7 @@ func (j *JwtManager) GenerateJwt(user *models.User, duration time.Duration) (str
 
 	bytes := []byte(secretKey)
 	claims := CustomClaims{
-		UserId: user.Id,
+		UserId: user.ID,
 		Email:  user.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
