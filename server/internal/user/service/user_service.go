@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 
-	"github.com/yogesh4952/ebookstore/user/models"
-	userrepo "github.com/yogesh4952/ebookstore/user/repository"
+	"github.com/yogesh4952/ebookstore/internal/user/models"
+	userrepo "github.com/yogesh4952/ebookstore/internal/user/repository"
 )
 
 type UserService interface {

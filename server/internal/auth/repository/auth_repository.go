@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/yogesh4952/ebookstore/auth"
-	usermodels "github.com/yogesh4952/ebookstore/user/models"
+	"github.com/yogesh4952/ebookstore/internal/auth"
+	usermodels "github.com/yogesh4952/ebookstore/internal/user/models"
 	"gorm.io/gorm"
 )
 

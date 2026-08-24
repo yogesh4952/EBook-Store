@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/yogesh4952/ebookstore/initializers"
-	"github.com/yogesh4952/ebookstore/user/models"
+	"github.com/yogesh4952/ebookstore/internal/initializers"
+	"github.com/yogesh4952/ebookstore/internal/user/models"
 )
 
 func init() {

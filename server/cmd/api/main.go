@@ -5,15 +5,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	authhandler "github.com/yogesh4952/ebookstore/auth/handler"
-	authrepo "github.com/yogesh4952/ebookstore/auth/repository"
-	authservice "github.com/yogesh4952/ebookstore/auth/service"
-	"github.com/yogesh4952/ebookstore/initializers"
-	"github.com/yogesh4952/ebookstore/middleware"
+	authhandler "github.com/yogesh4952/ebookstore/internal/auth/handler"
+	authrepo "github.com/yogesh4952/ebookstore/internal/auth/repository"
+	authservice "github.com/yogesh4952/ebookstore/internal/auth/service"
+	"github.com/yogesh4952/ebookstore/internal/initializers"
+	"github.com/yogesh4952/ebookstore/internal/middleware"
+	userhandler "github.com/yogesh4952/ebookstore/internal/user/handler"
+	userrepo "github.com/yogesh4952/ebookstore/internal/user/repository"
+	userservice "github.com/yogesh4952/ebookstore/internal/user/service"
 	"github.com/yogesh4952/ebookstore/pkg/utils"
-	userhandler "github.com/yogesh4952/ebookstore/user/handler"
-	userrepo "github.com/yogesh4952/ebookstore/user/repository"
-	userservice "github.com/yogesh4952/ebookstore/user/service"
 )
 
 func init() {

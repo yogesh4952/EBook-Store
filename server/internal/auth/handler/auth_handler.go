@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yogesh4952/ebookstore/auth"
-	authmodels "github.com/yogesh4952/ebookstore/auth/models"
-	"github.com/yogesh4952/ebookstore/auth/service"
+	"github.com/yogesh4952/ebookstore/internal/auth"
+	authmodels "github.com/yogesh4952/ebookstore/internal/auth/models"
+	"github.com/yogesh4952/ebookstore/internal/auth/service"
 )
 
 type AuthHandler struct {

@@ -1,7 +1,7 @@
 package models
 
 import (
-	usermodels "github.com/yogesh4952/ebookstore/user/models"
+	usermodels "github.com/yogesh4952/ebookstore/internal/user/models"
 )
 
 type RegisterPayload struct {

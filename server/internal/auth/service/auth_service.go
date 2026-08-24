@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yogesh4952/ebookstore/auth"
-	authmodels "github.com/yogesh4952/ebookstore/auth/models"
-	"github.com/yogesh4952/ebookstore/auth/repository"
-	"github.com/yogesh4952/ebookstore/user/models"
+	"github.com/yogesh4952/ebookstore/internal/auth"
+	authmodels "github.com/yogesh4952/ebookstore/internal/auth/models"
+	"github.com/yogesh4952/ebookstore/internal/auth/repository"
+	"github.com/yogesh4952/ebookstore/internal/user/models"
 )
 
 type AuthService interface {

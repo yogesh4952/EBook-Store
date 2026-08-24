@@ -3,7 +3,7 @@ package userrepo
 import (
 	"errors"
 
-	"github.com/yogesh4952/ebookstore/user/models"
+	"github.com/yogesh4952/ebookstore/internal/user/models"
 	"gorm.io/gorm"
 )
 
