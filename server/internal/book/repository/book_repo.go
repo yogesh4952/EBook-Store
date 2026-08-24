@@ -1,0 +1,24 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/yogesh4952/ebookstore/internal/book/models"
+	"gorm.io/gorm"
+)
+
+type IBookRepo interface {
+	PublishBook(ctx context.Context, book *models.Book) error
+}
+
+type bookRepo struct {
+	db *gorm.DB
+}
+
+func NewBookRepo(db *gorm.DB) *bookRepo {
+	return &bookRepo{db: db}
+}
+
+func (b *bookRepo) PublishBook(ctx context.Context, book *models.Book) error {
+	return b.db.WithContext(ctx).Create(book).Error
+}

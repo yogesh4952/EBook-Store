@@ -14,6 +14,11 @@ import (
 	userrepo "github.com/yogesh4952/ebookstore/internal/user/repository"
 	userservice "github.com/yogesh4952/ebookstore/internal/user/service"
 	"github.com/yogesh4952/ebookstore/pkg/utils"
+
+	bookhandler "github.com/yogesh4952/ebookstore/internal/book/handlers"
+	bookrepo "github.com/yogesh4952/ebookstore/internal/book/repository"
+	bookservice "github.com/yogesh4952/ebookstore/internal/book/services"
+	sellerrepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
 )
 
 func init() {
@@ -37,6 +42,11 @@ func main() {
 	userService := userservice.NewUserService(userRepo)
 	userHandler := userhandler.NewUserHandler(userService)
 
+	sellerRepo := sellerrepo.NewSellerRepository(initializers.DB)
+	bookRepo := bookrepo.NewBookRepo(initializers.DB)
+	bookService := bookservice.NewBookService(bookRepo, sellerRepo)
+	bookHandler := bookhandler.NewBookHandler(bookService)
+
 	jwtManager := utils.NewJwtManager()
 	emailService := utils.NewEmailService()
 	authRepo := authrepo.NewAuthRepository(initializers.DB, initializers.RDB)
@@ -56,6 +66,11 @@ func main() {
 			auhtRoutes.POST("/login", authHandler.Login)
 			auhtRoutes.POST("/register", authHandler.Register)
 
+		}
+
+		bookRoutes := apiRoutes.Group("/book")
+		{
+			bookRoutes.POST("/publish-book", middleware.AuthRequired(), bookHandler.PublishBook)
 		}
 		apiRoutes.GET("/", middleware.AuthRequired())
 	}

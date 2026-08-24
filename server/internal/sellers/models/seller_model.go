@@ -10,6 +10,6 @@ type Seller struct {
 	gorm.Model
 	UserID         uint              `json:"user_id" gorm:"not null"`
 	User           userModel.User    `json:"user,omitempty" gorm:"foreignKey:UserID"`
-	sellerNumber   uint              `json:"seller_number" gorm:"unique;autoIncrement"`
+	SellerNumber   uint              `json:"seller_number" gorm:"unique;autoIncrement"`
 	PublishedBooks []*bookModel.Book `gorm:"foreignKey:SellerId"`
 }

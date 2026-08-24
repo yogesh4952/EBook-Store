@@ -44,7 +44,7 @@ func NewAuthService(
 	userStore UserLookup,
 	tokenGen TokenGenerator,
 	emailService EmailSender,
-) AuthService {
+) *authService {
 	return &authService{
 		repo:         repo,
 		userStore:    userStore,

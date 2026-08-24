@@ -24,7 +24,6 @@ func AuthRequired() gin.HandlerFunc {
 			return
 		}
 
-		// store the identity so handlers can read it
 		c.Set("userId", claims.UserId)
 		c.Set("email", claims.Email)
 		c.Next()

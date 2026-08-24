@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/yogesh4952/ebookstore/internal/sellers/models"
 	"gorm.io/gorm"
@@ -11,6 +10,7 @@ import (
 //contains func that calls the db
 
 type ISeller interface {
+	FindBySellerId(ctx context.Context, userId uint) (*models.Seller, error)
 }
 
 type sellerRepo struct {
@@ -21,12 +21,12 @@ func NewSellerRepository(db *gorm.DB) *sellerRepo {
 	return &sellerRepo{db: db}
 }
 
-func (s *sellerRepo) PublishBook(ctx context.Context, seller *models.Seller) error {
+func (s *sellerRepo) FindBySellerId(ctx context.Context, userId uint) (*models.Seller, error) {
 
-	err := s.db.WithContext(ctx).Create(seller).Error
+	var seller models.Seller
+	err := s.db.WithContext(ctx).Where("UserID = ? ", userId).First(&seller).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	return fmt.Errorf("Failed to create seller in db: %w", err)
+	return &seller, nil
 }
