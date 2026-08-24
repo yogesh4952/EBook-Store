@@ -10,21 +10,21 @@ type Role string
 const (
 	RoleAdmin    Role = "admin"
 	RoleCustomer Role = "customer"
-	RoleVendor   Role = "vendor"
+	Roleseller   Role = "seller"
 )
 
 type User struct {
 	gorm.Model
-	Firstname string `json:"first_name"`
+	Firstname string `json:"first_name" `
 	Lastname  string `json:"last_name"`
-	Email     string `json:"email"`
+	Email     string `json:"email" gorm:"unique;not null"`
 	Role      Role   `json:"role"`
 	Age       uint   `json:"age"`
 }
 
 func (r Role) IsValid() bool {
 	switch r {
-	case RoleAdmin, RoleVendor, RoleCustomer:
+	case RoleAdmin, Roleseller, RoleCustomer:
 		return true
 	}
 	return false

@@ -108,6 +108,7 @@ func (s *authService) Login(ctx context.Context, email, inputOTP string) (string
 }
 
 func (s *authService) Register(ctx context.Context, payload *authmodels.RegisterPayload) (string, error) {
+
 	if !payload.Role.IsValid() {
 
 		return "", auth.ErrInvalid
@@ -119,8 +120,8 @@ func (s *authService) Register(ctx context.Context, payload *authmodels.Register
 		Role:      payload.Role,
 		Age:       payload.Age,
 	}
-
 	err := s.repo.RegisterUser(ctx, user)
+
 	if err != nil {
 		if errors.Is(err, auth.ErrDuplicateEmail) {
 

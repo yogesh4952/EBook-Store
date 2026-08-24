@@ -120,7 +120,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "An unexpected error occurred",
+			"message": err.Error(),
 		})
 		return
 	}

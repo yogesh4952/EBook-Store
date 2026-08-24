@@ -8,6 +8,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/yogesh4952/ebookstore/internal/auth"
+	sellerModel "github.com/yogesh4952/ebookstore/internal/sellers/models"
 	usermodels "github.com/yogesh4952/ebookstore/internal/user/models"
 	"gorm.io/gorm"
 )
@@ -47,17 +48,26 @@ func (r *authRepository) DeleteOTP(ctx context.Context, email string) error {
 	return r.rdb.Del(ctx, key).Err()
 }
 
-// auth_repository.go
 func (r *authRepository) RegisterUser(ctx context.Context, user *usermodels.User) error {
-	err := r.db.WithContext(ctx).Create(user).Error
-	if err == nil {
+	// Execute both operations inside an isolated DB transaction
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(user).Error; err != nil {
+			if errors.Is(err, gorm.ErrDuplicatedKey) {
+				return auth.ErrDuplicateEmail
+			}
+			return err
+		}
+
+		if user.Role == usermodels.Roleseller {
+			seller := &sellerModel.Seller{
+				UserID: user.ID,
+			}
+
+			if err := tx.Create(seller).Error; err != nil {
+				return fmt.Errorf("failed to create seller profile: %w", err)
+			}
+		}
+
 		return nil
-	}
-
-	if errors.Is(err, gorm.ErrDuplicatedKey) {
-		return auth.ErrDuplicateEmail
-
-	}
-
-	return fmt.Errorf("failed to create user in db: %w", err)
+	})
 }

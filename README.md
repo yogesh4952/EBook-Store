@@ -32,11 +32,11 @@ JWT token in an `httpOnly` cookie and keeps secrets off the client.
 The frontend no longer reads any environment variables. All config lives
 in one file: **`client/lib/config.ts`**.
 
-| Value              | Default                  | Purpose                          |
-| ------------------ | ------------------------ | -------------------------------- |
-| `BACKEND_URL`      | `http://localhost:8080`  | Base URL of the Go API           |
-| `AUTH_COOKIE_NAME` | `accessToken`            | Cookie that stores the JWT       |
-| `API_ENDPOINTS`    | derived from `BACKEND_URL` | Backend endpoint paths          |
+| Value              | Default                    | Purpose                    |
+| ------------------ | -------------------------- | -------------------------- |
+| `BACKEND_URL`      | `http://localhost:8080`    | Base URL of the Go API     |
+| `AUTH_COOKIE_NAME` | `accessToken`              | Cookie that stores the JWT |
+| `API_ENDPOINTS`    | derived from `BACKEND_URL` | Backend endpoint paths     |
 
 To point the app at a different backend, edit `client/lib/config.ts`
 only — no `.env` file is needed.
@@ -46,26 +46,26 @@ only — no `.env` file is needed.
 The Go API is configured via environment variables (or a `.env` file).
 Copy `server/.env.example` to `server/.env` and adjust values:
 
-| Variable            | Default                                             | Purpose              |
-| ------------------- | --------------------------------------------------- | -------------------- |
-| `SERVER_HOST`       | `0.0.0.0`                                           | Bind host            |
-| `SERVER_PORT`       | `8080`                                              | Bind port            |
-| `DATABASE_URL`      | `postgres://yogesh:yogesh@localhost:5432/ebookstore`| PostgreSQL DSN       |
-| `JWT_SECRET`        | `your-super-secret-key-...` (32+ chars)             | JWT signing key      |
-| `JWT_ISSUER`        | `EBookStore`                                        | JWT issuer claim     |
-| `JWT_AUDIENCE`      | `EBookStoreUsers`                                   | JWT audience claim   |
-| `JWT_EXPIRY_MINUTES`| `60`                                                | Token lifetime       |
+| Variable             | Default                                              | Purpose            |
+| -------------------- | ---------------------------------------------------- | ------------------ |
+| `SERVER_HOST`        | `0.0.0.0`                                            | Bind host          |
+| `SERVER_PORT`        | `8080`                                               | Bind port          |
+| `DATABASE_URL`       | `postgres://yogesh:yogesh@localhost:5432/ebookstore` | PostgreSQL DSN     |
+| `JWT_SECRET`         | `your-super-secret-key-...` (32+ chars)              | JWT signing key    |
+| `JWT_ISSUER`         | `EBookStore`                                         | JWT issuer claim   |
+| `JWT_AUDIENCE`       | `EBookStoreUsers`                                    | JWT audience claim |
+| `JWT_EXPIRY_MINUTES` | `60`                                                 | Token lifetime     |
 
 ## API contract
 
 Routes mirror the old .NET API so the frontend needed no changes.
 
-| Method | Path                 | Auth | Description            |
-| ------ | -------------------- | ---- | ---------------------- |
-| POST   | `/api/Auth/register` | —    | Create a user          |
-| POST   | `/api/Auth/login`    | —    | Login, returns JWT     |
+| Method | Path                 | Auth         | Description         |
+| ------ | -------------------- | ------------ | ------------------- |
+| POST   | `/api/Auth/register` | —            | Create a user       |
+| POST   | `/api/Auth/login`    | —            | Login, returns JWT  |
 | GET    | `/api/Auth/me`       | Bearer token | Return current user |
-| GET    | `/healthz`           | —    | Liveness check         |
+| GET    | `/healthz`           | —            | Liveness check      |
 
 ### Login request / response
 
@@ -91,7 +91,7 @@ Content-Type: application/json
   "email": "reader@example.com", "password": "secret", "role": 0 }
 ```
 
-`role`: `0` = User, `1` = Vendor, `2` = Admin (default `0`).
+`role`: `0` = User, `1` = seller, `2` = Admin (default `0`).
 
 ## Quick start
 

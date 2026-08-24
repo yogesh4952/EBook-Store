@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepo interface {
+type IUser interface {
 	FindByEmail(email string) (*models.User, error)
 	FetchAllUsers() ([]models.User, error)
 }
