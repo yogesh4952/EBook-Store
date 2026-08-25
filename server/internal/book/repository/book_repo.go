@@ -9,6 +9,7 @@ import (
 
 type IBookRepo interface {
 	PublishBook(ctx context.Context, book *models.Book) error
+	SeedBooks(books []*models.Book) error
 }
 
 type bookRepo struct {
@@ -21,4 +22,8 @@ func NewBookRepo(db *gorm.DB) *bookRepo {
 
 func (b *bookRepo) PublishBook(ctx context.Context, book *models.Book) error {
 	return b.db.WithContext(ctx).Create(book).Error
+}
+
+func (b *bookRepo) SeedBooks(books []*models.Book) error {
+	return b.db.CreateInBatches(books, 100).Error
 }

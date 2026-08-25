@@ -25,5 +25,6 @@ type BookPayload struct {
 	Publication  string  `json:"publication" binding:"required"`
 	Price        float32 `json:"price" binding:"required"`
 	Units        int     `json:"units" binding:"required"`
-	CoverPageUrl string  `json:"cover_page_url" `
+	CoverPageUrl string  `json:"cover_page_url"`
+	SellerId     *uint   `json:"seller_id"`
 }
