@@ -6,10 +6,15 @@ import (
 	"os"
 
 	"github.com/yogesh4952/ebookstore/internal/book/models"
+	bookRepo "github.com/yogesh4952/ebookstore/internal/book/repository"
 	"github.com/yogesh4952/ebookstore/internal/book/services"
+	"github.com/yogesh4952/ebookstore/internal/initializers"
+	sellerRepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
 )
 
 func main() {
+	initializers.InitDb()
+
 	bookFile, err := os.Open("/home/yogesh/code/EBook-Store/server/data/book.json")
 
 	if err != nil {
@@ -29,5 +34,12 @@ func main() {
 
 	fmt.Printf("Loaded %d books\n", len(books))
 
-	err = services.IBookService.BatchBookSeed(books)
+	bRepo := bookRepo.NewBookRepo(initializers.DB)
+	sRepo := sellerRepo.NewSellerRepository(initializers.DB)
+	svc := services.NewBookService(bRepo, sRepo)
+
+	err = svc.BatchBookSeed(books)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

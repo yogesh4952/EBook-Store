@@ -9,7 +9,7 @@
     "price": 850.0,
     "units": 15,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781250301697-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Atomic Habits",
@@ -21,7 +21,7 @@
     "price": 950.0,
     "units": 20,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Alchemist",
@@ -33,7 +33,7 @@
     "price": 650.0,
     "units": 25,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780062315007-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Clean Code",
@@ -45,7 +45,7 @@
     "price": 1800.0,
     "units": 10,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780132350884-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Pragmatic Programmer",
@@ -57,7 +57,7 @@
     "price": 1750.0,
     "units": 12,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780135957059-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Deep Work",
@@ -69,7 +69,7 @@
     "price": 900.0,
     "units": 18,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781455586691-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Rich Dad Poor Dad",
@@ -81,7 +81,7 @@
     "price": 750.0,
     "units": 22,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781612681139-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Think and Grow Rich",
@@ -93,7 +93,7 @@
     "price": 600.0,
     "units": 16,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780785833520-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Psychology of Money",
@@ -105,7 +105,7 @@
     "price": 850.0,
     "units": 19,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780857197689-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "1984",
@@ -117,7 +117,7 @@
     "price": 550.0,
     "units": 30,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Animal Farm",
@@ -129,7 +129,7 @@
     "price": 400.0,
     "units": 35,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780451526342-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "To Kill a Mockingbird",
@@ -141,7 +141,7 @@
     "price": 700.0,
     "units": 14,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780061120084-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Pride and Prejudice",
@@ -153,7 +153,7 @@
     "price": 650.0,
     "units": 17,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780141439518-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Great Gatsby",
@@ -165,7 +165,7 @@
     "price": 500.0,
     "units": 21,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Harry Potter and the Sorcerer's Stone",
@@ -177,7 +177,7 @@
     "price": 900.0,
     "units": 13,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780590353427-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Harry Potter and the Chamber of Secrets",
@@ -189,7 +189,7 @@
     "price": 950.0,
     "units": 11,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780439064866-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Hobbit",
@@ -201,7 +201,7 @@
     "price": 850.0,
     "units": 18,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Lord of the Rings",
@@ -213,7 +213,7 @@
     "price": 2200.0,
     "units": 8,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780544003415-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Kite Runner",
@@ -225,7 +225,7 @@
     "price": 800.0,
     "units": 16,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781594631931-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "A Thousand Splendid Suns",
@@ -237,7 +237,7 @@
     "price": 850.0,
     "units": 14,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781594489501-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Norwegian Wood",
@@ -249,7 +249,7 @@
     "price": 750.0,
     "units": 20,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780375704024-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Kafka on the Shore",
@@ -261,7 +261,7 @@
     "price": 950.0,
     "units": 12,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781400079278-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Sapiens",
@@ -273,7 +273,7 @@
     "price": 1100.0,
     "units": 15,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780062316097-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Homo Deus",
@@ -285,7 +285,7 @@
     "price": 1150.0,
     "units": 10,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780062464316-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "21 Lessons for the 21st Century",
@@ -297,7 +297,7 @@
     "price": 1000.0,
     "units": 13,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780525512172-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Introduction to Algorithms",
@@ -309,7 +309,7 @@
     "price": 3200.0,
     "units": 6,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780262046305-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Designing Data-Intensive Applications",
@@ -321,7 +321,7 @@
     "price": 2400.0,
     "units": 7,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781449373320-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Clean Coder",
@@ -333,7 +333,7 @@
     "price": 1500.0,
     "units": 9,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780137081073-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "You Don't Know JS",
@@ -345,7 +345,7 @@
     "price": 1300.0,
     "units": 11,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781491904244-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Eloquent JavaScript",
@@ -357,7 +357,7 @@
     "price": 1400.0,
     "units": 10,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781593279509-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Art of Computer Programming",
@@ -369,7 +369,7 @@
     "price": 2800.0,
     "units": 5,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780201896831-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Computer Networking",
@@ -381,7 +381,7 @@
     "price": 2500.0,
     "units": 8,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780132126953-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Operating System Concepts",
@@ -393,7 +393,7 @@
     "price": 2700.0,
     "units": 6,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781119456339-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Database System Concepts",
@@ -405,7 +405,7 @@
     "price": 3000.0,
     "units": 5,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780078022159-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Power of Now",
@@ -417,7 +417,7 @@
     "price": 700.0,
     "units": 15,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781577314806-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "How to Win Friends and Influence People",
@@ -429,7 +429,7 @@
     "price": 650.0,
     "units": 24,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780671027032-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The 7 Habits of Highly Effective People",
@@ -441,7 +441,7 @@
     "price": 900.0,
     "units": 16,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781982137274-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Man's Search for Meaning",
@@ -453,7 +453,7 @@
     "price": 600.0,
     "units": 18,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780807014295-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Meditations",
@@ -465,7 +465,7 @@
     "price": 550.0,
     "units": 20,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780140449334-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Stranger",
@@ -477,7 +477,7 @@
     "price": 450.0,
     "units": 22,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780679720201-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Crime and Punishment",
@@ -489,7 +489,7 @@
     "price": 1000.0,
     "units": 12,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780140449136-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Brothers Karamazov",
@@ -501,7 +501,7 @@
     "price": 1250.0,
     "units": 8,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780374528379-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Midnight Library",
@@ -513,7 +513,7 @@
     "price": 800.0,
     "units": 17,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780525559474-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "It Ends with Us",
@@ -525,7 +525,7 @@
     "price": 850.0,
     "units": 20,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781501110368-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Fault in Our Stars",
@@ -537,7 +537,7 @@
     "price": 700.0,
     "units": 15,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780525478812-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Hunger Games",
@@ -549,7 +549,7 @@
     "price": 750.0,
     "units": 18,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780439023481-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Book Thief",
@@ -561,7 +561,7 @@
     "price": 900.0,
     "units": 13,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780375842207-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Da Vinci Code",
@@ -573,7 +573,7 @@
     "price": 850.0,
     "units": 16,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780307474278-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Angels and Demons",
@@ -585,7 +585,7 @@
     "price": 800.0,
     "units": 14,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780671027360-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Girl on the Train",
@@ -597,7 +597,7 @@
     "price": 750.0,
     "units": 19,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781594634024-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Gone Girl",
@@ -609,7 +609,7 @@
     "price": 850.0,
     "units": 12,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780553418361-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Educated",
@@ -621,7 +621,7 @@
     "price": 900.0,
     "units": 11,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780399590504-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Steve Jobs",
@@ -633,7 +633,7 @@
     "price": 1200.0,
     "units": 9,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781451648539-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Zero to One",
@@ -645,7 +645,7 @@
     "price": 800.0,
     "units": 15,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780804139298-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "The Lean Startup",
@@ -657,7 +657,7 @@
     "price": 850.0,
     "units": 14,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9780307887894-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   },
   {
     "title": "Start with Why",
@@ -669,6 +669,6 @@
     "price": 750.0,
     "units": 18,
     "cover_page_url": "https://covers.openlibrary.org/b/isbn/9781591846444-L.jpg",
-    "seller_id": 5
+    "seller_id": 1
   }
 ]
