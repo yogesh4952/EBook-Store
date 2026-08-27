@@ -60,7 +60,8 @@ func (r *authRepository) RegisterUser(ctx context.Context, user *usermodels.User
 
 		if user.Role == usermodels.Roleseller {
 			seller := &sellerModel.Seller{
-				UserID: user.ID,
+				UserID:       user.ID,
+				SellerNumber: user.ID,
 			}
 
 			if err := tx.Create(seller).Error; err != nil {

@@ -131,5 +131,7 @@ func (s *authService) Register(ctx context.Context, payload *authmodels.Register
 		return "", fmt.Errorf("registration failed: %w", err)
 	}
 
+	//role vayevane
+
 	return "User registered successfully", nil
 }

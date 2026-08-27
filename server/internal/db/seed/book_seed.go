@@ -15,7 +15,7 @@ import (
 func main() {
 	initializers.InitDb()
 
-	bookFile, err := os.Open("/home/yogesh/code/EBook-Store/server/data/book.json")
+	bookFile, err := os.Open("/home/yst/code/EBook-Store/server/data/book.json")
 
 	if err != nil {
 		fmt.Println(err)
