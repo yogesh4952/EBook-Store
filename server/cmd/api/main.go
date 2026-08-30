@@ -71,6 +71,7 @@ func main() {
 		bookRoutes := apiRoutes.Group("/book")
 		{
 			bookRoutes.POST("/publish-book", middleware.AuthRequired(), bookHandler.PublishBook)
+			bookRoutes.GET("/list-books", bookHandler.ListBooks)
 		}
 		apiRoutes.GET("/", middleware.AuthRequired())
 	}

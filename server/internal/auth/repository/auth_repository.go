@@ -49,7 +49,10 @@ func (r *authRepository) DeleteOTP(ctx context.Context, email string) error {
 }
 
 func (r *authRepository) RegisterUser(ctx context.Context, user *usermodels.User) error {
-	// Execute both operations inside an isolated DB transaction
+
+	if user == nil {
+		return errors.New("User cannot be nil!")
+	}
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(user).Error; err != nil {
 			if errors.Is(err, gorm.ErrDuplicatedKey) {
@@ -59,6 +62,7 @@ func (r *authRepository) RegisterUser(ctx context.Context, user *usermodels.User
 		}
 
 		if user.Role == usermodels.Roleseller {
+
 			seller := &sellerModel.Seller{
 				UserID:       user.ID,
 				SellerNumber: user.ID,

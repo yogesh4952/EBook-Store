@@ -11,6 +11,7 @@ import (
 
 type IBookService interface {
 	PublishBook(ctx context.Context, userId uint, data *models.BookPayload) error
+	ListBooks(ctx context.Context) ([]models.Book, error)
 	BatchBookSeed(data []*models.BookPayload) error
 }
 
@@ -48,6 +49,12 @@ func (b *bookService) PublishBook(ctx context.Context, userId uint, data *models
 
 	return b.bookRepo.PublishBook(ctx, book)
 
+}
+
+func (b *bookService) ListBooks(ctx context.Context) ([]models.Book, error) {
+
+	//pagination haru esma garna parne xa
+	return b.bookRepo.ListBooks(ctx)
 }
 
 func (b *bookService) BatchBookSeed(payloads []*models.BookPayload) error {

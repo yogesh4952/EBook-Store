@@ -61,3 +61,21 @@ func (h *BookHandler) PublishBook(c *gin.Context) {
 	})
 
 }
+
+func (h *BookHandler) ListBooks(c *gin.Context) {
+	data, err := h.service.ListBooks(c.Request.Context())
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Book data fetches successfully",
+		"data":    data,
+	})
+}
