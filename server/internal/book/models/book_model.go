@@ -1,19 +1,23 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"github.com/yogesh4952/ebookstore/internal/sellers/models"
+	"gorm.io/gorm"
+)
 
 type Book struct {
 	gorm.Model
-	Title        string  `json:"title"`
-	AuthorName   string  `json:"author_name"`
-	Genre        string  `json:"genre"`
-	Category     string  `json:"category"`
-	Pages        uint    `json:"pages"`
-	Publication  string  `json:"publication"`
-	Price        float32 `json:"price"`
-	Units        int     `json:"units"`
-	CoverPageUrl string  `json:"cover_page_url"`
-	SellerID     *uint   `json:"seller_id"`
+	Title        string         `json:"title"`
+	AuthorName   string         `json:"author_name"`
+	Genre        string         `json:"genre"`
+	Category     string         `json:"category"`
+	Pages        uint           `json:"pages"`
+	Publication  string         `json:"publication"`
+	Price        float32        `json:"price"`
+	Units        int            `json:"units"`
+	CoverPageUrl string         `json:"cover_page_url"`
+	SellerID     *uint          `json:"seller_id"`
+	Seller       *models.Seller `json:"seller,omitempty" gorm:"foreignKey:SellerID"`
 }
 
 type BookPayload struct {

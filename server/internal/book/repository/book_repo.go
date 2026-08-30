@@ -27,7 +27,7 @@ func (b *bookRepo) PublishBook(ctx context.Context, book *models.Book) error {
 
 func (b *bookRepo) ListBooks(ctx context.Context) ([]models.Book, error) {
 	var books []models.Book
-	result := b.db.WithContext(ctx).Find(&books)
+	result := b.db.WithContext(ctx).Preload("Seller").Preload("Seller.User").Find(&books)
 
 	if result.Error != nil {
 		return nil, result.Error

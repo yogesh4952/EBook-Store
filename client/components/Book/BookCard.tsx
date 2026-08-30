@@ -1,12 +1,17 @@
 export interface Ibook {
   title: string
-  authorName: string
+  author_name: string
   genre: string
   category: string
   pages: string
   publication: string
   price: string
   cover_page_url: string
+  seller:{
+    user:{
+      first_name: string
+    }
+  }
 }
 
 interface BookCardProps {
@@ -40,7 +45,7 @@ const BookCard = ({ book }: BookCardProps) => {
         </h2>
 
         <p className="mt-1 text-sm text-muted">
-          by {book.authorName}
+          by {book.author_name}
         </p>
 
         <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
