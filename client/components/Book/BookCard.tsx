@@ -1,0 +1,77 @@
+export interface Ibook {
+  title: string
+  authorName: string
+  genre: string
+  category: string
+  pages: string
+  publication: string
+  price: string
+  cover_page_url: string
+}
+
+interface BookCardProps {
+  book: Ibook
+}
+
+const BookCard = ({ book }: BookCardProps) => {
+  return (
+    <div className="group overflow-hidden rounded-xl border border-border bg-surface text-text shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+      
+      {/* Book Cover */}
+      <div
+        className="relative h-72 w-full overflow-hidden bg-accent/20 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${book.cover_page_url})`,
+        }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/0 transition-all duration-300 group-hover:bg-black/10" />
+
+        {/* Genre */}
+        <span className="absolute left-3 top-3 rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-primary backdrop-blur-sm">
+          {book.genre}
+        </span>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        <h2 className="line-clamp-2 text-lg font-semibold leading-tight text-primary">
+          {book.title}
+        </h2>
+
+        <p className="mt-1 text-sm text-muted">
+          by {book.authorName}
+        </p>
+
+        <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+          <div>
+            <p className="text-xs text-muted">Publication</p>
+            <p className="text-sm font-medium">
+              {book.publication}
+            </p>
+          </div>
+
+          <div className="text-right">
+            <p className="text-xs text-muted">Pages</p>
+            <p className="text-sm font-medium">
+              {book.pages}
+            </p>
+          </div>
+        </div>
+
+        {/* Price */}
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-xl font-bold text-primary">
+            ${book.price}
+          </span>
+
+          <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-light">
+            View Book
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default BookCard
