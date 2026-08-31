@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yogesh4952/ebookstore/internal/book/models"
 	"github.com/yogesh4952/ebookstore/internal/book/services"
+	"github.com/yogesh4952/ebookstore/pkg/utils"
 )
 
 type BookHandler struct {
@@ -63,7 +65,16 @@ func (h *BookHandler) PublishBook(c *gin.Context) {
 }
 
 func (h *BookHandler) ListBooks(c *gin.Context) {
-	data, err := h.service.ListBooks(c.Request.Context())
+
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+
+	p := utils.Pagination{
+		Limit: limit,
+		Page:  page,
+	}
+
+	books, total, err := h.service.ListBooks(c.Request.Context(), p)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -76,6 +87,9 @@ func (h *BookHandler) ListBooks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Book data fetches successfully",
-		"data":    data,
+		"data":    books,
+		"total":   total,
+		"page":    p.GetPage(),
+		"limit":   p.Getlimit(),
 	})
 }

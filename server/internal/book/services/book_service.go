@@ -7,11 +7,12 @@ import (
 	"github.com/yogesh4952/ebookstore/internal/book/models"
 	"github.com/yogesh4952/ebookstore/internal/book/repository"
 	sellerRepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
+	"github.com/yogesh4952/ebookstore/pkg/utils"
 )
 
 type IBookService interface {
 	PublishBook(ctx context.Context, userId uint, data *models.BookPayload) error
-	ListBooks(ctx context.Context) ([]models.Book, error)
+	ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error)
 	BatchBookSeed(data []*models.BookPayload) error
 }
 
@@ -51,10 +52,9 @@ func (b *bookService) PublishBook(ctx context.Context, userId uint, data *models
 
 }
 
-func (b *bookService) ListBooks(ctx context.Context) ([]models.Book, error) {
+func (b *bookService) ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error) {
 
-	//pagination haru esma garna parne xa
-	return b.bookRepo.ListBooks(ctx)
+	return b.bookRepo.ListBooks(ctx, p)
 }
 
 func (b *bookService) BatchBookSeed(payloads []*models.BookPayload) error {
