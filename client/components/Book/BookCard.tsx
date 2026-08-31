@@ -1,27 +1,26 @@
 export interface Ibook {
-  title: string
-  author_name: string
-  genre: string
-  category: string
-  pages: string
-  publication: string
-  price: string
-  cover_page_url: string
-  seller:{
-    user:{
-      first_name: string
-    }
-  }
+  title: string;
+  author_name: string;
+  genre: string;
+  category: string;
+  pages: string;
+  publication: string;
+  price: string;
+  cover_page_url: string;
+  seller: {
+    user: {
+      first_name: string;
+    };
+  };
 }
 
 interface BookCardProps {
-  book: Ibook
+  book: Ibook;
 }
 
 const BookCard = ({ book }: BookCardProps) => {
   return (
     <div className="group overflow-hidden rounded-xl border border-border bg-surface text-text shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-      
       {/* Book Cover */}
       <div
         className="relative h-72 w-full overflow-hidden bg-accent/20 bg-cover bg-center"
@@ -44,31 +43,23 @@ const BookCard = ({ book }: BookCardProps) => {
           {book.title}
         </h2>
 
-        <p className="mt-1 text-sm text-muted">
-          by {book.author_name}
-        </p>
+        <p className="mt-1 text-sm text-muted">by {book.author_name}</p>
 
         <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
           <div>
             <p className="text-xs text-muted">Publication</p>
-            <p className="text-sm font-medium">
-              {book.publication}
-            </p>
+            <p className="text-sm font-medium">{book.publication}</p>
           </div>
 
           <div className="text-right">
             <p className="text-xs text-muted">Pages</p>
-            <p className="text-sm font-medium">
-              {book.pages}
-            </p>
+            <p className="text-sm font-medium">{book.pages}</p>
           </div>
         </div>
 
         {/* Price */}
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-xl font-bold text-primary">
-            ${book.price}
-          </span>
+          <span className="text-xl font-bold text-primary">${book.price}</span>
 
           <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-light">
             View Book
@@ -76,7 +67,7 @@ const BookCard = ({ book }: BookCardProps) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default BookCard
+export default BookCard;
