@@ -25,11 +25,6 @@ func NewBookRepo(db *gorm.DB) *bookRepo {
 func (b *bookRepo) PublishBook(ctx context.Context, book *models.Book) error {
 	return b.db.WithContext(ctx).Create(book).Error
 }
-func Paginate(p utils.Pagination) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		return db.Offset(p.GetOffset()).Limit(p.Getlimit())
-	}
-}
 
 func (b *bookRepo) ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error) {
 	var books []models.Book
@@ -40,7 +35,7 @@ func (b *bookRepo) ListBooks(ctx context.Context, p utils.Pagination) ([]models.
 	}
 
 	err := b.db.WithContext(ctx).
-		Scopes(Paginate(p)).
+		Scopes(utils.Paginate(p)).
 		Preload("Seller").
 		Preload("Seller.User").
 		Find(&books).Error

@@ -1,5 +1,15 @@
 package utils
 
+import (
+	"gorm.io/gorm"
+)
+
+func Paginate(p Pagination) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Offset(p.GetOffset()).Limit(p.Getlimit())
+	}
+}
+
 type Pagination struct {
 	Limit int `json:"limit"`
 	Page  int `json:"page"`
