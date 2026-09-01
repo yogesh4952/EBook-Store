@@ -17,7 +17,6 @@ export async function POST(request: Request) {
       cache: "no-cache",
     });
     const data = await response.json();
-    console.log(data);
     if (!response.ok) {
       return NextResponse.json(
         {

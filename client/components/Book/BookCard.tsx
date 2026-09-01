@@ -45,18 +45,6 @@ const BookCard = ({ book }: BookCardProps) => {
 
         <p className="mt-1 text-sm text-muted">by {book.author_name}</p>
 
-        <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-          <div>
-            <p className="text-xs text-muted">Publication</p>
-            <p className="text-sm font-medium">{book.publication}</p>
-          </div>
-
-          <div className="text-right">
-            <p className="text-xs text-muted">Pages</p>
-            <p className="text-sm font-medium">{book.pages}</p>
-          </div>
-        </div>
-
         {/* Price */}
         <div className="mt-4 flex items-center justify-between">
           <span className="text-xl font-bold text-primary">${book.price}</span>
