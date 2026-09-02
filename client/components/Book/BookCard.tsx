@@ -50,7 +50,7 @@ const BookCard = ({ book }: BookCardProps) => {
           <span className="text-xl font-bold text-primary">${book.price}</span>
 
           <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-light">
-            View Book
+            Add to cart
           </button>
         </div>
       </div>

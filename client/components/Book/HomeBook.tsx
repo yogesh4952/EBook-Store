@@ -5,18 +5,10 @@ import FilterBar from "@/components/common/FilterBar";
 const HomeBook = async () => {
   const books: Ibook[] = await ListBooks();
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Sidebar takes 3 out of 12 columns (~25%) */}
-      <div className="md:col-span-1">
-        <FilterBar />
-      </div>
-
-      {/* Main content takes 9 out of 12 columns (~75%) */}
-      <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mt-4">
-        {books.map((book, index) => (
-          <BookCard book={book} key={index} />
-        ))}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
+      {books.map((book, index) => (
+        <BookCard book={book} key={index} />
+      ))}
     </div>
   );
 };
