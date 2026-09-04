@@ -11,6 +11,7 @@ import (
 	authservice "github.com/yogesh4952/ebookstore/internal/auth/service"
 	"github.com/yogesh4952/ebookstore/internal/initializers"
 	"github.com/yogesh4952/ebookstore/internal/middleware"
+	"github.com/yogesh4952/ebookstore/pkg/logger"
 	userhandler "github.com/yogesh4952/ebookstore/internal/user/handler"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -35,6 +36,7 @@ import (
 // @name Authorization
 func init() {
 
+	logger.Init()
 	initializers.LoadEnv()
 	initializers.InitDb()
 	initializers.InitRedis()
@@ -47,7 +49,9 @@ func main() {
 		port = "8080"
 	}
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Recovery())
+	router.Use(middleware.ZerologMiddleware())
 
 	//userDependency injection
 	userRepo := userrepo.NewUserRepository(initializers.DB)

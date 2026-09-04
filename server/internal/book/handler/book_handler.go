@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -104,7 +103,6 @@ func (h *BookHandler) UpdateBook(c *gin.Context) {
 	}
 
 	userID, ok := userIdValue.(uint)
-	log.Printf("UserId: %v", userID)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,

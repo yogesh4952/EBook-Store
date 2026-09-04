@@ -118,7 +118,6 @@ func (s *authService) Register(ctx context.Context, payload *authmodels.Register
 		Lastname:  payload.Lastname,
 		Email:     payload.Email,
 		Role:      payload.Role,
-		Age:       payload.Age,
 	}
 	err := s.repo.RegisterUser(ctx, user)
 

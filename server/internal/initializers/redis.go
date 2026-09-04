@@ -34,6 +34,7 @@ func InitRedis() {
 	_, err := RDB.Ping(Ctx).Result()
 	if err != nil {
 		logger.Error("Failed to connect with redis: %v", err)
+		return
 	}
 
 	logger.Success("Successfully connected with Redis!!!")

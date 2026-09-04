@@ -68,7 +68,6 @@ func TestRegisterUser_CreatesSellerProfileForSellerRole(t *testing.T) {
 				Lastname:  "Doe",
 				Email:     "john@example.com",
 				Role:      tc.role,
-				Age:       30,
 			}
 
 			err := repo.RegisterUser(context.Background(), user)
@@ -113,7 +112,6 @@ func TestRegisterUser_RollbacksSellerOnTransactionError(t *testing.T) {
 		Lastname:  "Doe",
 		Email:     "jane@example.com",
 		Role:      usermodels.Roleseller,
-		Age:       28,
 	}
 	if err := repo.RegisterUser(context.Background(), seller); err != nil {
 		t.Fatalf("first register failed: %v", err)
@@ -124,7 +122,6 @@ func TestRegisterUser_RollbacksSellerOnTransactionError(t *testing.T) {
 		Lastname:  "Doe",
 		Email:     "jane@example.com", // same email -> duplicate key
 		Role:      usermodels.Roleseller,
-		Age:       28,
 	}
 	if err := repo.RegisterUser(context.Background(), duplicate); err == nil {
 		t.Fatal("expected duplicate email to fail")

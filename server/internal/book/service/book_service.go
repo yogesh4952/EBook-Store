@@ -7,6 +7,7 @@ import (
 	"github.com/yogesh4952/ebookstore/internal/book/models"
 	"github.com/yogesh4952/ebookstore/internal/book/repository"
 	sellerRepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
+	"github.com/yogesh4952/ebookstore/pkg/logger"
 	"github.com/yogesh4952/ebookstore/pkg/utils"
 )
 
@@ -92,8 +93,18 @@ func (b *bookService) UpdateBook(ctx context.Context, userId uint, data *models.
 
 	updatedBook, err := b.bookRepo.UpdateBookAtomic(ctx, userId, data.BookId, updates)
 	if err != nil {
+		logger.Ctx(ctx).Error().
+			Uint("user_id", userId).
+			Uint("book_id", data.BookId).
+			Err(err).
+			Msg("book update failed")
 		return &models.Book{}, err
 	}
+
+	logger.Ctx(ctx).Info().
+		Uint("user_id", userId).
+		Uint("book_id", data.BookId).
+		Msg("book update completed")
 
 	return updatedBook, nil
 

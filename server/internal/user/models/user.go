@@ -18,7 +18,6 @@ type User struct {
 	Lastname  string `json:"last_name"`
 	Email     string `json:"email" gorm:"unique;not null"`
 	Role      Role   `json:"role" gorm:"check:role IN ('admin','seller','customer');not null default:'customer'"`
-	Age       uint   `json:"age"`
 }
 
 func (r Role) IsValid() bool {
