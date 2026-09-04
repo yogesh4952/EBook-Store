@@ -31,6 +31,17 @@ type VerifyOTPRequest struct {
 	OTP   string `json:"otp" binding:"required,len=6"`
 }
 
+// SendOTP godoc
+// @Summary      Send OTP to email
+// @Description  Send a one-time password to the user's email for verification
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        payload body SendOTPRequest true "Email address"
+// @Success      200 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Router       /auth/send-otp [post]
 func (h *AuthHandler) SendOTP(c *gin.Context) {
 	var req SendOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -71,6 +82,17 @@ func (h *AuthHandler) VerifyOTP(c *gin.Context) {
 	})
 }
 
+// Login godoc
+// @Summary      Login with email and OTP
+// @Description  Authenticate user and return JWT token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        payload body LoginPayload true "Email and OTP"
+// @Success      200 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      401 {object} map[string]interface{}
+// @Router       /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginPayload
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -89,6 +111,17 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		"token":   token,
 	})
 }
+// Register godoc
+// @Summary      Register a new user
+// @Description  Create a new user account (customer or seller)
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        payload body object true "Registration data with first_name, last_name, email, role, age"
+// @Success      200 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      409 {object} map[string]interface{}
+// @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req authmodels.RegisterPayload
 

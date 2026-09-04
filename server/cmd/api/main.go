@@ -8,9 +8,13 @@ import (
 	authhandler "github.com/yogesh4952/ebookstore/internal/auth/handler"
 	authrepo "github.com/yogesh4952/ebookstore/internal/auth/repository"
 	authservice "github.com/yogesh4952/ebookstore/internal/auth/service"
+	_ "github.com/yogesh4952/ebookstore/docs"
 	"github.com/yogesh4952/ebookstore/internal/initializers"
 	"github.com/yogesh4952/ebookstore/internal/middleware"
 	userhandler "github.com/yogesh4952/ebookstore/internal/user/handler"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	userrepo "github.com/yogesh4952/ebookstore/internal/user/repository"
 	userservice "github.com/yogesh4952/ebookstore/internal/user/service"
 	"github.com/yogesh4952/ebookstore/pkg/utils"
@@ -21,6 +25,14 @@ import (
 	sellerrepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
 )
 
+// @title           EBook Store API
+// @version         1.0
+// @description     REST API for the EBook Store platform
+// @host            localhost:8080
+// @BasePath        /api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func init() {
 
 	initializers.LoadEnv()
@@ -77,5 +89,7 @@ func main() {
 		apiRoutes.GET("/", middleware.AuthRequired())
 	}
 
-	router.Run(":" + port)
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+		router.Run(":" + port)
 }

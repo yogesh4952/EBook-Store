@@ -1,0 +1,325 @@
+basePath: /api
+definitions:
+  handler.LoginPayload:
+    properties:
+      email:
+        type: string
+      otp:
+        type: string
+    required:
+    - email
+    - otp
+    type: object
+  handler.SendOTPRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  models.PublishBookPayload:
+    properties:
+      author_name:
+        type: string
+      category:
+        type: string
+      cover_page_url:
+        type: string
+      genre:
+        type: string
+      pages:
+        type: integer
+      price:
+        type: number
+      publication:
+        type: string
+      seller_id:
+        type: integer
+      title:
+        type: string
+      units:
+        type: integer
+    required:
+    - author_name
+    - category
+    - genre
+    - pages
+    - price
+    - publication
+    - title
+    - units
+    type: object
+  models.UpdateBookPayload:
+    properties:
+      author_name:
+        type: string
+      book_id:
+        type: integer
+      category:
+        type: string
+      cover_page_url:
+        type: string
+      genre:
+        type: string
+      pages:
+        type: integer
+      price:
+        type: number
+      publication:
+        type: string
+      seller_id:
+        type: integer
+      title:
+        type: string
+      units:
+        type: integer
+    required:
+    - author_name
+    - category
+    - genre
+    - pages
+    - price
+    - publication
+    - title
+    - units
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for the EBook Store platform
+  title: EBook Store API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Email and OTP
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login with email and OTP
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account (customer or seller)
+      parameters:
+      - description: Registration data with first_name, last_name, email, role, age
+        in: body
+        name: payload
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /auth/send-otp:
+    post:
+      consumes:
+      - application/json
+      description: Send a one-time password to the user's email for verification
+      parameters:
+      - description: Email address
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SendOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Send OTP to email
+      tags:
+      - auth
+  /book/list-books:
+    get:
+      description: Get a paginated list of books
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List all books
+      tags:
+      - books
+  /book/publish-book:
+    post:
+      consumes:
+      - application/json
+      description: Seller creates a new book listing
+      parameters:
+      - description: Book data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.PublishBookPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Publish a new book
+      tags:
+      - books
+  /book/update-book:
+    put:
+      consumes:
+      - application/json
+      description: Update book details (owner only)
+      parameters:
+      - description: Updated book data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateBookPayload'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update an existing book
+      tags:
+      - books
+  /users:
+    get:
+      description: Get all registered users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all users
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

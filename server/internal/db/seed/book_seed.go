@@ -23,7 +23,7 @@ func main() {
 	}
 
 	defer bookFile.Close()
-	var books []*models.BookPayload
+	var books []*models.PublishBookPayload
 
 	err = json.NewDecoder(bookFile).Decode(&books)
 

@@ -10,6 +10,8 @@ import (
 
 type IBookRepo interface {
 	PublishBook(ctx context.Context, book *models.Book) error
+	UpdateBook(ctx context.Context, book *models.Book) (models.Book, error)
+	FindById(ctx context.Context, id uint) (*models.Book, error)
 	ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error)
 	SeedBooks(books []*models.Book) error
 }
@@ -26,6 +28,22 @@ func (b *bookRepo) PublishBook(ctx context.Context, book *models.Book) error {
 	return b.db.WithContext(ctx).Create(book).Error
 }
 
+func (b *bookRepo) FindById(ctx context.Context, id uint) (*models.Book, error) {
+	var book models.Book
+
+	if err := b.db.WithContext(ctx).First(&book, id).Error; err != nil {
+		return nil, err
+	}
+	return &book, nil
+}
+
+func (b *bookRepo) UpdateBook(ctx context.Context, book *models.Book) (models.Book, error) {
+	err := b.db.WithContext(ctx).Model(book).Where("id = ?", book.ID).Updates(book).Error
+	if err != nil {
+		return models.Book{}, err
+	}
+	return *book, nil
+}
 func (b *bookRepo) ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error) {
 	var books []models.Book
 	var total int64

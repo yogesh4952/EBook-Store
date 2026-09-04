@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/yogesh4952/ebookstore/internal/book/models"
@@ -11,9 +12,10 @@ import (
 )
 
 type IBookService interface {
-	PublishBook(ctx context.Context, userId uint, data *models.BookPayload) error
+	PublishBook(ctx context.Context, userId uint, data *models.PublishBookPayload) error
+	UpdateBook(ctx context.Context, userId uint, data *models.UpdateBookPayload) (models.Book, error)
 	ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error)
-	BatchBookSeed(data []*models.BookPayload) error
+	BatchBookSeed(data []*models.PublishBookPayload) error
 }
 
 type bookService struct {
@@ -28,9 +30,10 @@ func NewBookService(bookRepo repository.IBookRepo, sellerRepo sellerRepo.ISeller
 	}
 }
 
-func (b *bookService) PublishBook(ctx context.Context, userId uint, data *models.BookPayload) error {
+func (b *bookService) PublishBook(ctx context.Context, userId uint, data *models.PublishBookPayload) error {
 
 	seller, err := b.sellerRepo.FindBySellerId(ctx, userId)
+
 	if err != nil {
 		return err
 	}
@@ -52,13 +55,42 @@ func (b *bookService) PublishBook(ctx context.Context, userId uint, data *models
 
 }
 
+func (b *bookService) UpdateBook(ctx context.Context, userId uint, data *models.UpdateBookPayload) (models.Book, error) {
+	seller, err := b.sellerRepo.FindBySellerId(ctx, userId)
+
+	if err != nil {
+		return models.Book{}, err
+	}
+	existingBook, err := b.bookRepo.FindById(ctx, data.BookId)
+
+	if err != nil {
+		return models.Book{}, err
+	}
+
+	if existingBook.SellerID == nil || *existingBook.SellerID != seller.ID {
+		return models.Book{}, errors.New("abac vioalation: you do not have permission to update this book")
+	}
+
+	existingBook.Title = *data.Title
+	existingBook.AuthorName = *data.AuthorName
+	existingBook.Genre = *data.Genre
+	existingBook.Category = *data.Category
+	existingBook.Pages = *data.Pages
+	existingBook.Publication = *data.Publication
+	existingBook.Price = *data.Price
+	existingBook.Units = *data.Units
+	existingBook.CoverPageUrl = *data.CoverPageUrl
+	return b.bookRepo.UpdateBook(ctx, existingBook)
+
+}
+
 func (b *bookService) ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error) {
 
 	return b.bookRepo.ListBooks(ctx, p)
 }
 
-func (b *bookService) BatchBookSeed(payloads []*models.BookPayload) error {
-	if len(payloads) < 0 {
+func (b *bookService) BatchBookSeed(payloads []*models.PublishBookPayload) error {
+	if len(payloads) == 0 {
 		return fmt.Errorf("Empty data! Please provide data.")
 	}
 
