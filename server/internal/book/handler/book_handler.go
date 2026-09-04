@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"net/http"
@@ -6,15 +6,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/yogesh4952/ebookstore/internal/book/models"
-	"github.com/yogesh4952/ebookstore/internal/book/services"
+	"github.com/yogesh4952/ebookstore/internal/book/service"
 	"github.com/yogesh4952/ebookstore/pkg/utils"
 )
 
 type BookHandler struct {
-	service services.IBookService
+	service service.IBookService
 }
 
-func NewBookHandler(svc services.IBookService) *BookHandler {
+func NewBookHandler(svc service.IBookService) *BookHandler {
 	return &BookHandler{service: svc}
 }
 

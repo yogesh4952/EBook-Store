@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -16,9 +15,9 @@ import (
 	userservice "github.com/yogesh4952/ebookstore/internal/user/service"
 	"github.com/yogesh4952/ebookstore/pkg/utils"
 
-	bookhandler "github.com/yogesh4952/ebookstore/internal/book/handlers"
+	bookhandler "github.com/yogesh4952/ebookstore/internal/book/handler"
 	bookrepo "github.com/yogesh4952/ebookstore/internal/book/repository"
-	bookservice "github.com/yogesh4952/ebookstore/internal/book/services"
+	bookservice "github.com/yogesh4952/ebookstore/internal/book/service"
 	sellerrepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
 )
 
@@ -57,12 +56,6 @@ func main() {
 	apiRoutes := router.Group("/api")
 	{
 
-		apiRoutes.GET("/role", middleware.FakeAuthRequired(), middleware.AuthorizeRoles("admin", "sellers"), func(c *gin.Context) {
-			c.JSON(http.StatusAccepted, gin.H{
-				"message": "Role",
-				"success": true,
-			})
-		})
 		userRoutes := apiRoutes.Group("/users")
 		{
 			userRoutes.GET("", userHandler.ListUser)

@@ -7,7 +7,7 @@ import (
 
 	"github.com/yogesh4952/ebookstore/internal/book/models"
 	bookRepo "github.com/yogesh4952/ebookstore/internal/book/repository"
-	"github.com/yogesh4952/ebookstore/internal/book/services"
+	"github.com/yogesh4952/ebookstore/internal/book/service"
 	"github.com/yogesh4952/ebookstore/internal/initializers"
 	sellerRepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
 )
@@ -36,7 +36,7 @@ func main() {
 
 	bRepo := bookRepo.NewBookRepo(initializers.DB)
 	sRepo := sellerRepo.NewSellerRepository(initializers.DB)
-	svc := services.NewBookService(bRepo, sRepo)
+	svc := service.NewBookService(bRepo, sRepo)
 
 	err = svc.BatchBookSeed(books)
 	if err != nil {
