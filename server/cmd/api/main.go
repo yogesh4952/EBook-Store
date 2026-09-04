@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	_ "github.com/yogesh4952/ebookstore/docs"
 	authhandler "github.com/yogesh4952/ebookstore/internal/auth/handler"
 	authrepo "github.com/yogesh4952/ebookstore/internal/auth/repository"
 	authservice "github.com/yogesh4952/ebookstore/internal/auth/service"
-	_ "github.com/yogesh4952/ebookstore/docs"
 	"github.com/yogesh4952/ebookstore/internal/initializers"
 	"github.com/yogesh4952/ebookstore/internal/middleware"
 	userhandler "github.com/yogesh4952/ebookstore/internal/user/handler"
@@ -83,13 +83,14 @@ func main() {
 
 		bookRoutes := apiRoutes.Group("/book")
 		{
-			bookRoutes.POST("/publish-book", middleware.AuthRequired(), bookHandler.PublishBook)
+			bookRoutes.POST("/publish-book", middleware.AuthRequired(), middleware.AuthorizeRoles("seller", "admin"), bookHandler.PublishBook)
+			bookRoutes.PATCH("/update-book", middleware.AuthRequired(), middleware.AuthorizeRoles("seller", "admin"), bookHandler.UpdateBook)
 			bookRoutes.GET("/list-books", bookHandler.ListBooks)
 		}
 		apiRoutes.GET("/", middleware.AuthRequired())
 	}
 
-		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-		router.Run(":" + port)
+	router.Run(":" + port)
 }

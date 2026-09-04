@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/yogesh4952/ebookstore/internal/book/models"
 	"github.com/yogesh4952/ebookstore/pkg/utils"
@@ -11,6 +12,7 @@ import (
 type IBookRepo interface {
 	PublishBook(ctx context.Context, book *models.Book) error
 	UpdateBook(ctx context.Context, book *models.Book) (models.Book, error)
+	UpdateBookAtomic(ctx context.Context, userId uint, bookId uint, updates map[string]interface{}) (*models.Book, error)
 	FindById(ctx context.Context, id uint) (*models.Book, error)
 	ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error)
 	SeedBooks(books []*models.Book) error
@@ -68,4 +70,30 @@ func (b *bookRepo) ListBooks(ctx context.Context, p utils.Pagination) ([]models.
 
 func (b *bookRepo) SeedBooks(books []*models.Book) error {
 	return b.db.CreateInBatches(books, 100).Error
+}
+
+func (b *bookRepo) UpdateBookAtomic(ctx context.Context, userId uint, bookId uint, updates map[string]interface{}) (*models.Book, error) {
+	var book models.Book
+
+	err := b.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.First(&book, bookId).Error; err != nil {
+			return err
+		}
+
+		if book.SellerID == nil || *book.SellerID != userId {
+			return errors.New("unauthorized")
+		}
+
+		if err := tx.Model(&book).Updates(updates).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &book, nil
 }

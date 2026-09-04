@@ -21,28 +21,40 @@ type Book struct {
 }
 
 type PublishBookPayload struct {
-	Title        string  `json:"title" binding:"required"`
+	Title        string  `json:"title" binding:"required,min=2,max=60"`
 	AuthorName   string  `json:"author_name" binding:"required"`
 	Genre        string  `json:"genre" binding:"required"`
 	Category     string  `json:"category" binding:"required"`
-	Pages        uint    `json:"pages" binding:"required"`
+	Pages        uint    `json:"pages" binding:"required,min=10"`
 	Publication  string  `json:"publication" binding:"required"`
-	Price        float32 `json:"price" binding:"required"`
-	Units        int     `json:"units" binding:"required"`
+	Price        float32 `json:"price" binding:"required,min=10"`
+	Units        int     `json:"units" binding:"required,min=0"`
 	CoverPageUrl string  `json:"cover_page_url"`
 	SellerId     *uint   `json:"seller_id"`
 }
 
 type UpdateBookPayload struct {
-	Title        *string  `json:"title" binding:"required"`
-	AuthorName   *string  `json:"author_name" binding:"required"`
-	Genre        *string  `json:"genre" binding:"required"`
-	Category     *string  `json:"category" binding:"required"`
-	Pages        *uint    `json:"pages" binding:"required"`
-	Publication  *string  `json:"publication" binding:"required"`
-	Price        *float32 `json:"price" binding:"required"`
-	Units        *int     `json:"units" binding:"required"`
+	Title        *string  `json:"title" binding:"omitempty,min=2,max=60"`
+	AuthorName   *string  `json:"author_name"`
+	Genre        *string  `json:"genre"`
+	Category     *string  `json:"category"`
+	Pages        *uint    `json:"pages" binding:"omitempty,min=10"`
+	Publication  *string  `json:"publication"`
+	Price        *float32 `json:"price" binding:"omitempty,min=10"`
+	Units        *int     `json:"units" binding:"omitempty,min=0"`
 	CoverPageUrl *string  `json:"cover_page_url"`
-	SellerId     uint     `json:"seller_id"`
-	BookId       uint     `json:"book_id"`
+	SellerId     uint     `json:"seller_id" binding:"required"`
+	BookId       uint     `json:"book_id" binding:"required"`
+}
+
+func (p *UpdateBookPayload) IsEmpty() bool {
+	return p.Title == nil &&
+		p.AuthorName == nil &&
+		p.Genre == nil &&
+		p.Category == nil &&
+		p.Pages == nil &&
+		p.Publication == nil &&
+		p.Units == nil &&
+		p.Price == nil &&
+		p.CoverPageUrl == nil
 }

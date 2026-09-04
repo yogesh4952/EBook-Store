@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/yogesh4952/ebookstore/internal/book/models"
@@ -13,7 +12,7 @@ import (
 
 type IBookService interface {
 	PublishBook(ctx context.Context, userId uint, data *models.PublishBookPayload) error
-	UpdateBook(ctx context.Context, userId uint, data *models.UpdateBookPayload) (models.Book, error)
+	UpdateBook(ctx context.Context, userId uint, data *models.UpdateBookPayload) (*models.Book, error)
 	ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error)
 	BatchBookSeed(data []*models.PublishBookPayload) error
 }
@@ -55,32 +54,48 @@ func (b *bookService) PublishBook(ctx context.Context, userId uint, data *models
 
 }
 
-func (b *bookService) UpdateBook(ctx context.Context, userId uint, data *models.UpdateBookPayload) (models.Book, error) {
-	seller, err := b.sellerRepo.FindBySellerId(ctx, userId)
+func (b *bookService) UpdateBook(ctx context.Context, userId uint, data *models.UpdateBookPayload) (*models.Book, error) {
 
+	if data == nil || data.IsEmpty() {
+
+		return nil, fmt.Errorf("Empty payload")
+
+	}
+	updates := make(map[string]interface{})
+	if data.Title != nil {
+		updates["title"] = *data.Title
+	}
+	if data.AuthorName != nil {
+		updates["author_name"] = *data.AuthorName
+	}
+	if data.Genre != nil {
+		updates["genre"] = *data.Genre
+	}
+	if data.Category != nil {
+		updates["category"] = *data.Category
+	}
+	if data.Pages != nil {
+		updates["pages"] = *data.Pages
+	}
+	if data.Publication != nil {
+		updates["publication"] = *data.Publication
+	}
+	if data.Units != nil {
+		updates["units"] = *data.Units
+	}
+	if data.Price != nil {
+		updates["price"] = *data.Price
+	}
+	if data.CoverPageUrl != nil {
+		updates["cover_page_url"] = *data.CoverPageUrl
+	}
+
+	updatedBook, err := b.bookRepo.UpdateBookAtomic(ctx, userId, data.BookId, updates)
 	if err != nil {
-		return models.Book{}, err
-	}
-	existingBook, err := b.bookRepo.FindById(ctx, data.BookId)
-
-	if err != nil {
-		return models.Book{}, err
+		return &models.Book{}, err
 	}
 
-	if existingBook.SellerID == nil || *existingBook.SellerID != seller.ID {
-		return models.Book{}, errors.New("abac vioalation: you do not have permission to update this book")
-	}
-
-	existingBook.Title = *data.Title
-	existingBook.AuthorName = *data.AuthorName
-	existingBook.Genre = *data.Genre
-	existingBook.Category = *data.Category
-	existingBook.Pages = *data.Pages
-	existingBook.Publication = *data.Publication
-	existingBook.Price = *data.Price
-	existingBook.Units = *data.Units
-	existingBook.CoverPageUrl = *data.CoverPageUrl
-	return b.bookRepo.UpdateBook(ctx, existingBook)
+	return updatedBook, nil
 
 }
 

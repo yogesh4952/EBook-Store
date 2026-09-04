@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -87,7 +88,7 @@ func (h *BookHandler) PublishBook(c *gin.Context) {
 // @Success      202 {object} map[string]interface{}
 // @Failure      400 {object} map[string]interface{}
 // @Failure      401 {object} map[string]interface{}
-// @Router       /book/update-book [put]
+// @Router       /book/update-book [patch]
 // @Security     BearerAuth
 func (h *BookHandler) UpdateBook(c *gin.Context) {
 	var req models.UpdateBookPayload
@@ -103,6 +104,7 @@ func (h *BookHandler) UpdateBook(c *gin.Context) {
 	}
 
 	userID, ok := userIdValue.(uint)
+	log.Printf("UserId: %v", userID)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -126,6 +128,7 @@ func (h *BookHandler) UpdateBook(c *gin.Context) {
 			"success": false,
 			"message": err.Error(),
 		})
+		return
 	}
 
 	c.JSON(http.StatusAccepted, gin.H{
