@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -55,16 +56,23 @@ func main() {
 
 	apiRoutes := router.Group("/api")
 	{
+
+		apiRoutes.GET("/role", middleware.FakeAuthRequired(), middleware.AuthorizeRoles("admin", "sellers"), func(c *gin.Context) {
+			c.JSON(http.StatusAccepted, gin.H{
+				"message": "Role",
+				"success": true,
+			})
+		})
 		userRoutes := apiRoutes.Group("/users")
 		{
 			userRoutes.GET("", userHandler.ListUser)
 		}
 
-		auhtRoutes := apiRoutes.Group("/auth")
+		authRoutes := apiRoutes.Group("/auth")
 		{
-			auhtRoutes.POST("/send-otp", authHandler.SendOTP)
-			auhtRoutes.POST("/login", authHandler.Login)
-			auhtRoutes.POST("/register", authHandler.Register)
+			authRoutes.POST("/send-otp", authHandler.SendOTP)
+			authRoutes.POST("/login", authHandler.Login)
+			authRoutes.POST("/register", authHandler.Register)
 
 		}
 

@@ -19,6 +19,7 @@ func NewJwtManager() *JwtManager {
 type CustomClaims struct {
 	UserId uint   `json:"user_id"`
 	Email  string `json:"email"`
+	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -29,6 +30,7 @@ func (j *JwtManager) GenerateJwt(user *models.User, duration time.Duration) (str
 	claims := CustomClaims{
 		UserId: user.ID,
 		Email:  user.Email,
+		Role:   string(user.Role),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
