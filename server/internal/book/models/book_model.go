@@ -5,6 +5,13 @@ import (
 	"gorm.io/gorm"
 )
 
+type Status string
+
+const (
+	StatusAvailable   Status = "in_stock"
+	StatusUnavailable Status = "out_of_stock"
+)
+
 type Book struct {
 	gorm.Model
 	Title        string         `json:"title"`
@@ -17,6 +24,7 @@ type Book struct {
 	Units        int            `json:"units"`
 	CoverPageUrl string         `json:"cover_page_url"`
 	SellerID     *uint          `json:"seller_id"`
+	Status       string         `json:"status" gorm:"check:status IN ('in_stock','out_of_stock');not null default:'in_stock'"`
 	Seller       *models.Seller `json:"seller,omitempty" gorm:"foreignKey:SellerID"`
 }
 
