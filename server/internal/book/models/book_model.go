@@ -22,9 +22,9 @@ type Book struct {
 	Publication  string         `json:"publication"`
 	Price        float32        `json:"price"`
 	Units        int            `json:"units"`
-	CoverPageUrl string         `json:"cover_page_url"`
+	CoverPageUrl string         `json:"cover_page_url" binding:"url"`
 	SellerID     *uint          `json:"seller_id"`
-	Status       string         `json:"status" gorm:"check:status IN ('in_stock','out_of_stock');not null default:'in_stock'"`
+	Status       Status         `json:"status" gorm:"check:status IN ('in_stock','out_of_stock');not null default:'in_stock'"`
 	Seller       *models.Seller `json:"seller,omitempty" gorm:"foreignKey:SellerID"`
 }
 
@@ -37,7 +37,7 @@ type PublishBookPayload struct {
 	Publication  string  `json:"publication" binding:"required"`
 	Price        float32 `json:"price" binding:"required,min=10"`
 	Units        int     `json:"units" binding:"required,min=0"`
-	CoverPageUrl string  `json:"cover_page_url"`
+	CoverPageUrl string  `json:"cover_page_url" binding:"url,omitempty"`
 	SellerId     *uint   `json:"seller_id"`
 }
 
@@ -50,7 +50,7 @@ type UpdateBookPayload struct {
 	Publication  *string  `json:"publication"`
 	Price        *float32 `json:"price" binding:"omitempty,min=10"`
 	Units        *int     `json:"units" binding:"omitempty,min=0"`
-	CoverPageUrl *string  `json:"cover_page_url"`
+	CoverPageUrl *string  `json:"cover_page_url" binding:"url,omitempty"`
 	SellerId     uint     `json:"seller_id" binding:"required"`
 	BookId       uint     `json:"book_id" binding:"required"`
 }
