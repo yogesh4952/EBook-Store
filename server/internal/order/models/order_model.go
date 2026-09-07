@@ -32,8 +32,23 @@ type Order struct {
 	PaymentStatus PaymentStatus `json:"payment_status" gorm:"check:payment_status IN ('PAID','PENDING','REFUND');not null; default:'PENDING'"`
 	OrderStatus   OrderStatus   `json:"order_status" gorm:"check:order_status IN ('PAID','DELIVERED','CANCELLED' ,'PENDING');not null; default:'PENDING'"`
 	TotalPrice    uint          `json:"total_price" binding:"required,min=1"`
-	UserId        uint          `json:"user_id"`
-	User          models.User   `gorm:"foreignKey:UserId"`
+	UserId        uint          `json:"user_id" gorm:"index:idx_userid"`
 
+	ShippingCity            string `json:"shipping_city" binding:"required" gorm:"not null"`
+	ShippingDeliveryAddress string `json:"shipping_delivery_address" binding:"required" gorm:"not null"`
+
+	User      models.User `gorm:"foreignKey:UserId"`
 	OrderItem []OrderItem `json:"order_items"`
+}
+
+type OrderItemRequest struct {
+	BookId   uint `json:"book_id" binding:"required"`
+	Quantity uint `json:"quantity" binding:"required,min=1"`
+	SellerId uint `json:"seller_id" binding:"required"`
+}
+
+type PlaceOrderPayload struct {
+	PaymentMethod PaymentMethod      `json:"payment_method" binding:"required"`
+	UserAddressId uint               `json:"user_address_id" binding:"required"`
+	Items         []OrderItemRequest `json:"items" binding:"required,min=1,dive"`
 }

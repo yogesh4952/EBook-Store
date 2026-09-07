@@ -14,10 +14,11 @@ const (
 
 type User struct {
 	gorm.Model
-	Firstname string `json:"first_name" `
-	Lastname  string `json:"last_name"`
-	Email     string `json:"email" gorm:"unique;not null"`
-	Role      Role   `json:"role" gorm:"check:role IN ('admin','seller','customer');not null;default:'customer'"`
+	Firstname   string `json:"first_name" `
+	Lastname    string `json:"last_name"`
+	Email       string `json:"email" gorm:"unique;not null"`
+	Role        Role   `json:"role" gorm:"check:role IN ('admin','seller','customer');not null;default:'customer'"`
+	PhoneNumber string `json:"phone_number" binding:"required,min=10,max=10"`
 }
 
 func (r Role) IsValid() bool {
