@@ -52,3 +52,21 @@ type PlaceOrderPayload struct {
 	UserAddressId uint               `json:"user_address_id" binding:"required"`
 	Items         []OrderItemRequest `json:"items" binding:"required,min=1,dive"`
 }
+
+type OrderItemResponse struct {
+	BookId    uint    `json:"book_id"`
+	Title     string  `json:"title"`
+	Quantity  uint    `json:"quantity"`
+	UnitPrice float32 `json:"unit_price"`
+	Subtotal  float32 `json:"subtotal"`
+}
+type PlaceOrderResponse struct {
+	Success       bool                `json:"success"`
+	Message       string              `json:"message"`
+	OrderID       uint                `json:"order_id"`
+	OrderCode     string              `json:"order_code"` // Human-readable order number
+	TotalPrice    float64             `json:"total_price"`
+	PaymentStatus PaymentStatus       `json:"payment_status"` // "paid", "pending", "failed"
+	OrderStatus   OrderStatus         `json:"order_status"`   // "confirmed", "processing", "shipped"
+	Items         []OrderItemResponse `json:"items"`
+}
