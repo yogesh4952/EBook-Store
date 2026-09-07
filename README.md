@@ -124,3 +124,7 @@ npm run dev                 # → http://localhost:3000
 See **`server/README.md`** for a full write-up of the .NET → Go migration,
 the frontend static-config change, and a guide to how each Go folder is
 used during development.
+
+# Flow of the Processes
+
+![alt text](image-1.png)
