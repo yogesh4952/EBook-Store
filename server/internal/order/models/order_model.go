@@ -68,5 +68,6 @@ type PlaceOrderResponse struct {
 	TotalPrice    float64             `json:"total_price"`
 	PaymentStatus PaymentStatus       `json:"payment_status"` // "paid", "pending", "failed"
 	OrderStatus   OrderStatus         `json:"order_status"`   // "confirmed", "processing", "shipped"
+	Address       string              `json:"address"`
 	Items         []OrderItemResponse `json:"items"`
 }
