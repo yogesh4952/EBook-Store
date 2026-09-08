@@ -33,15 +33,14 @@ type EmailSender interface {
 }
 
 type authService struct {
-	repo         repository.AuthRepository
+	repo         repository.IAuthRepository
 	userStore    UserLookup
 	tokenGen     TokenGenerator
 	emailService EmailSender
 }
 
 func NewAuthService(
-	repo repository.AuthRepository,
-	userStore UserLookup,
+	repo repository.IAuthRepository, userStore UserLookup,
 	tokenGen TokenGenerator,
 	emailService EmailSender,
 ) *authService {

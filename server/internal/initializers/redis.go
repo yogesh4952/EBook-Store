@@ -9,12 +9,9 @@ import (
 	"github.com/yogesh4952/ebookstore/pkg/logger"
 )
 
-var (
-	RDB *redis.Client
-	Ctx = context.Background()
-)
+var Ctx = context.Background()
 
-func InitRedis() {
+func InitRedis() (*redis.Client, error) {
 	redisHost := os.Getenv("REDIS_HOST")
 	if redisHost == "" {
 		redisHost = "localhost"
@@ -25,17 +22,17 @@ func InitRedis() {
 		redisPort = "6379"
 	}
 
-	RDB = redis.NewClient(&redis.Options{
+	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
 		Password: "",
 		DB:       0,
 	})
 
-	_, err := RDB.Ping(Ctx).Result()
+	_, err := client.Ping(Ctx).Result()
 	if err != nil {
-		logger.Error("Failed to connect with redis: %v", err)
-		return
+		return nil, fmt.Errorf("redis connection failed: %w", err)
 	}
 
 	logger.Success("Successfully connected with Redis!!!")
+	return client, nil
 }

@@ -14,7 +14,12 @@ import (
 
 func main() {
 	logger.Init()
-	initializers.InitDb()
+	initializers.LoadEnv()
+
+	db, err := initializers.InitDb()
+	if err != nil {
+		logger.Fatal("Failed to initialize DB: %v", err)
+	}
 
 	bookFile, err := os.Open("/home/yst/code/EBook-Store/server/data/book.json")
 
@@ -35,8 +40,8 @@ func main() {
 
 	logger.Info("Loaded %d books", len(books))
 
-	bRepo := bookRepo.NewBookRepo(initializers.DB)
-	sRepo := sellerRepo.NewSellerRepository(initializers.DB)
+	bRepo := bookRepo.NewBookRepo(db)
+	sRepo := sellerRepo.NewSellerRepository(db)
 	svc := service.NewBookService(bRepo, sRepo)
 
 	err = svc.BatchBookSeed(books)

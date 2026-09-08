@@ -10,4 +10,5 @@ func LoadEnv() {
 	if err != nil {
 		logger.Error("Error loading .env file: %v", err)
 	}
+
 }

@@ -30,7 +30,7 @@ func (ar *addressRepo) AddAddress(ctx context.Context, data *models.UserAddress)
 
 func (ar *addressRepo) FindUserAddressById(ctx context.Context, id uint) (*models.UserAddress, error) {
 	var address models.UserAddress
-	result := ar.db.WithContext(ctx).First(&address)
+	result := ar.db.WithContext(ctx).First(&address, id)
 	if result.Error != nil {
 		return nil, fmt.Errorf("Invalid address Id")
 	}

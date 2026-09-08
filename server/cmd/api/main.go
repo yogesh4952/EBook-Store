@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -41,11 +42,8 @@ import (
 // @in header
 // @name Authorization
 func init() {
-
 	logger.Init()
 	initializers.LoadEnv()
-	initializers.InitDb()
-	initializers.InitRedis()
 }
 
 func main() {
@@ -55,29 +53,39 @@ func main() {
 		port = "8080"
 	}
 
+	db, err := initializers.InitDb()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rdb, err := initializers.InitRedis()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(middleware.ZerologMiddleware())
 
 	//userDependency injection
-	userRepo := userrepo.NewUserRepository(initializers.DB)
+	userRepo := userrepo.NewUserRepository(db)
 	userService := userservice.NewUserService(userRepo)
 	userHandler := userhandler.NewUserHandler(userService)
 
-	sellerRepo := sellerrepo.NewSellerRepository(initializers.DB)
-	bookRepo := bookrepo.NewBookRepo(initializers.DB)
+	sellerRepo := sellerrepo.NewSellerRepository(db)
+	bookRepo := bookrepo.NewBookRepo(db)
 	bookService := bookservice.NewBookService(bookRepo, sellerRepo)
 	bookHandler := bookhandler.NewBookHandler(bookService)
 
-	addressRepo := addressRepo.NewAddressRepo(initializers.DB)
+	addressRepo := addressRepo.NewAddressRepo(db)
 
 	jwtManager := utils.NewJwtManager()
 	emailService := utils.NewEmailService()
-	authRepo := authrepo.NewAuthRepository(initializers.DB, initializers.RDB)
+	authRepo := authrepo.NewAuthRepository(db, rdb)
 	authService := authservice.NewAuthService(authRepo, userRepo, jwtManager, emailService)
 	authHandler := authhandler.NewAuthHandler(authService)
 
-	orderRepo := orderRepo.NewOrderRepo(initializers.DB)
+	orderRepo := orderRepo.NewOrderRepo(db)
 	orderService := orderService.NewOrderService(orderRepo, bookRepo, addressRepo)
 	orderHandler := orderHandler.NewOrderHandler(orderService)
 

@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type AuthRepository interface {
+type IAuthRepository interface {
 	SaveOTP(ctx context.Context, email, otp string, duration time.Duration) error
 	GetOTP(ctx context.Context, email string) (string, error)
 	DeleteOTP(ctx context.Context, email string) error

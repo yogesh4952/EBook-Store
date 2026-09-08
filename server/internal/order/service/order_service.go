@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"strconv"
 
-	adddressRepo "github.com/yogesh4952/ebookstore/internal/address/repository"
-	bookRepo "github.com/yogesh4952/ebookstore/internal/book/repository"
+	"github.com/yogesh4952/ebookstore/internal/address/models"
+	bookModels "github.com/yogesh4952/ebookstore/internal/book/models"
 	orderModel "github.com/yogesh4952/ebookstore/internal/order/models"
 	"github.com/yogesh4952/ebookstore/internal/order/repository"
 )
@@ -15,13 +16,20 @@ type IOrderServ interface {
 	PlaceOrder(ctx context.Context, userID uint, orderPayload orderModel.PlaceOrderPayload) (*orderModel.PlaceOrderResponse, error)
 }
 
-type orderServ struct {
-	orderRepo      repository.IOrderRepo
-	bookRepo       bookRepo.IBookRepo
-	userAddresRepo adddressRepo.IAddressrepo
+type IAddressrepo interface {
+	FindUserAddressById(ctx context.Context, addreessId uint) (*models.UserAddress, error)
 }
 
-func NewOrderService(orderRepo repository.IOrderRepo, bookRepo bookRepo.IBookRepo, addressRepo adddressRepo.IAddressrepo) *orderServ {
+type IBookRepo interface {
+	FindById(ctx context.Context, id uint) (*bookModels.Book, error)
+}
+type orderServ struct {
+	orderRepo      repository.IOrderRepo
+	bookRepo       IBookRepo
+	userAddresRepo IAddressrepo
+}
+
+func NewOrderService(orderRepo repository.IOrderRepo, bookRepo IBookRepo, addressRepo IAddressrepo) *orderServ {
 	return &orderServ{orderRepo: orderRepo, bookRepo: bookRepo, userAddresRepo: addressRepo}
 }
 
@@ -50,7 +58,7 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 		if err != nil {
 			return nil, fmt.Errorf("Invalid book id")
 		}
-		total_price = (float32(total_price) + book.Price) * float32(val.Quantity)
+		total_price += book.Price * float32(val.Quantity)
 	}
 
 	res.TotalPrice = float64(total_price)
@@ -58,7 +66,7 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 
 	var OrderCode string
 
-	OrderCode = "#ORDER_CODE:" + string(randOrderCode)
+	OrderCode = "#ORDER_CODE:" + strconv.Itoa(randOrderCode)
 	res.OrderCode = OrderCode
 
 	res.Message = "Order Placed Succesfully"

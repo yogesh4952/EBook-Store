@@ -13,10 +13,15 @@ import (
 func init() {
 	logger.Init()
 	initializers.LoadEnv()
-	initializers.InitDb()
 }
+
 func main() {
-	err := initializers.DB.AutoMigrate(&userModels.User{}, &sellerModels.Seller{}, &bookModels.Book{}, &userAddressesModel.UserAddress{}, &order_model.Order{}, &order_model.OrderItem{})
+	db, err := initializers.InitDb()
+	if err != nil {
+		logger.Fatal("Failed to initialize DB: %v", err)
+	}
+
+	err = db.AutoMigrate(&userModels.User{}, &sellerModels.Seller{}, &bookModels.Book{}, &userAddressesModel.UserAddress{}, &order_model.Order{}, &order_model.OrderItem{})
 	if err != nil {
 		logger.Fatal("Error during automigrations: %v", err)
 	} else {
