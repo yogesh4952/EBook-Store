@@ -12,7 +12,7 @@ type OrderHandler struct {
 	svc service.IOrderServ
 }
 
-func NewBookHandler(svc service.IOrderServ) *OrderHandler {
+func NewOrderHandler(svc service.IOrderServ) *OrderHandler {
 	return &OrderHandler{svc: svc}
 }
 
@@ -23,15 +23,15 @@ func (h *OrderHandler) PlaceOrder(c *gin.Context) {
 	if err := c.ShouldBindJSON(&orderPayload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": "false",
-			"message": err,
+			"message": err.Error(),
 		})
-
 		return
 	}
 
 	userIdValue, exist := c.Get("userId")
+
 	if exist == false {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
 			"message": "Missing userid",
 		})

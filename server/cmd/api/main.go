@@ -4,25 +4,31 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "github.com/yogesh4952/ebookstore/docs"
-	authhandler "github.com/yogesh4952/ebookstore/internal/auth/handler"
-	authrepo "github.com/yogesh4952/ebookstore/internal/auth/repository"
-	authservice "github.com/yogesh4952/ebookstore/internal/auth/service"
 	"github.com/yogesh4952/ebookstore/internal/initializers"
 	"github.com/yogesh4952/ebookstore/internal/middleware"
 	"github.com/yogesh4952/ebookstore/pkg/logger"
-	userhandler "github.com/yogesh4952/ebookstore/internal/user/handler"
+	"github.com/yogesh4952/ebookstore/pkg/utils"
 
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	authhandler "github.com/yogesh4952/ebookstore/internal/auth/handler"
+	authrepo "github.com/yogesh4952/ebookstore/internal/auth/repository"
+	authservice "github.com/yogesh4952/ebookstore/internal/auth/service"
+
+	userhandler "github.com/yogesh4952/ebookstore/internal/user/handler"
 	userrepo "github.com/yogesh4952/ebookstore/internal/user/repository"
 	userservice "github.com/yogesh4952/ebookstore/internal/user/service"
-	"github.com/yogesh4952/ebookstore/pkg/utils"
 
 	bookhandler "github.com/yogesh4952/ebookstore/internal/book/handler"
 	bookrepo "github.com/yogesh4952/ebookstore/internal/book/repository"
 	bookservice "github.com/yogesh4952/ebookstore/internal/book/service"
+
+	addressRepo "github.com/yogesh4952/ebookstore/internal/address/repository"
+
+	orderHandler "github.com/yogesh4952/ebookstore/internal/order/handler"
+	orderRepo "github.com/yogesh4952/ebookstore/internal/order/repository"
+	orderService "github.com/yogesh4952/ebookstore/internal/order/service"
 	sellerrepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
 )
 
@@ -63,11 +69,17 @@ func main() {
 	bookService := bookservice.NewBookService(bookRepo, sellerRepo)
 	bookHandler := bookhandler.NewBookHandler(bookService)
 
+	addressRepo := addressRepo.NewAddressRepo(initializers.DB)
+
 	jwtManager := utils.NewJwtManager()
 	emailService := utils.NewEmailService()
 	authRepo := authrepo.NewAuthRepository(initializers.DB, initializers.RDB)
 	authService := authservice.NewAuthService(authRepo, userRepo, jwtManager, emailService)
 	authHandler := authhandler.NewAuthHandler(authService)
+
+	orderRepo := orderRepo.NewOrderRepo(initializers.DB)
+	orderService := orderService.NewOrderService(orderRepo, bookRepo, addressRepo)
+	orderHandler := orderHandler.NewOrderHandler(orderService)
 
 	apiRoutes := router.Group("/api")
 	{
@@ -91,10 +103,16 @@ func main() {
 			bookRoutes.PATCH("/update-book", middleware.AuthRequired(), middleware.AuthorizeRoles("seller", "admin"), bookHandler.UpdateBook)
 			bookRoutes.GET("/list-books", bookHandler.ListBooks)
 		}
+
+		orderRoutes := apiRoutes.Group("/order")
+		{
+			orderRoutes.POST("/place-order", middleware.AuthRequired(), middleware.AuthorizeRoles("seller", "admin"), orderHandler.PlaceOrder)
+		}
 		apiRoutes.GET("/", middleware.AuthRequired())
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.Run(":" + port)
+
 }

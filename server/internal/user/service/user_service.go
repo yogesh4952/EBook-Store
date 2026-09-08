@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 
 	"github.com/yogesh4952/ebookstore/internal/user/models"
@@ -8,7 +9,7 @@ import (
 )
 
 type UserService interface {
-	GetAllUsers() ([]models.User, error)
+	GetAllUsers(ctx context.Context) ([]models.User, error)
 }
 
 type userService struct {
@@ -19,8 +20,8 @@ func NewUserService(repo userrepo.IUser) UserService {
 	return &userService{repo: repo}
 }
 
-func (u *userService) GetAllUsers() ([]models.User, error) {
-	users, err := u.repo.FetchAllUsers()
+func (u *userService) GetAllUsers(ctx context.Context) ([]models.User, error) {
+	users, err := u.repo.FetchAllUsers(ctx)
 	if err != nil {
 		return nil, errors.New("Failed to retrieve users")
 	}

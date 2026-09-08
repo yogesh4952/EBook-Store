@@ -20,7 +20,7 @@ type AuthService interface {
 }
 
 type UserLookup interface {
-	FindByEmail(email string) (*models.User, error)
+	FindByEmail(ctx context.Context, email string) (*models.User, error)
 }
 
 type TokenGenerator interface {
@@ -56,7 +56,7 @@ func NewAuthService(
 // SendOTP is a func that sent otp to the user and store in redis
 func (s *authService) SendOTP(ctx context.Context, email string) error {
 
-	if _, err := s.userStore.FindByEmail(email); err != nil {
+	if _, err := s.userStore.FindByEmail(ctx, email); err != nil {
 		return errors.New("invalid email")
 	}
 
@@ -99,7 +99,7 @@ func (s *authService) Login(ctx context.Context, email, inputOTP string) (string
 		return "", errors.New("invalid or expired verification code")
 	}
 
-	user, err := s.userStore.FindByEmail(email)
+	user, err := s.userStore.FindByEmail(ctx, email)
 	if err != nil {
 		return "", fmt.Errorf("user not found for email %s: %w", email, err)
 	}

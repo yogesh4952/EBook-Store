@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserAddresses struct {
+type UserAddress struct {
 	gorm.Model
 	City            string      `json:"city" binding:"required" gorm:"not null"`
 	DeliveryAddress string      `json:"delivery_address" binding:"required" gorm:"not null"`

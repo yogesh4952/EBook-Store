@@ -26,7 +26,7 @@ func NewUserHandler(service service.UserService) *UserHandler {
 // @Security     BearerAuth
 func (uh *UserHandler) ListUser(c *gin.Context) {
 
-	users, err := uh.service.GetAllUsers()
+	users, err := uh.service.GetAllUsers(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
