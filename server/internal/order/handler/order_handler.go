@@ -59,7 +59,7 @@ func (h *OrderHandler) PlaceOrder(c *gin.Context) {
 
 	c.JSON(http.StatusAccepted, gin.H{
 		"success": true,
-		"message": "Order placed successfully!",
+		"message": "Order placed succesfully",
 		"data":    data,
 	})
 

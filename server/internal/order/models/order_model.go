@@ -22,7 +22,7 @@ const (
 const (
 	OrderDelivered    OrderStatus = "DELIVERED"
 	PayementCancelled OrderStatus = "CANCELLED"
-	OrderPending      OrderStatus = "PENDING"
+	OrderPlaced       OrderStatus = "PLACED"
 )
 
 type Order struct {
@@ -30,15 +30,15 @@ type Order struct {
 	OrderCode     string        `json:"order_code" gorm:"unique;not null"`
 	PaymentMethod PaymentMethod `json:"payment_method" gorm:"check:payment_method IN ('COD','ESEWA');not null;"`
 	PaymentStatus PaymentStatus `json:"payment_status" gorm:"check:payment_status IN ('PAID','PENDING','REFUND');not null; default:'PENDING'"`
-	OrderStatus   OrderStatus   `json:"order_status" gorm:"check:order_status IN ('PAID','DELIVERED','CANCELLED' ,'PENDING');not null; default:'PENDING'"`
-	TotalPrice    uint          `json:"total_price" binding:"required,min=1"`
+	OrderStatus   OrderStatus   `json:"order_status" gorm:"check:order_status IN ('DELIVERED','CANCELLED' ,'PLACED'); default:''"`
+	TotalPrice    float32       `json:"total_price" binding:"required,min=1"`
 	UserId        uint          `json:"user_id" gorm:"index:idx_userid"`
 
 	ShippingCity            string `json:"shipping_city" binding:"required" gorm:"not null"`
 	ShippingDeliveryAddress string `json:"shipping_delivery_address" binding:"required" gorm:"not null"`
 
 	User      models.User `gorm:"foreignKey:UserId"`
-	OrderItem []OrderItem `json:"order_items"`
+	OrderItem []OrderItem `json:"order_items" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 type OrderItemRequest struct {
@@ -61,8 +61,6 @@ type OrderItemResponse struct {
 	Subtotal  float32 `json:"subtotal"`
 }
 type PlaceOrderResponse struct {
-	Success       bool                `json:"success"`
-	Message       string              `json:"message"`
 	OrderID       uint                `json:"order_id"`
 	OrderCode     string              `json:"order_code"` // Human-readable order number
 	TotalPrice    float64             `json:"total_price"`
