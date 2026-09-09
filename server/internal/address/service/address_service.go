@@ -5,18 +5,23 @@ import (
 
 	"github.com/yogesh4952/ebookstore/internal/address/models"
 	"github.com/yogesh4952/ebookstore/internal/address/repository"
-	userRepo "github.com/yogesh4952/ebookstore/internal/user/repository"
+	usermodels "github.com/yogesh4952/ebookstore/internal/user/models"
 )
 
-type IAddressService interface{}
+type UserMethod interface {
+	FindById(ctx context.Context, id uint) (*usermodels.User, error)
+}
+type IAddressService interface {
+	AddAddress(ctx context.Context, payload *models.UserAddress) error
+}
 
 type addressService struct {
 	addressRepo repository.IAddressrepo
-	userRepo    userRepo.IUser
+	userRepo    UserMethod
 }
 
 func NewAddressService(addressRepo repository.IAddressrepo,
-	userRepo userRepo.IUser) *addressService {
+	userRepo UserMethod) *addressService {
 	return &addressService{
 		addressRepo: addressRepo,
 		userRepo:    userRepo,
@@ -24,7 +29,19 @@ func NewAddressService(addressRepo repository.IAddressrepo,
 }
 
 func (as *addressService) AddAddress(ctx context.Context, payload *models.UserAddress) error {
-	// userId := payload.UserId
+	userId := payload.UserId
+
+	_, err := as.userRepo.FindById(ctx, userId)
+
+	if err != nil {
+		return err
+	}
+
+	err = as.addressRepo.AddAddress(ctx, payload)
+	if err != nil {
+		return err
+	}
+
 	return nil
 
 	// data, err := as.userRepo.()

@@ -41,11 +41,7 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 	userAddress, err := serv.userAddresRepo.FindUserAddressById(ctx, orderPayload.UserAddressId)
 
 	if err != nil {
-		return nil, err
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf("Invalid user address")
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	res.Address = "City: " + userAddress.City + ", Delivery Address:" + userAddress.DeliveryAddress

@@ -25,7 +25,9 @@ import (
 	bookrepo "github.com/yogesh4952/ebookstore/internal/book/repository"
 	bookservice "github.com/yogesh4952/ebookstore/internal/book/service"
 
+	addressHandler "github.com/yogesh4952/ebookstore/internal/address/handler"
 	addressRepo "github.com/yogesh4952/ebookstore/internal/address/repository"
+	addressService "github.com/yogesh4952/ebookstore/internal/address/service"
 
 	orderHandler "github.com/yogesh4952/ebookstore/internal/order/handler"
 	orderRepo "github.com/yogesh4952/ebookstore/internal/order/repository"
@@ -78,6 +80,8 @@ func main() {
 	bookHandler := bookhandler.NewBookHandler(bookService)
 
 	addressRepo := addressRepo.NewAddressRepo(db)
+	addressServ := addressService.NewAddressService(addressRepo, userRepo)
+	addressHandler := addressHandler.NewAddressHandler(addressServ)
 
 	jwtManager := utils.NewJwtManager()
 	emailService := utils.NewEmailService()
@@ -115,6 +119,11 @@ func main() {
 		orderRoutes := apiRoutes.Group("/order")
 		{
 			orderRoutes.POST("/place-order", middleware.AuthRequired(), middleware.AuthorizeRoles("seller", "admin"), orderHandler.PlaceOrder)
+		}
+
+		addressRoute := apiRoutes.Group("/address")
+		{
+			addressRoute.POST("/add-address", middleware.AuthRequired(), middleware.AuthorizeRoles("seller", "admin", "user"), addressHandler.AddAddress)
 		}
 		apiRoutes.GET("/", middleware.AuthRequired())
 	}

@@ -10,6 +10,7 @@ import (
 
 type IAddressrepo interface {
 	FindUserAddressById(ctx context.Context, addreessId uint) (*models.UserAddress, error)
+	AddAddress(ctx context.Context, data *models.UserAddress) error
 }
 
 type addressRepo struct {
