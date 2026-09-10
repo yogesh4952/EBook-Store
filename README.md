@@ -1,130 +1,245 @@
 # EBook Store
 
-Online book store (Book Store Nepal). A monorepo with two parts:
-
-- **`client/`** — Next.js 16 (React 19) frontend with a BFF (Backend-for-Frontend) API layer.
-- **`server/`** — Go REST API backend (replaces the former .NET server).
-
-## Project layout
-
-```
-EBookStore/
-├── client/            # Next.js frontend (see client/README.md)
-├── server/            # Go REST API backend (see server/README.md)
-└── README.md          # this file
-```
+A full-stack ebook marketplace built with **Go** and **Next.js**. Sellers list books, customers browse and place orders with COD or eSewa payment options.
 
 ## Architecture
 
 ```
-Browser ──▶ Next.js BFF (/api/*) ──▶ Go REST API (server/) ──▶ PostgreSQL
-               │
-               └─ static pages / assets
+Browser → Next.js BFF (port 3000) → Go REST API (port 8080) → PostgreSQL + Redis
+                │
+                └── server-side rendering, static assets
 ```
 
-The frontend never talks to the Go API directly from the browser. All
-backend calls go through Next.js route handlers (`client/app/api/*`),
-which proxy to the Go server and manage the auth cookie. This keeps the
-JWT token in an `httpOnly` cookie and keeps secrets off the client.
+- The browser never calls the Go API directly. All backend requests are proxied through Next.js route handlers (`app/api/*`), which manage the JWT in an `httpOnly` cookie.
+- **Server:** Go 1.26, Gin, GORM, PostgreSQL 16, Redis
+- **Client:** Next.js 16 (App Router), React 19, Tailwind CSS v4, Zustand
 
-## Frontend configuration (static)
+## Tech Stack
 
-The frontend no longer reads any environment variables. All config lives
-in one file: **`client/lib/config.ts`**.
+| Layer    | Technology                                      |
+|----------|-------------------------------------------------|
+| API      | Go, Gin, GORM                                   |
+| Auth     | OTP via email (Redis-backed), JWT (HS256)       |
+| Database | PostgreSQL 16, Redis (OTP storage)              |
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind v4   |
+| State    | Zustand                                         |
+| Logging  | Zerolog with request-ID correlation             |
+| Docs     | Swagger (swaggo)                                |
 
-| Value              | Default                    | Purpose                    |
-| ------------------ | -------------------------- | -------------------------- |
-| `BACKEND_URL`      | `http://localhost:8080`    | Base URL of the Go API     |
-| `AUTH_COOKIE_NAME` | `accessToken`              | Cookie that stores the JWT |
-| `API_ENDPOINTS`    | derived from `BACKEND_URL` | Backend endpoint paths     |
+## Project Structure
 
-To point the app at a different backend, edit `client/lib/config.ts`
-only — no `.env` file is needed.
-
-## Backend configuration
-
-The Go API is configured via environment variables (or a `.env` file).
-Copy `server/.env.example` to `server/.env` and adjust values:
-
-| Variable             | Default                                              | Purpose            |
-| -------------------- | ---------------------------------------------------- | ------------------ |
-| `SERVER_HOST`        | `0.0.0.0`                                            | Bind host          |
-| `SERVER_PORT`        | `8080`                                               | Bind port          |
-| `DATABASE_URL`       | `postgres://yogesh:yogesh@localhost:5432/ebookstore` | PostgreSQL DSN     |
-| `JWT_SECRET`         | `your-super-secret-key-...` (32+ chars)              | JWT signing key    |
-| `JWT_ISSUER`         | `EBookStore`                                         | JWT issuer claim   |
-| `JWT_AUDIENCE`       | `EBookStoreUsers`                                    | JWT audience claim |
-| `JWT_EXPIRY_MINUTES` | `60`                                                 | Token lifetime     |
-
-## API contract
-
-Routes mirror the old .NET API so the frontend needed no changes.
-
-| Method | Path                 | Auth         | Description         |
-| ------ | -------------------- | ------------ | ------------------- |
-| POST   | `/api/Auth/register` | —            | Create a user       |
-| POST   | `/api/Auth/login`    | —            | Login, returns JWT  |
-| GET    | `/api/Auth/me`       | Bearer token | Return current user |
-| GET    | `/healthz`           | —            | Liveness check      |
-
-### Login request / response
-
-```http
-POST /api/Auth/login
-Content-Type: application/json
-
-{ "email": "reader@example.com", "password": "secret" }
+```
+EBook-Store/
+├── client/                         # Next.js frontend
+│   ├── app/
+│   │   ├── (public)/               # Public pages (homepage, catalog)
+│   │   ├── auth/                   # Login (OTP-based), register
+│   │   └── api/                    # BFF route handlers (proxy to Go)
+│   ├── components/                 # Book cards, navbar, OTP input
+│   ├── lib/config.ts               # Backend URL, endpoint map
+│   ├── store/                      # Zustand auth store
+│   └── proxy.ts                    # Route protection middleware
+│
+├── server/                         # Go REST API
+│   ├── cmd/api/main.go             # Entry point, route registration, DI
+│   ├── internal/
+│   │   ├── auth/                   # OTP login, register, JWT issuance
+│   │   ├── book/                   # Book CRUD (seller-owned)
+│   │   ├── order/                  # Order placement, listing
+│   │   ├── address/                # User address management
+│   │   ├── user/                   # User model and listing
+│   │   ├── middleware/             # JWT auth, role-based access, logging
+│   │   ├── initializers/           # DB, Redis, env bootstrapping
+│   │   ├── db/                     # Migration and seed scripts
+│   │   ├── cart/                   # (stub — not yet implemented)
+│   │   └── sellers/                # (stub — not yet implemented)
+│   ├── pkg/
+│   │   ├── utils/                  # JWT, OTP generation, pagination
+│   │   └── logger/                 # Zerolog + GORM adapter
+│   ├── docs/                       # Generated Swagger files
+│   └── data/book.json              # Seed data (~50 books)
+│
+├── docker-compose.yml              # PostgreSQL 16
+└── README.md
 ```
 
-```json
-200 OK
-{ "token": "<jwt>", "email": "reader@example.com", "firstName": "John" }
+## Prerequisites
+
+- Go 1.26+
+- Node.js 20+
+- PostgreSQL 16
+- Redis 7+
+- Docker (optional, for database)
+
+## Quick Start
+
+### 1. Start PostgreSQL
+
+```bash
+docker compose up -d
 ```
 
-### Register request
+This starts PostgreSQL 16 on port 5432 with credentials `yogesh/yogesh` and database `ebookstore`.
 
-```http
-POST /api/Auth/register
-Content-Type: application/json
-
-{ "firstName": "John", "lastName": "Doe",
-  "email": "reader@example.com", "password": "secret", "role": 0 }
-```
-
-`role`: `0` = User, `1` = seller, `2` = Admin (default `0`).
-
-## Quick start
-
-### 1. Start the database (PostgreSQL via Docker)
+### 2. Configure the server
 
 ```bash
 cd server
-docker compose up -d db     # applies ./migrations on first start
+cp .env.example .env   # if available, or create manually
 ```
 
-### 2. Run the Go API
+Required environment variables:
+
+| Variable       | Default                                              | Description         |
+|----------------|------------------------------------------------------|---------------------|
+| `PORT`         | `8080`                                               | Server bind port    |
+| `DSN`          | `postgres://yogesh@localhost:5432/ebookstore`        | PostgreSQL DSN      |
+| `jwt_secret`   | —                                                    | JWT signing key     |
+| `SMTP_EMAIL`   | —                                                    | SMTP sender email   |
+| `SMTP_PASSWORD`| —                                                    | SMTP app password   |
+| `SMTP_HOST`    | `smtp.gmail.com`                                     | SMTP host           |
+| `SMTP_PORT`    | `587`                                                | SMTP port           |
+| `REDIS_HOST`   | `localhost`                                          | Redis host          |
+| `REDIS_PORT`   | `6379`                                               | Redis port          |
+
+### 3. Run the server
 
 ```bash
 cd server
-cp .env.example .env        # optional, defaults already work
-make run                    # or: go run ./cmd/api
-# → listening on http://localhost:8080
+go run ./cmd/api
+# → http://localhost:8080
+# → Swagger UI at http://localhost:8080/swagger/index.html
 ```
 
-### 3. Run the frontend
+For development with hot-reload:
+
+```bash
+air
+```
+
+### 4. Seed the database
+
+The database is auto-migrated on startup. To seed sample book data:
+
+```bash
+go run ./internal/db/seed
+```
+
+### 5. Run the client
 
 ```bash
 cd client
 npm install
-npm run dev                 # → http://localhost:3000
+npm run dev
+# → http://localhost:3000
 ```
 
-## What changed in this migration
+The client points to `http://localhost:8080` by default. To change, edit `client/lib/config.ts`.
 
-See **`server/README.md`** for a full write-up of the .NET → Go migration,
-the frontend static-config change, and a guide to how each Go folder is
-used during development.
+## API Endpoints
 
-# Flow of the Processes
+### Auth
 
-![alt text](image-1.png)
+| Method | Path                  | Auth | Description                          |
+|--------|-----------------------|------|--------------------------------------|
+| POST   | `/api/auth/send-otp`  | —    | Send 6-digit OTP to email            |
+| POST   | `/api/auth/login`     | —    | Verify OTP, return JWT               |
+| POST   | `/api/auth/register`  | —    | Register new user (auto-creates seller profile for seller role) |
+
+### Books
+
+| Method | Path                   | Auth                   | Description                    |
+|--------|------------------------|------------------------|--------------------------------|
+| GET    | `/api/book/list-books` | —                      | List books (paginated)         |
+| POST   | `/api/book/publish-book` | Seller/Admin         | Publish a new book             |
+| PATCH  | `/api/book/update-book`  | Seller/Admin (owner) | Update book (atomic, owner-only) |
+
+### Orders
+
+| Method | Path                    | Auth   | Description              |
+|--------|-------------------------|--------|--------------------------|
+| POST   | `/api/order/place-order` | Bearer | Place an order           |
+| GET    | `/api/order/list-user-order` | Bearer | List orders for current user |
+
+### Addresses
+
+| Method | Path                     | Auth   | Description            |
+|--------|--------------------------|--------|------------------------|
+| POST   | `/api/address/add-address` | Bearer | Add a delivery address |
+
+### Other
+
+| Method | Path           | Description       |
+|--------|----------------|-------------------|
+| GET    | `/swagger/*`   | Swagger UI        |
+
+## Authentication Flow
+
+```
+1. Client → POST /api/auth/send-otp { email }
+2. Server generates 6-digit OTP, stores in Redis (5-min TTL), emails it
+3. Client → POST /api/auth/login { email, otp }
+4. Server verifies OTP against Redis, issues JWT (1h expiry)
+5. BFF stores JWT in httpOnly cookie (accessToken)
+6. Subsequent requests: cookie → BFF reads token → forwards as Authorization: Bearer → Go API
+```
+
+JWT claims: `user_id`, `email`, `role` (admin/seller/customer).
+
+### Role-Based Access
+
+- `AuthRequired` middleware validates the JWT and injects user context.
+- `AuthorizeRoles("seller", "admin")` restricts routes by role.
+
+## Database Schema
+
+```
+users ──< orders ──< order_items
+  │
+  ├──< books (via sellers)
+  │
+  ├──< addresses
+  │
+  └──< sellers
+```
+
+Key models:
+
+- **User**: email, phone, role (admin/seller/customer)
+- **Seller**: linked to User, unique seller number
+- **Book**: title, author, genre, price, stock status, linked to Seller
+- **Order**: unique order code, payment method/status, shipping address, total
+- **OrderItem**: book + quantity + unit price, composite key on (order_id, book_id)
+- **UserAddress**: city + delivery address, linked to User
+
+## Development
+
+### Run tests
+
+```bash
+cd server
+go test ./...
+```
+
+### Generate Swagger docs
+
+```bash
+cd server
+swag init -g cmd/api/main.go
+```
+
+### Lint
+
+```bash
+cd client
+npm run lint
+```
+
+## Current Limitations
+
+- Cart functionality is stubbed (not implemented)
+- Seller management endpoints are stubbed
+- Payment integration (eSewa) is modeled but not wired to a gateway
+- `/api/auth/me` endpoint is referenced by the client but not implemented in the server
+- Social login (Google, Facebook) buttons are UI placeholders
+- Registration page is an empty placeholder

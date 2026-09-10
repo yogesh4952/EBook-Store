@@ -12,3 +12,13 @@ You want to decouple your "Add to Cart" or "Send Email" logic.
         Level 2 (Persistent): Use Redis Lists (LPUSH to add, BRPOP to consume). Redis blocks the connection until a message arrives. (Teaches persistence and polling).
         Level 3 (The Real Deal): Introduce RabbitMQ (Skip Kafka for now; Kafka is too complex for a solo learner and abstracts away the basic queue mechanics). Learn about Exchanges, Routing Keys, and Acknowledgments (ACKs).
     The "Aha!" Moment: Intentionally crash your consumer service while it's processing a message. Learn how RabbitMQ's "Negative Acknowledgment" (NACK) re-queues the message so it isn't lost.
+
+Phase 2: Queue Management (Async Processing)
+
+    Expected Time: 2–3 Weeks
+    First Principle to Learn: A queue is just a durable list that provides backpressure and decoupling.
+    How to Integrate:
+        Week 1 (In-Memory): Create pkg/worker. Build a simple worker pool using Go channels that processes a slice of "email tasks".
+        Week 2 (Redis): Replace the channel with Redis LPUSH (producer) and BRPOP (consumer).
+        Week 3 (RabbitMQ): Install RabbitMQ via Docker. When PlaceOrder succeeds, instead of calling an email function synchronously, publish an OrderCreated event to a RabbitMQ exchange.
+        Exercise: Intentionally panic in your email worker. Learn how to use RabbitMQ NACK (Negative Acknowledgment) and Dead Letter Queues (DLQ) so the message isn't lost and can be retried.
