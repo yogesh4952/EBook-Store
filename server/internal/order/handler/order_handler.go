@@ -80,6 +80,19 @@ func (h *OrderHandler) PlaceOrder(c *gin.Context) {
 
 }
 
+// ListUserOrder godoc
+// @Summary      List User order
+// @Description  List the user order
+// @Tags         orders
+// @Accept       json
+// @Produce      json
+// @Success      202 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      401 {object} map[string]interface{}
+// @Failure      404 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Router       /order/list-user-order [get]
+// @Security     BearerAuth
 func (h *OrderHandler) ListUserOrder(c *gin.Context) {
 	userId, _ := c.Get("userId")
 
