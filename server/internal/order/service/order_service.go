@@ -14,15 +14,9 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	ErrInvalidAddress       = errors.New("invalid address id")
-	ErrBookNotFound         = errors.New("invalid book id")
-	ErrInvalidPaymentMethod = errors.New("invalid payment method")
-	ErrPlacingOrder         = errors.New("failed to place order")
-)
-
 type IOrderServ interface {
 	PlaceOrder(ctx context.Context, userID uint, orderPayload orderModel.PlaceOrderPayload) (*orderModel.PlaceOrderResponse, error)
+	ListUserOrder(ctx context.Context, userId uint) ([]*orderModel.Order, error)
 }
 
 type IAddressrepo interface {
@@ -46,15 +40,15 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 	switch orderPayload.PaymentMethod {
 	case orderModel.PayementCOD, orderModel.PayementEsewa:
 	default:
-		return nil, fmt.Errorf("%w: %s", ErrInvalidPaymentMethod, orderPayload.PaymentMethod)
+		return nil, fmt.Errorf("%w: %s", orderModel.ErrInvalidAddress, orderPayload.PaymentMethod)
 	}
 
 	userAddress, err := serv.userAddresRepo.FindUserAddressByIdAndUser(ctx, orderPayload.UserAddressId, userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("%w: %d", ErrInvalidAddress, orderPayload.UserAddressId)
+			return nil, fmt.Errorf("%w: %d", orderModel.ErrInvalidAddress, orderPayload.UserAddressId)
 		}
-		return nil, fmt.Errorf("%w: %v", ErrInvalidAddress, err)
+		return nil, fmt.Errorf("%w: %v", orderModel.ErrInvalidAddress, err)
 	}
 
 	bookIDs := make([]uint, 0, len(orderPayload.Items))
@@ -76,7 +70,7 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 	quantities := make(map[uint]uint, len(orderPayload.Items))
 	for _, item := range orderPayload.Items {
 		if _, ok := bookMap[item.BookId]; !ok {
-			return nil, fmt.Errorf("%w: %d", ErrBookNotFound, item.BookId)
+			return nil, fmt.Errorf("%w: %d", orderModel.ErrBookNotFound, item.BookId)
 		}
 		quantities[item.BookId] += item.Quantity
 	}
@@ -95,7 +89,7 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 
 	orderCode, err := generateOrderCode()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrPlacingOrder, err)
+		return nil, fmt.Errorf("%w: %v", orderModel.ErrPlacingOrder, err)
 	}
 
 	data := orderModel.Order{
@@ -109,7 +103,7 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 	}
 
 	if err := serv.orderRepo.PlaceOrder(ctx, &data, items); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrPlacingOrder, err)
+		return nil, fmt.Errorf("%w: %v", orderModel.ErrPlacingOrder, err)
 	}
 
 	res := orderModel.PlaceOrderResponse{
@@ -142,4 +136,13 @@ func generateOrderCode() (string, error) {
 		return "", err
 	}
 	return "ORD-" + base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(raw), nil
+}
+
+func (serv *orderServ) ListUserOrder(ctx context.Context, userId uint) ([]*orderModel.Order, error) {
+
+	data, err := serv.orderRepo.ListUserOrder(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("Error fetching User's order %w", err)
+	}
+	return data, nil
 }

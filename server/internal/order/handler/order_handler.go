@@ -43,15 +43,7 @@ func (h *OrderHandler) PlaceOrder(c *gin.Context) {
 		return
 	}
 
-	userIdValue, exist := c.Get("userId")
-
-	if exist == false {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"success": false,
-			"message": "Missing userid",
-		})
-		return
-	}
+	userIdValue, _ := c.Get("userId")
 
 	userID, ok := userIdValue.(uint)
 	if !ok {
@@ -67,9 +59,9 @@ func (h *OrderHandler) PlaceOrder(c *gin.Context) {
 	if err != nil {
 		status := http.StatusInternalServerError
 		switch {
-		case errors.Is(err, service.ErrInvalidAddress), errors.Is(err, service.ErrBookNotFound):
+		case errors.Is(err, models.ErrInvalidAddress), errors.Is(err, models.ErrBookNotFound):
 			status = http.StatusNotFound
-		case errors.Is(err, service.ErrInvalidPaymentMethod):
+		case errors.Is(err, models.ErrInvalidPaymentMethod):
 			status = http.StatusBadRequest
 		}
 
@@ -83,6 +75,36 @@ func (h *OrderHandler) PlaceOrder(c *gin.Context) {
 	c.JSON(http.StatusAccepted, gin.H{
 		"success": true,
 		"message": "Order placed succesfully",
+		"data":    data,
+	})
+
+}
+
+func (h *OrderHandler) ListUserOrder(c *gin.Context) {
+	userId, _ := c.Get("userId")
+
+	userIdValue, ok := userId.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "invalid user ID",
+		})
+		return
+	}
+
+	data, err := h.svc.ListUserOrder(c.Request.Context(), userIdValue)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusAccepted, gin.H{
+		"success": true,
+		"message": "Order fetch successfully",
 		"data":    data,
 	})
 

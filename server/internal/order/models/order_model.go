@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/yogesh4952/ebookstore/internal/user/models"
 	"gorm.io/gorm"
 )
@@ -69,3 +71,10 @@ type PlaceOrderResponse struct {
 	Address       string              `json:"address"`
 	Items         []OrderItemResponse `json:"items"`
 }
+
+var (
+	ErrInvalidAddress       = errors.New("invalid address id")
+	ErrBookNotFound         = errors.New("invalid book id")
+	ErrInvalidPaymentMethod = errors.New("invalid payment method")
+	ErrPlacingOrder         = errors.New("failed to place order")
+)

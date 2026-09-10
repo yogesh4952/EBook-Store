@@ -119,6 +119,7 @@ func main() {
 		orderRoutes := apiRoutes.Group("/order")
 		{
 			orderRoutes.POST("/place-order", middleware.AuthRequired(), orderHandler.PlaceOrder)
+			orderRoutes.GET("/list-user-order", middleware.AuthRequired(), orderHandler.ListUserOrder)
 		}
 
 		addressRoute := apiRoutes.Group("/address")

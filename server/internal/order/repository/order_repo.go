@@ -9,6 +9,7 @@ import (
 
 type IOrderRepo interface {
 	PlaceOrder(ctx context.Context, data *models.Order, items []*models.OrderItem) error
+	ListUserOrder(ctx context.Context, userId uint) ([]*models.Order, error)
 }
 
 type orderRepo struct {
@@ -37,4 +38,14 @@ func (r *orderRepo) PlaceOrder(ctx context.Context, data *models.Order, items []
 
 		return tx.CreateInBatches(items, orderItemBatchSize).Error
 	})
+}
+
+func (r *orderRepo) ListUserOrder(ctx context.Context, userId uint) ([]*models.Order, error) {
+
+	var order []*models.Order
+
+	if err := r.db.Preload("OrderItem").WithContext(ctx).Where("user_id = ?", userId).Find(&order).Error; err != nil {
+		return nil, err
+	}
+	return order, nil
 }
