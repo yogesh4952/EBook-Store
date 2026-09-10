@@ -1,23 +1,48 @@
 basePath: /api
 definitions:
-  handler.LoginPayload:
+  github_com_yogesh4952_ebookstore_internal_address_models.UserAddress:
     properties:
+      city:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      delivery_address:
+        type: string
+      id:
+        type: integer
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.User'
+      user_id:
+        type: integer
+    required:
+    - city
+    - delivery_address
+    - user_id
+    type: object
+  github_com_yogesh4952_ebookstore_internal_auth_models.RegisterPayload:
+    properties:
+      age:
+        type: integer
       email:
         type: string
-      otp:
+      first_name:
         type: string
-    required:
-    - email
-    - otp
-    type: object
-  handler.SendOTPRequest:
-    properties:
-      email:
+      last_name:
         type: string
+      role:
+        $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.Role'
     required:
+    - age
     - email
+    - first_name
+    - last_name
+    - role
     type: object
-  models.PublishBookPayload:
+  github_com_yogesh4952_ebookstore_internal_book_models.PublishBookPayload:
     properties:
       author_name:
         type: string
@@ -28,16 +53,21 @@ definitions:
       genre:
         type: string
       pages:
+        minimum: 10
         type: integer
       price:
-        type: number
+        minimum: 1000
+        type: integer
       publication:
         type: string
       seller_id:
         type: integer
       title:
+        maxLength: 60
+        minLength: 2
         type: string
       units:
+        minimum: 0
         type: integer
     required:
     - author_name
@@ -49,7 +79,7 @@ definitions:
     - title
     - units
     type: object
-  models.UpdateBookPayload:
+  github_com_yogesh4952_ebookstore_internal_book_models.UpdateBookPayload:
     properties:
       author_name:
         type: string
@@ -62,26 +92,119 @@ definitions:
       genre:
         type: string
       pages:
+        minimum: 10
         type: integer
       price:
-        type: number
+        minimum: 1000
+        type: integer
       publication:
         type: string
       seller_id:
         type: integer
       title:
+        maxLength: 60
+        minLength: 2
         type: string
       units:
+        minimum: 0
         type: integer
     required:
-    - author_name
-    - category
-    - genre
-    - pages
-    - price
-    - publication
-    - title
-    - units
+    - book_id
+    - seller_id
+    type: object
+  github_com_yogesh4952_ebookstore_internal_order_models.OrderItemRequest:
+    properties:
+      book_id:
+        type: integer
+      quantity:
+        minimum: 1
+        type: integer
+      seller_id:
+        type: integer
+    required:
+    - book_id
+    - quantity
+    - seller_id
+    type: object
+  github_com_yogesh4952_ebookstore_internal_order_models.PaymentMethod:
+    enum:
+    - COD
+    - ESEWA
+    type: string
+    x-enum-varnames:
+    - PayementCOD
+    - PayementEsewa
+  github_com_yogesh4952_ebookstore_internal_order_models.PlaceOrderPayload:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_order_models.OrderItemRequest'
+        minItems: 1
+        type: array
+      payment_method:
+        $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_order_models.PaymentMethod'
+      user_address_id:
+        type: integer
+    required:
+    - items
+    - payment_method
+    - user_address_id
+    type: object
+  github_com_yogesh4952_ebookstore_internal_user_models.Role:
+    enum:
+    - admin
+    - customer
+    - seller
+    type: string
+    x-enum-varnames:
+    - RoleAdmin
+    - RoleCustomer
+    - Roleseller
+  github_com_yogesh4952_ebookstore_internal_user_models.User:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      role:
+        $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.Role'
+      updatedAt:
+        type: string
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  internal_auth_handler.LoginPayload:
+    properties:
+      email:
+        type: string
+      otp:
+        type: string
+    required:
+    - email
+    - otp
+    type: object
+  internal_auth_handler.SendOTPRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
     type: object
 host: localhost:8080
 info:
@@ -90,6 +213,36 @@ info:
   title: EBook Store API
   version: "1.0"
 paths:
+  /address/add-address:
+    post:
+      consumes:
+      - application/json
+      description: Add a shipping address for the authenticated user
+      parameters:
+      - description: Address data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_address_models.UserAddress'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add a new address
+      tags:
+      - addresses
   /auth/login:
     post:
       consumes:
@@ -101,7 +254,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/handler.LoginPayload'
+          $ref: '#/definitions/internal_auth_handler.LoginPayload'
       produces:
       - application/json
       responses:
@@ -129,12 +282,12 @@ paths:
       - application/json
       description: Create a new user account (customer or seller)
       parameters:
-      - description: Registration data with first_name, last_name, email, role, age
+      - description: Registration data
         in: body
         name: payload
         required: true
         schema:
-          type: object
+          $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_auth_models.RegisterPayload'
       produces:
       - application/json
       responses:
@@ -167,7 +320,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/handler.SendOTPRequest'
+          $ref: '#/definitions/internal_auth_handler.SendOTPRequest'
       produces:
       - application/json
       responses:
@@ -230,7 +383,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/models.PublishBookPayload'
+          $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_book_models.PublishBookPayload'
       produces:
       - application/json
       responses:
@@ -260,7 +413,7 @@ paths:
       tags:
       - books
   /book/update-book:
-    put:
+    patch:
       consumes:
       - application/json
       description: Update book details (owner only)
@@ -270,7 +423,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/models.UpdateBookPayload'
+          $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_book_models.UpdateBookPayload'
       produces:
       - application/json
       responses:
@@ -294,6 +447,51 @@ paths:
       summary: Update an existing book
       tags:
       - books
+  /order/place-order:
+    post:
+      consumes:
+      - application/json
+      description: Create a new order with items, payment method, and shipping address
+      parameters:
+      - description: Order data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_order_models.PlaceOrderPayload'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Place a new order
+      tags:
+      - orders
   /users:
     get:
       description: Get all registered users

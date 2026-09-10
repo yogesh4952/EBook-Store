@@ -17,6 +17,20 @@ func NewOrderHandler(svc service.IOrderServ) *OrderHandler {
 	return &OrderHandler{svc: svc}
 }
 
+// PlaceOrder godoc
+// @Summary      Place a new order
+// @Description  Create a new order with items, payment method, and shipping address
+// @Tags         orders
+// @Accept       json
+// @Produce      json
+// @Param        payload body models.PlaceOrderPayload true "Order data"
+// @Success      202 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      401 {object} map[string]interface{}
+// @Failure      404 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Router       /order/place-order [post]
+// @Security     BearerAuth
 func (h *OrderHandler) PlaceOrder(c *gin.Context) {
 
 	var orderPayload models.PlaceOrderPayload

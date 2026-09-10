@@ -9,6 +9,53 @@
     "host": "localhost:8080",
     "basePath": "/api",
     "paths": {
+        "/address/add-address": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add a shipping address for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "addresses"
+                ],
+                "summary": "Add a new address",
+                "parameters": [
+                    {
+                        "description": "Address data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_address_models.UserAddress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate user and return JWT token",
@@ -29,7 +76,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.LoginPayload"
+                            "$ref": "#/definitions/internal_auth_handler.LoginPayload"
                         }
                     }
                 ],
@@ -73,12 +120,12 @@
                 "summary": "Register a new user",
                 "parameters": [
                     {
-                        "description": "Registration data with first_name, last_name, email, role, age",
+                        "description": "Registration data",
                         "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_auth_models.RegisterPayload"
                         }
                     }
                 ],
@@ -127,7 +174,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.SendOTPRequest"
+                            "$ref": "#/definitions/internal_auth_handler.SendOTPRequest"
                         }
                     }
                 ],
@@ -225,7 +272,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.PublishBookPayload"
+                            "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_book_models.PublishBookPayload"
                         }
                     }
                 ],
@@ -262,7 +309,7 @@
             }
         },
         "/book/update-book": {
-            "put": {
+            "patch": {
                 "security": [
                     {
                         "BearerAuth": []
@@ -286,7 +333,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateBookPayload"
+                            "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_book_models.UpdateBookPayload"
                         }
                     }
                 ],
@@ -307,6 +354,74 @@
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/order/place-order": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new order with items, payment method, and shipping address",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Place a new order",
+                "parameters": [
+                    {
+                        "description": "Order data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_order_models.PlaceOrderPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -353,33 +468,68 @@
         }
     },
     "definitions": {
-        "handler.LoginPayload": {
+        "github_com_yogesh4952_ebookstore_internal_address_models.UserAddress": {
             "type": "object",
             "required": [
-                "email",
-                "otp"
+                "city",
+                "delivery_address",
+                "user_id"
             ],
             "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "delivery_address": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_yogesh4952_ebookstore_internal_auth_models.RegisterPayload": {
+            "type": "object",
+            "required": [
+                "age",
+                "email",
+                "first_name",
+                "last_name",
+                "role"
+            ],
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
                 },
-                "otp": {
+                "first_name": {
                     "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.Role"
                 }
             }
         },
-        "handler.SendOTPRequest": {
-            "type": "object",
-            "required": [
-                "email"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.PublishBookPayload": {
+        "github_com_yogesh4952_ebookstore_internal_book_models.PublishBookPayload": {
             "type": "object",
             "required": [
                 "author_name",
@@ -405,10 +555,12 @@
                     "type": "string"
                 },
                 "pages": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 10
                 },
                 "price": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": 1000
                 },
                 "publication": {
                     "type": "string"
@@ -417,24 +569,21 @@
                     "type": "integer"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 60,
+                    "minLength": 2
                 },
                 "units": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 }
             }
         },
-        "models.UpdateBookPayload": {
+        "github_com_yogesh4952_ebookstore_internal_book_models.UpdateBookPayload": {
             "type": "object",
             "required": [
-                "author_name",
-                "category",
-                "genre",
-                "pages",
-                "price",
-                "publication",
-                "title",
-                "units"
+                "book_id",
+                "seller_id"
             ],
             "properties": {
                 "author_name": {
@@ -453,10 +602,12 @@
                     "type": "string"
                 },
                 "pages": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 10
                 },
                 "price": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": 1000
                 },
                 "publication": {
                     "type": "string"
@@ -465,10 +616,150 @@
                     "type": "integer"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 60,
+                    "minLength": 2
                 },
                 "units": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "github_com_yogesh4952_ebookstore_internal_order_models.OrderItemRequest": {
+            "type": "object",
+            "required": [
+                "book_id",
+                "quantity",
+                "seller_id"
+            ],
+            "properties": {
+                "book_id": {
                     "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "seller_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_yogesh4952_ebookstore_internal_order_models.PaymentMethod": {
+            "type": "string",
+            "enum": [
+                "COD",
+                "ESEWA"
+            ],
+            "x-enum-varnames": [
+                "PayementCOD",
+                "PayementEsewa"
+            ]
+        },
+        "github_com_yogesh4952_ebookstore_internal_order_models.PlaceOrderPayload": {
+            "type": "object",
+            "required": [
+                "items",
+                "payment_method",
+                "user_address_id"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_order_models.OrderItemRequest"
+                    }
+                },
+                "payment_method": {
+                    "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_order_models.PaymentMethod"
+                },
+                "user_address_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_yogesh4952_ebookstore_internal_user_models.Role": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "customer",
+                "seller"
+            ],
+            "x-enum-varnames": [
+                "RoleAdmin",
+                "RoleCustomer",
+                "Roleseller"
+            ]
+        },
+        "github_com_yogesh4952_ebookstore_internal_user_models.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.Role"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "internal_auth_handler.LoginPayload": {
+            "type": "object",
+            "required": [
+                "email",
+                "otp"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "otp": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_auth_handler.SendOTPRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
                 }
             }
         }

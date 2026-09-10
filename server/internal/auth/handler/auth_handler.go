@@ -118,7 +118,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        payload body object true "Registration data with first_name, last_name, email, role, age"
+// @Param        payload body authmodels.RegisterPayload true "Registration data"
 // @Success      200 {object} map[string]interface{}
 // @Failure      400 {object} map[string]interface{}
 // @Failure      409 {object} map[string]interface{}
