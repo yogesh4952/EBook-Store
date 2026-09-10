@@ -14,6 +14,7 @@ type IBookRepo interface {
 	UpdateBook(ctx context.Context, book *models.Book) (models.Book, error)
 	UpdateBookAtomic(ctx context.Context, userId uint, bookId uint, updates map[string]interface{}) (*models.Book, error)
 	FindById(ctx context.Context, id uint) (*models.Book, error)
+	FindByIds(ctx context.Context, ids []uint) ([]models.Book, error)
 	ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error)
 	SeedBooks(books []*models.Book) error
 }
@@ -37,6 +38,18 @@ func (b *bookRepo) FindById(ctx context.Context, id uint) (*models.Book, error) 
 		return nil, err
 	}
 	return &book, nil
+}
+
+func (b *bookRepo) FindByIds(ctx context.Context, ids []uint) ([]models.Book, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	var books []models.Book
+	if err := b.db.WithContext(ctx).Where("id IN ?", ids).Find(&books).Error; err != nil {
+		return nil, err
+	}
+	return books, nil
 }
 
 func (b *bookRepo) UpdateBook(ctx context.Context, book *models.Book) (models.Book, error) {

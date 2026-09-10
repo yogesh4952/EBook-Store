@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -50,7 +51,15 @@ func (h *OrderHandler) PlaceOrder(c *gin.Context) {
 	data, err := h.svc.PlaceOrder(c.Request.Context(), userID, orderPayload)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		status := http.StatusInternalServerError
+		switch {
+		case errors.Is(err, service.ErrInvalidAddress), errors.Is(err, service.ErrBookNotFound):
+			status = http.StatusNotFound
+		case errors.Is(err, service.ErrInvalidPaymentMethod):
+			status = http.StatusBadRequest
+		}
+
+		c.JSON(status, gin.H{
 			"success": false,
 			"message": err.Error(),
 		})

@@ -20,7 +20,7 @@ type Book struct {
 	Category     string         `json:"category"`
 	Pages        uint           `json:"pages"`
 	Publication  string         `json:"publication"`
-	Price        float32        `json:"price"`
+	Price        int64          `json:"price"`
 	Units        int            `json:"units"`
 	CoverPageUrl string         `json:"cover_page_url" binding:"url"`
 	SellerID     *uint          `json:"seller_id"`
@@ -29,30 +29,30 @@ type Book struct {
 }
 
 type PublishBookPayload struct {
-	Title        string  `json:"title" binding:"required,min=2,max=60"`
-	AuthorName   string  `json:"author_name" binding:"required"`
-	Genre        string  `json:"genre" binding:"required"`
-	Category     string  `json:"category" binding:"required"`
-	Pages        uint    `json:"pages" binding:"required,min=10"`
-	Publication  string  `json:"publication" binding:"required"`
-	Price        float32 `json:"price" binding:"required,min=10"`
-	Units        int     `json:"units" binding:"required,min=0"`
-	CoverPageUrl string  `json:"cover_page_url" binding:"url,omitempty"`
-	SellerId     *uint   `json:"seller_id"`
+	Title        string `json:"title" binding:"required,min=2,max=60"`
+	AuthorName   string `json:"author_name" binding:"required"`
+	Genre        string `json:"genre" binding:"required"`
+	Category     string `json:"category" binding:"required"`
+	Pages        uint   `json:"pages" binding:"required,min=10"`
+	Publication  string `json:"publication" binding:"required"`
+	Price        int64  `json:"price" binding:"required,min=1000"`
+	Units        int    `json:"units" binding:"required,min=0"`
+	CoverPageUrl string `json:"cover_page_url" binding:"url,omitempty"`
+	SellerId     *uint  `json:"seller_id"`
 }
 
 type UpdateBookPayload struct {
-	Title        *string  `json:"title" binding:"omitempty,min=2,max=60"`
-	AuthorName   *string  `json:"author_name"`
-	Genre        *string  `json:"genre"`
-	Category     *string  `json:"category"`
-	Pages        *uint    `json:"pages" binding:"omitempty,min=10"`
-	Publication  *string  `json:"publication"`
-	Price        *float32 `json:"price" binding:"omitempty,min=10"`
-	Units        *int     `json:"units" binding:"omitempty,min=0"`
-	CoverPageUrl *string  `json:"cover_page_url" binding:"url,omitempty"`
-	SellerId     uint     `json:"seller_id" binding:"required"`
-	BookId       uint     `json:"book_id" binding:"required"`
+	Title        *string `json:"title" binding:"omitempty,min=2,max=60"`
+	AuthorName   *string `json:"author_name"`
+	Genre        *string `json:"genre"`
+	Category     *string `json:"category"`
+	Pages        *uint   `json:"pages" binding:"omitempty,min=10"`
+	Publication  *string `json:"publication"`
+	Price        *int64  `json:"price" binding:"omitempty,min=1000"`
+	Units        *int    `json:"units" binding:"omitempty,min=0"`
+	CoverPageUrl *string `json:"cover_page_url" binding:"url,omitempty"`
+	SellerId     uint    `json:"seller_id" binding:"required"`
+	BookId       uint    `json:"book_id" binding:"required"`
 }
 
 func (p *UpdateBookPayload) IsEmpty() bool {

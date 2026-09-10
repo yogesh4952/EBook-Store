@@ -47,6 +47,7 @@ func (b *bookService) PublishBook(ctx context.Context, userId uint, data *models
 		Publication:  data.Publication,
 		Price:        data.Price,
 		Units:        data.Units,
+		Status:       models.StatusAvailable,
 		SellerID:     &seller.ID,
 		CoverPageUrl: data.CoverPageUrl,
 	}
@@ -132,6 +133,7 @@ func (b *bookService) BatchBookSeed(payloads []*models.PublishBookPayload) error
 			Publication:  payload.Publication,
 			Price:        payload.Price,
 			Units:        payload.Units,
+			Status:       models.StatusAvailable,
 			CoverPageUrl: payload.CoverPageUrl,
 			SellerID:     payload.SellerId,
 		}

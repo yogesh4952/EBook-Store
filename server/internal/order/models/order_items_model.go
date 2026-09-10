@@ -7,10 +7,10 @@ import (
 )
 
 type OrderItem struct {
-	OrderId   uint `json:"order_id" gorm:"primaryKey; unique; index:idx_order_book; not null"`
-	BookId    uint `json:"book_id" gorm:"primaryKey;unique; index:idx_order_book; not null"`
-	Quantity  uint `json:"quantity" binding:"required,min=1"`
-	UnitPrice uint `json:"unit_price" binding:"required,min=0"`
+	OrderId   uint  `json:"order_id" gorm:"primaryKey; index:idx_order_book; not null"`
+	BookId    uint  `json:"book_id" gorm:"primaryKey; index:idx_order_book; not null"`
+	Quantity  uint  `json:"quantity" binding:"required,min=1"`
+	UnitPrice int64 `json:"unit_price" binding:"required,min=0"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 

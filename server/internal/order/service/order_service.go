@@ -2,15 +2,23 @@ package service
 
 import (
 	"context"
-	"encoding/json"
+	"crypto/rand"
+	"encoding/base32"
+	"errors"
 	"fmt"
-	"math/rand"
-	"strconv"
 
 	"github.com/yogesh4952/ebookstore/internal/address/models"
 	bookModels "github.com/yogesh4952/ebookstore/internal/book/models"
 	orderModel "github.com/yogesh4952/ebookstore/internal/order/models"
 	"github.com/yogesh4952/ebookstore/internal/order/repository"
+	"gorm.io/gorm"
+)
+
+var (
+	ErrInvalidAddress       = errors.New("invalid address id")
+	ErrBookNotFound         = errors.New("invalid book id")
+	ErrInvalidPaymentMethod = errors.New("invalid payment method")
+	ErrPlacingOrder         = errors.New("failed to place order")
 )
 
 type IOrderServ interface {
@@ -18,11 +26,11 @@ type IOrderServ interface {
 }
 
 type IAddressrepo interface {
-	FindUserAddressById(ctx context.Context, addreessId uint) (*models.UserAddress, error)
+	FindUserAddressByIdAndUser(ctx context.Context, addressID uint, userID uint) (*models.UserAddress, error)
 }
 
 type IBookRepo interface {
-	FindById(ctx context.Context, id uint) (*bookModels.Book, error)
+	FindByIds(ctx context.Context, ids []uint) ([]bookModels.Book, error)
 }
 type orderServ struct {
 	orderRepo      repository.IOrderRepo
@@ -35,62 +43,103 @@ func NewOrderService(orderRepo repository.IOrderRepo, bookRepo IBookRepo, addres
 }
 
 func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload orderModel.PlaceOrderPayload) (*orderModel.PlaceOrderResponse, error) {
-
-	var data orderModel.Order
-	data.OrderStatus = orderModel.OrderStatus("PLACED")
-	data.UserId = userID
-
-	userAddress, err := serv.userAddresRepo.FindUserAddressById(ctx, orderPayload.UserAddressId)
-	data.PaymentMethod = orderPayload.PaymentMethod
-
-	data.User = userAddress.User
-	if err != nil {
-		return nil, fmt.Errorf("%w", err)
+	switch orderPayload.PaymentMethod {
+	case orderModel.PayementCOD, orderModel.PayementEsewa:
+	default:
+		return nil, fmt.Errorf("%w: %s", ErrInvalidPaymentMethod, orderPayload.PaymentMethod)
 	}
 
-	data.ShippingCity = userAddress.City
-	data.ShippingDeliveryAddress = userAddress.DeliveryAddress
-
-	total_price := float32(0.0)
-	for _, val := range orderPayload.Items {
-
-		book, err := serv.bookRepo.FindById(ctx, val.BookId)
-
-		// we have to push the data into order item table as well
-		if err != nil {
-			return nil, fmt.Errorf("Invalid book id")
+	userAddress, err := serv.userAddresRepo.FindUserAddressByIdAndUser(ctx, orderPayload.UserAddressId, userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("%w: %d", ErrInvalidAddress, orderPayload.UserAddressId)
 		}
-		total_price += book.Price * float32(val.Quantity)
+		return nil, fmt.Errorf("%w: %v", ErrInvalidAddress, err)
 	}
 
-	data.TotalPrice = float32(total_price)
-	randOrderCode := rand.Int()
+	bookIDs := make([]uint, 0, len(orderPayload.Items))
 
-	var OrderCode string
+	for _, item := range orderPayload.Items {
+		bookIDs = append(bookIDs, item.BookId)
+	}
 
-	OrderCode = "#ORDER_CODE:" + strconv.Itoa(randOrderCode)
-	data.OrderCode = OrderCode
-
-	err = serv.orderRepo.PlaceOrder(ctx, &data)
-
+	books, err := serv.bookRepo.FindByIds(ctx, bookIDs)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to load books: %w", err)
 	}
 
-	var res orderModel.PlaceOrderResponse
-	res.Address = data.ShippingCity + "," + data.ShippingDeliveryAddress
-	res.TotalPrice = float64(data.TotalPrice)
-	res.OrderCode = data.OrderCode
-	items, err := json.Marshal(orderPayload.Items)
+	bookMap := make(map[uint]*bookModels.Book, len(books))
+	for i := range books {
+		bookMap[books[i].ID] = &books[i]
+	}
+
+	quantities := make(map[uint]uint, len(orderPayload.Items))
+	for _, item := range orderPayload.Items {
+		if _, ok := bookMap[item.BookId]; !ok {
+			return nil, fmt.Errorf("%w: %d", ErrBookNotFound, item.BookId)
+		}
+		quantities[item.BookId] += item.Quantity
+	}
+
+	var totalPrice int64
+	items := make([]*orderModel.OrderItem, 0, len(quantities))
+	for bookID, quantity := range quantities {
+		book := bookMap[bookID]
+		totalPrice += book.Price * int64(quantity)
+		items = append(items, &orderModel.OrderItem{
+			BookId:    bookID,
+			Quantity:  quantity,
+			UnitPrice: book.Price,
+		})
+	}
+
+	orderCode, err := generateOrderCode()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrPlacingOrder, err)
 	}
-	if err = json.Unmarshal(items, &res.Items); err != nil {
-		return nil, err
-	}
-	res.OrderStatus = "PLACED"
-	res.PaymentStatus = data.PaymentStatus
-	res.OrderID = data.ID
 
-	return &res, err
+	data := orderModel.Order{
+		OrderCode:               orderCode,
+		OrderStatus:             orderModel.OrderPlaced,
+		UserId:                  userID,
+		PaymentMethod:           orderPayload.PaymentMethod,
+		ShippingCity:            userAddress.City,
+		ShippingDeliveryAddress: userAddress.DeliveryAddress,
+		TotalPrice:              totalPrice,
+	}
+
+	if err := serv.orderRepo.PlaceOrder(ctx, &data, items); err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrPlacingOrder, err)
+	}
+
+	res := orderModel.PlaceOrderResponse{
+		OrderID:       data.ID,
+		OrderCode:     data.OrderCode,
+		TotalPrice:    data.TotalPrice,
+		PaymentStatus: data.PaymentStatus,
+		OrderStatus:   data.OrderStatus,
+		Address:       data.ShippingCity + "," + data.ShippingDeliveryAddress,
+		Items:         make([]orderModel.OrderItemResponse, 0, len(items)),
+	}
+
+	for _, item := range items {
+		book := bookMap[item.BookId]
+		res.Items = append(res.Items, orderModel.OrderItemResponse{
+			BookId:    item.BookId,
+			Title:     book.Title,
+			Quantity:  item.Quantity,
+			UnitPrice: item.UnitPrice,
+			Subtotal:  item.UnitPrice * int64(item.Quantity),
+		})
+	}
+
+	return &res, nil
+}
+
+func generateOrderCode() (string, error) {
+	raw := make([]byte, 6)
+	if _, err := rand.Read(raw); err != nil {
+		return "", err
+	}
+	return "ORD-" + base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(raw), nil
 }

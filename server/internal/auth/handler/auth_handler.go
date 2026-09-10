@@ -52,7 +52,7 @@ func (h *AuthHandler) SendOTP(c *gin.Context) {
 	if err := h.service.SendOTP(c.Request.Context(), req.Email); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "Failed to send OTP, please try again",
+			"message": err.Error(),
 		})
 		return
 	}
@@ -111,6 +111,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		"token":   token,
 	})
 }
+
 // Register godoc
 // @Summary      Register a new user
 // @Description  Create a new user account (customer or seller)

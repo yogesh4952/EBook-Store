@@ -8,7 +8,7 @@ import (
 )
 
 type IOrderRepo interface {
-	PlaceOrder(ctx context.Context, data *models.Order) error
+	PlaceOrder(ctx context.Context, data *models.Order, items []*models.OrderItem) error
 }
 
 type orderRepo struct {
@@ -19,11 +19,22 @@ func NewOrderRepo(db *gorm.DB) *orderRepo {
 	return &orderRepo{db: db}
 }
 
-func (r *orderRepo) PlaceOrder(ctx context.Context, data *models.Order) error {
-	return r.db.WithContext(ctx).Create(data).Error
+const orderItemBatchSize = 100
 
-}
+func (r *orderRepo) PlaceOrder(ctx context.Context, data *models.Order, items []*models.OrderItem) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(data).Error; err != nil {
+			return err
+		}
 
-func (r *orderRepo) OrderItem(ctx context.Context, data []*models.OrderItem) error {
-	return r.db.WithContext(ctx).CreateInBatches(data).Error
+		if len(items) == 0 {
+			return nil
+		}
+
+		for _, item := range items {
+			item.OrderId = data.ID
+		}
+
+		return tx.CreateInBatches(items, orderItemBatchSize).Error
+	})
 }
