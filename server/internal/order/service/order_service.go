@@ -2,8 +2,11 @@ package service
 
 import (
 	"context"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base32"
+	"encoding/base64"
 	"errors"
 	"fmt"
 
@@ -127,7 +130,45 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 		})
 	}
 
+	//esewa payload
+
+	if orderPayload.PaymentMethod == orderModel.PayementEsewa {
+
+		signature, err := generateSignature(string(totalPrice), data.TransactionUUID, "EPAYTEST")
+		if err != nil {
+			return nil, err
+		}
+
+		res.EsewaPayload = orderModel.EsewaPayload{
+			Amount:                uint(data.TotalPrice),
+			TransactionUUID:       data.OrderCode,
+			FailureUrl:            "http://localhost:8080/api/payment/success",
+			SuccessUrl:            "http://localhost:8080/api/payment/success",
+			PrdouctDeliveryCharge: 0,
+			ProductServiceCharge:  0,
+			ProductCode:           data.OrderCode,
+			TotalAmount:           uint(data.TotalPrice),
+			SignedFieldNames:      "total_amount,transaction_uuid,product_code",
+			TaxAmount:             0,
+			Signature:             signature,
+		}
+
+	}
+
 	return &res, nil
+}
+
+func generateSignature(totalPrice, TransactionUUID, productCode string) (string, error) {
+
+	message := fmt.Sprintf("total_amount=%s,transaction_uuid=%s,product_code=%s", totalPrice, TransactionUUID, productCode)
+	secretKey := "jdsakjd"
+	mac := hmac.New(sha256.New, []byte(secretKey))
+	mac.Write([]byte(message))
+	rawSignature := mac.Sum(nil)
+
+	signature := base64.StdEncoding.EncodeToString(rawSignature)
+	return signature, nil
+
 }
 
 func generateOrderCode() (string, error) {
@@ -138,11 +179,10 @@ func generateOrderCode() (string, error) {
 	return "ORD-" + base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(raw), nil
 }
 
-func (serv *orderServ) ListUserOrder(ctx context.Context, userId uint) ([]*orderModel.Order, error) {
-
-	data, err := serv.orderRepo.ListUserOrder(ctx, userId)
+func (serv *orderServ) ListUserOrder(ctx context.Context, userID uint) ([]*orderModel.Order, error) {
+	data, err := serv.orderRepo.ListUserOrder(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("Error fetching User's order %w", err)
+		return nil, fmt.Errorf("error fetching User's order %w", err)
 	}
 	return data, nil
 }

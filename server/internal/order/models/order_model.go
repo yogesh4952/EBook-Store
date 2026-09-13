@@ -29,12 +29,13 @@ const (
 
 type Order struct {
 	gorm.Model
-	OrderCode     string        `json:"order_code" gorm:"unique;not null"`
-	PaymentMethod PaymentMethod `json:"payment_method" gorm:"check:payment_method IN ('COD','ESEWA');not null;"`
-	PaymentStatus PaymentStatus `json:"payment_status" gorm:"check:payment_status IN ('PAID','PENDING','REFUND');not null; default:'PENDING'"`
-	OrderStatus   OrderStatus   `json:"order_status" gorm:"check:order_status IN ('DELIVERED','CANCELLED' ,'PLACED'); default:''"`
-	TotalPrice    int64         `json:"total_price" binding:"required,min=1"`
-	UserId        uint          `json:"user_id" gorm:"index:idx_userid"`
+	OrderCode       string        `json:"order_code" gorm:"unique;not null"`
+	TransactionUUID string        `gorm:"unique;not null" json:"transaction_uuid"`
+	PaymentMethod   PaymentMethod `json:"payment_method" gorm:"check:payment_method IN ('COD','ESEWA');not null;"`
+	PaymentStatus   PaymentStatus `json:"payment_status" gorm:"check:payment_status IN ('PAID','PENDING','REFUND');not null; default:'PENDING'"`
+	OrderStatus     OrderStatus   `json:"order_status" gorm:"check:order_status IN ('DELIVERED','CANCELLED' ,'PLACED'); default:''"`
+	TotalPrice      int64         `json:"total_price" binding:"required,min=1"`
+	UserId          uint          `json:"user_id" gorm:"index:idx_userid"`
 
 	ShippingCity            string `json:"shipping_city" binding:"required" gorm:"not null"`
 	ShippingDeliveryAddress string `json:"shipping_delivery_address" binding:"required" gorm:"not null"`
@@ -70,6 +71,34 @@ type PlaceOrderResponse struct {
 	OrderStatus   OrderStatus         `json:"order_status"`   // "confirmed", "processing", "shipped"
 	Address       string              `json:"address"`
 	Items         []OrderItemResponse `json:"items"`
+	EsewaPayload  EsewaPayload        `json:"esewa_payload"`
+}
+
+// "amount": "100",
+// "failure_url": "https://developer.esewa.com.np/failure",
+// "product_delivery_charge": "0",
+// "product_service_charge": "0",
+// "product_code": "EPAYTEST",
+// "signature": "i94zsd3oXF6ZsSr/kGqT4sSzYQzjj1W/waxjWyRwaME=",
+// "signed_field_names": "total_amount,transaction_uuid,product_code",
+// "success_url": "https://developer.esewa.com.np/success",
+// "tax_amount": "10",
+// "total_amount": "110",
+// "transaction_uuid": "241028"
+
+type EsewaPayload struct {
+	Amount                uint   `json:"amount"`
+	FailureUrl            string `json:"failure_url"`
+	PrdouctDeliveryCharge uint   `json:"prodcut_delivery_charge"`
+
+	ProductServiceCharge uint   `json:"product_service_charge"`
+	ProductCode          string `json:"product_code"`
+	Signature            string `json:"signature"`
+	SignedFieldNames     string `json:"signed_field_names"`
+	SuccessUrl           string `json:"success_url"`
+	TaxAmount            uint   `json:"tax_amount"`
+	TotalAmount          uint   `json:"total_amount"`
+	TransactionUUID      string `json:"transaction_uuid" gorm:"nullable"`
 }
 
 var (
