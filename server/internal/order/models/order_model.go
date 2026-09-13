@@ -30,7 +30,7 @@ const (
 type Order struct {
 	gorm.Model
 	OrderCode       string        `json:"order_code" gorm:"unique;not null"`
-	TransactionUUID string        `gorm:"unique;not null" json:"transaction_uuid"`
+	TransactionUUID string        `gorm:"unique;" json:"transaction_uuid"`
 	PaymentMethod   PaymentMethod `json:"payment_method" gorm:"check:payment_method IN ('COD','ESEWA');not null;"`
 	PaymentStatus   PaymentStatus `json:"payment_status" gorm:"check:payment_status IN ('PAID','PENDING','REFUND');not null; default:'PENDING'"`
 	OrderStatus     OrderStatus   `json:"order_status" gorm:"check:order_status IN ('DELIVERED','CANCELLED' ,'PLACED'); default:''"`
@@ -71,7 +71,7 @@ type PlaceOrderResponse struct {
 	OrderStatus   OrderStatus         `json:"order_status"`   // "confirmed", "processing", "shipped"
 	Address       string              `json:"address"`
 	Items         []OrderItemResponse `json:"items"`
-	EsewaPayload  EsewaPayload        `json:"esewa_payload"`
+	EsewaPayload  *EsewaPayload       `json:"esewa_payload,omitempty"`
 }
 
 // "amount": "100",
@@ -87,18 +87,17 @@ type PlaceOrderResponse struct {
 // "transaction_uuid": "241028"
 
 type EsewaPayload struct {
-	Amount                uint   `json:"amount"`
+	Amount                string `json:"amount"`
+	TotalAmount           string `json:"total_amount"`
+	TransactionUUID       string `json:"transaction_uuid"`
+	ProductCode           string `json:"product_code"`
+	ProductServiceCharge  string `json:"product_service_charge"`
+	ProductDeliveryCharge string `json:"product_delivery_charge"`
+	TaxAmount             string `json:"tax_amount"`
+	SignedFieldNames      string `json:"signed_field_names"`
+	Signature             string `json:"signature"`
+	SuccessUrl            string `json:"success_url"`
 	FailureUrl            string `json:"failure_url"`
-	PrdouctDeliveryCharge uint   `json:"prodcut_delivery_charge"`
-
-	ProductServiceCharge uint   `json:"product_service_charge"`
-	ProductCode          string `json:"product_code"`
-	Signature            string `json:"signature"`
-	SignedFieldNames     string `json:"signed_field_names"`
-	SuccessUrl           string `json:"success_url"`
-	TaxAmount            uint   `json:"tax_amount"`
-	TotalAmount          uint   `json:"total_amount"`
-	TransactionUUID      string `json:"transaction_uuid" gorm:"nullable"`
 }
 
 var (

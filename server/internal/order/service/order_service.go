@@ -97,6 +97,7 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 
 	data := orderModel.Order{
 		OrderCode:               orderCode,
+		TransactionUUID:         orderCode,
 		OrderStatus:             orderModel.OrderPlaced,
 		UserId:                  userID,
 		PaymentMethod:           orderPayload.PaymentMethod,
@@ -133,26 +134,31 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 	//esewa payload
 
 	if orderPayload.PaymentMethod == orderModel.PayementEsewa {
-
-		signature, err := generateSignature(string(totalPrice), data.TransactionUUID, "EPAYTEST")
+		signature, err := generateSignature(
+			fmt.Sprintf("%d", data.TotalPrice), // Convert to string!
+			data.TransactionUUID,
+			"EPAYTEST", // Hardcode your actual product code here
+		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to generate signature: %w", err)
 		}
 
-		res.EsewaPayload = orderModel.EsewaPayload{
-			Amount:                uint(data.TotalPrice),
-			TransactionUUID:       data.OrderCode,
-			FailureUrl:            "http://localhost:8080/api/payment/success",
-			SuccessUrl:            "http://localhost:8080/api/payment/success",
-			PrdouctDeliveryCharge: 0,
-			ProductServiceCharge:  0,
-			ProductCode:           data.OrderCode,
-			TotalAmount:           uint(data.TotalPrice),
+		// Convert total price to string for eSewa
+		totalAmountStr := fmt.Sprintf("%d", data.TotalPrice)
+
+		res.EsewaPayload = &orderModel.EsewaPayload{ // Note the '&' to make it a pointer
+			Amount:                totalAmountStr,
+			TotalAmount:           totalAmountStr,
+			TransactionUUID:       data.TransactionUUID,
+			ProductCode:           "EPAYTEST", // MUST be your eSewa merchant code, NOT the order code
+			ProductServiceCharge:  "0",
+			ProductDeliveryCharge: "0",
+			TaxAmount:             "0",
 			SignedFieldNames:      "total_amount,transaction_uuid,product_code",
-			TaxAmount:             0,
 			Signature:             signature,
+			SuccessUrl:            "http://localhost:8080/api/payment/esewa/success",
+			FailureUrl:            "http://localhost:8080/api/payment/esewa/failure",
 		}
-
 	}
 
 	return &res, nil
