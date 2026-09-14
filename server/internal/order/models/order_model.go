@@ -7,9 +7,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type PaymentMethod string
-type PaymentStatus string
-type OrderStatus string
+type (
+	PaymentMethod string
+	PaymentStatus string
+	OrderStatus   string
+)
 
 const (
 	PayementCOD   PaymentMethod = "COD"
@@ -21,6 +23,7 @@ const (
 	PayementPending PaymentStatus = "PENDING"
 	PayementRefund  PaymentStatus = "REFUND"
 )
+
 const (
 	OrderDelivered    OrderStatus = "DELIVERED"
 	PayementCancelled OrderStatus = "CANCELLED"
@@ -34,7 +37,7 @@ type Order struct {
 	PaymentMethod   PaymentMethod `json:"payment_method" gorm:"check:payment_method IN ('COD','ESEWA');not null;"`
 	PaymentStatus   PaymentStatus `json:"payment_status" gorm:"check:payment_status IN ('PAID','PENDING','REFUND');not null; default:'PENDING'"`
 	OrderStatus     OrderStatus   `json:"order_status" gorm:"check:order_status IN ('DELIVERED','CANCELLED' ,'PLACED'); default:''"`
-	TotalPrice      int64         `json:"total_price" binding:"required,min=1"`
+	TotalPrice      float32       `json:"total_price" binding:"required,min=1"`
 	UserId          uint          `json:"user_id" gorm:"index:idx_userid"`
 
 	ShippingCity            string `json:"shipping_city" binding:"required" gorm:"not null"`
@@ -57,16 +60,16 @@ type PlaceOrderPayload struct {
 }
 
 type OrderItemResponse struct {
-	BookId    uint   `json:"book_id"`
-	Title     string `json:"title"`
-	Quantity  uint   `json:"quantity"`
-	UnitPrice int64  `json:"unit_price"`
-	Subtotal  int64  `json:"subtotal"`
+	BookId    uint    `json:"book_id"`
+	Title     string  `json:"title"`
+	Quantity  uint    `json:"quantity"`
+	UnitPrice float32 `json:"unit_price"`
+	Subtotal  float32 `json:"subtotal"`
 }
 type PlaceOrderResponse struct {
 	OrderID       uint                `json:"order_id"`
 	OrderCode     string              `json:"order_code"` // Human-readable order number
-	TotalPrice    int64               `json:"total_price"`
+	TotalPrice    float32             `json:"total_price"`
 	PaymentStatus PaymentStatus       `json:"payment_status"` // "paid", "pending", "failed"
 	OrderStatus   OrderStatus         `json:"order_status"`   // "confirmed", "processing", "shipped"
 	Address       string              `json:"address"`

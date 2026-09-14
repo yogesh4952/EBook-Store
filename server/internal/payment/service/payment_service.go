@@ -15,9 +15,3 @@ type paymentService struct {
 func NewPaymentService(repo IPaymentRepo) *paymentService {
 	return &paymentService{repo: repo}
 }
-
-func (serv *paymentService) VerifySingature(ctx context.Context) error {
-
-	// boyd:= ctx.
-	// return nil
-}

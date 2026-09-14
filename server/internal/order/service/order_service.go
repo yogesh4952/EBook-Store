@@ -9,6 +9,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/yogesh4952/ebookstore/internal/address/models"
 	bookModels "github.com/yogesh4952/ebookstore/internal/book/models"
@@ -78,11 +80,11 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 		quantities[item.BookId] += item.Quantity
 	}
 
-	var totalPrice int64
+	var totalPrice float32
 	items := make([]*orderModel.OrderItem, 0, len(quantities))
 	for bookID, quantity := range quantities {
 		book := bookMap[bookID]
-		totalPrice += book.Price * int64(quantity)
+		totalPrice += book.Price * float32(quantity)
 		items = append(items, &orderModel.OrderItem{
 			BookId:    bookID,
 			Quantity:  quantity,
@@ -127,37 +129,34 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 			Title:     book.Title,
 			Quantity:  item.Quantity,
 			UnitPrice: item.UnitPrice,
-			Subtotal:  item.UnitPrice * int64(item.Quantity),
+			Subtotal:  item.UnitPrice * float32(item.Quantity),
 		})
 	}
 
-	//esewa payload
-
 	if orderPayload.PaymentMethod == orderModel.PayementEsewa {
+		totalAmountStr := fmt.Sprintf("%d", data.TotalPrice/100)
+
 		signature, err := generateSignature(
-			fmt.Sprintf("%d", data.TotalPrice), // Convert to string!
+			totalAmountStr,
 			data.TransactionUUID,
-			"EPAYTEST", // Hardcode your actual product code here
+			"EPAYTEST",
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate signature: %w", err)
 		}
 
-		// Convert total price to string for eSewa
-		totalAmountStr := fmt.Sprintf("%d", data.TotalPrice)
-
-		res.EsewaPayload = &orderModel.EsewaPayload{ // Note the '&' to make it a pointer
+		res.EsewaPayload = &orderModel.EsewaPayload{
 			Amount:                totalAmountStr,
 			TotalAmount:           totalAmountStr,
 			TransactionUUID:       data.TransactionUUID,
-			ProductCode:           "EPAYTEST", // MUST be your eSewa merchant code, NOT the order code
+			ProductCode:           "EPAYTEST",
 			ProductServiceCharge:  "0",
 			ProductDeliveryCharge: "0",
 			TaxAmount:             "0",
 			SignedFieldNames:      "total_amount,transaction_uuid,product_code",
 			Signature:             signature,
-			SuccessUrl:            "http://localhost:8080/api/payment/esewa/success",
-			FailureUrl:            "http://localhost:8080/api/payment/esewa/failure",
+			SuccessUrl:            os.Getenv("ESEWA_SUCCESS_URL"),
+			FailureUrl:            os.Getenv("ESEWA_FAILURE_URL"),
 		}
 	}
 
@@ -165,16 +164,20 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 }
 
 func generateSignature(totalPrice, TransactionUUID, productCode string) (string, error) {
-
 	message := fmt.Sprintf("total_amount=%s,transaction_uuid=%s,product_code=%s", totalPrice, TransactionUUID, productCode)
-	secretKey := "jdsakjd"
+	log.Printf("%s", message)
+	secretKey := "8gBm/:&EnhH.1/q"
+
+	if secretKey == "" {
+		return "", fmt.Errorf("empty secret key")
+	}
+
 	mac := hmac.New(sha256.New, []byte(secretKey))
 	mac.Write([]byte(message))
 	rawSignature := mac.Sum(nil)
 
 	signature := base64.StdEncoding.EncodeToString(rawSignature)
 	return signature, nil
-
 }
 
 func generateOrderCode() (string, error) {
