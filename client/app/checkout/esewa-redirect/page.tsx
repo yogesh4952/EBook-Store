@@ -64,33 +64,33 @@ export default function EsewaRedirect({
     });
 
     // 4. Append to the document and auto-submit
-    document.body.appendChildorm);
+    document.body.appendChild(form);
 
-  // Small delay to ensure the DOM is ready and the user sees the "Redirecting..." message
-  setTimeout(() => {
-    form.submit();
-  }, 500);
-}, [response]);
+    // Small delay to ensure the DOM is ready and the user sees the "Redirecting..." message
+    setTimeout(() => {
+      form.submit();
+    }, 500);
+  }, [response]);
 
-if (isRedirecting) {
+  if (isRedirecting) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p className="text-lg font-semibold text-gray-700">
+          Securely redirecting to eSewa...
+        </p>
+        <p className="text-sm text-gray-500 mt-2">
+          Please do not close this window.
+        </p>
+      </div>
+    );
+  }
+
+  // Fallback if there was no payload (e.g., user chose COD)
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-      <p className="text-lg font-semibold text-gray-700">
-        Securely redirecting to eSewa...
-      </p>
-      <p className="text-sm text-gray-500 mt-2">
-        Please do not close this window.
-      </p>
+    <div className="p-8 text-center">
+      <h1 className="text-2xl font-bold">Order Placed Successfully!</h1>
+      <p className="mt-2">Your order code is: {response.data.order_code}</p>
     </div>
   );
-}
-
-// Fallback if there was no payload (e.g., user chose COD)
-return (
-  <div className="p-8 text-center">
-    <h1 className="text-2xl font-bold">Order Placed Successfully!</h1>
-    <p className="mt-2">Your order code is: {response.data.order_code}</p>
-  </div>
-);
 }

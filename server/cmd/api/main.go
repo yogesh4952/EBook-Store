@@ -33,6 +33,10 @@ import (
 	orderRepo "github.com/yogesh4952/ebookstore/internal/order/repository"
 	orderService "github.com/yogesh4952/ebookstore/internal/order/service"
 	sellerrepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
+
+	paymentServ "github.com/yogesh4952/ebookstore/internal/payment/service"
+
+	paymentRepo "github.com/yogesh4952/ebookstore/internal/payment/repository"
 )
 
 // @title           EBook Store API
@@ -49,7 +53,6 @@ func init() {
 }
 
 func main() {
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -69,7 +72,7 @@ func main() {
 	router.Use(gin.Recovery())
 	router.Use(middleware.ZerologMiddleware())
 
-	//userDependency injection
+	// userDependency injection
 	userRepo := userrepo.NewUserRepository(db)
 	userService := userservice.NewUserService(userRepo)
 	userHandler := userhandler.NewUserHandler(userService)
@@ -92,6 +95,10 @@ func main() {
 	orderRepo := orderRepo.NewOrderRepo(db)
 	orderService := orderService.NewOrderService(orderRepo, bookRepo, addressRepo)
 	orderHandler := orderHandler.NewOrderHandler(orderService)
+
+	paymentRepo := paymentRepo.NewPaymentRepo(db)
+	paymentService := paymentServ.NewPaymentService(paymentRepo)
+	paymentHandler := paymentService.NewPaymentHandler(paymentServ)
 
 	apiRoutes := router.Group("/api")
 	{
@@ -122,6 +129,11 @@ func main() {
 			orderRoutes.GET("/list-user-order", middleware.AuthRequired(), orderHandler.ListUserOrder)
 		}
 
+		paymentRoute := apiRoutes.Group("/payment")
+		{
+			paymentRoute.POST("/verify-payment", middleware.AuthRequired(), paymentHandler.VerifyPayment)
+		}
+
 		addressRoute := apiRoutes.Group("/address")
 		{
 			addressRoute.POST("/add-address", middleware.AuthRequired(), addressHandler.AddAddress)
@@ -132,5 +144,4 @@ func main() {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.Run(":" + port)
-
 }

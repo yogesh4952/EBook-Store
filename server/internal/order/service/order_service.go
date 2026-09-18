@@ -134,7 +134,7 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 	}
 
 	if orderPayload.PaymentMethod == orderModel.PayementEsewa {
-		totalAmountStr := fmt.Sprintf("%d", data.TotalPrice/100)
+		totalAmountStr := fmt.Sprintf("%f", data.TotalPrice)
 
 		signature, err := generateSignature(
 			totalAmountStr,
