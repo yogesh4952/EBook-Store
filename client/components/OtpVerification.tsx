@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -9,10 +9,33 @@ interface IProps {
   onBack: () => void;
 }
 
+const OTP_LENGTH = 6;
+const OTP_TTL_SECONDS = 5 * 60;
+
+const formatTime = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+};
+
 const OtpVerification = ({ email, onBack }: IProps) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [secondsLeft, setSecondsLeft] = useState(OTP_TTL_SECONDS);
+  const [isVerifying, setIsVerifying] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    if (secondsLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [secondsLeft]);
+
+  const isExpired = secondsLeft <= 0;
 
   const handleChange = (value: string, index: number) => {
     if (!/^\d*$/.test(value)) return;
@@ -41,7 +64,7 @@ const OtpVerification = ({ email, onBack }: IProps) => {
     const pastedOtp = e.clipboardData
       .getData("text")
       .replace(/\D/g, "")
-      .slice(0, 6);
+      .slice(0, OTP_LENGTH);
 
     if (!pastedOtp) return;
 
@@ -53,17 +76,26 @@ const OtpVerification = ({ email, onBack }: IProps) => {
 
     setOtp(newOtp);
 
-    const nextIndex = Math.min(pastedOtp.length, 5);
+    const nextIndex = Math.min(pastedOtp.length, OTP_LENGTH - 1);
     inputRefs.current[nextIndex]?.focus();
   };
 
   const handleLogin = async () => {
+    if (isVerifying) return;
+
     const otpValue = otp.join("");
 
-    if (otpValue.length !== 6) {
+    if (otpValue.length !== OTP_LENGTH) {
       toast.error("Please enter the complete 6-digit OTP");
       return;
     }
+
+    if (isExpired) {
+      toast.error("This OTP has expired. Please request a new one.");
+      return;
+    }
+
+    setIsVerifying(true);
 
     try {
       const response = await fetch("/api/auth/login", {
@@ -90,6 +122,8 @@ const OtpVerification = ({ email, onBack }: IProps) => {
     } catch (error) {
       console.error(error);
       toast.error("Internal server error");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -166,14 +200,31 @@ const OtpVerification = ({ email, onBack }: IProps) => {
         </svg>
 
         <span>
-          The OTP will expire in{" "}
-          <span className="font-semibold text-[#b45f32]">05:00</span>
+          {isExpired ? (
+            <>
+              This OTP has expired.{" "}
+              <button
+                onClick={onBack}
+                className="font-semibold text-[#b45f32] underline underline-offset-2"
+              >
+                Request a new one
+              </button>
+            </>
+          ) : (
+            <>
+              The OTP will expire in{" "}
+              <span className="font-semibold text-[#b45f32]">
+                {formatTime(secondsLeft)}
+              </span>
+            </>
+          )}
         </span>
       </div>
 
       {/* Verify Button */}
       <button
         onClick={handleLogin}
+        disabled={isVerifying || isExpired}
         className="
           mt-8
           h-[58px]
@@ -187,9 +238,13 @@ const OtpVerification = ({ email, onBack }: IProps) => {
 
           hover:bg-[#9f4f2c]
           active:scale-[0.99]
+
+          disabled:cursor-not-allowed
+          disabled:opacity-60
+          disabled:hover:bg-[#b45f32]
         "
       >
-        Verify OTP
+        {isVerifying ? "Verifying..." : "Verify OTP"}
       </button>
 
       {/* Divider */}

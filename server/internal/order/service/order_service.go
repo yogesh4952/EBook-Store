@@ -17,6 +17,8 @@ import (
 )
 
 type IOrderServ interface {
+	fetchOrderByTransactionUUID(ctx context.Context, transactionUUID string) error
+
 	PlaceOrder(ctx context.Context, userID uint, orderPayload orderModel.PlaceOrderPayload) (*orderModel.PlaceOrderResponse, error)
 	ListUserOrder(ctx context.Context, userId uint) ([]*orderModel.Order, error)
 }
@@ -166,6 +168,11 @@ func generateOrderCode() (string, error) {
 		return "", err
 	}
 	return "ORD-" + base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(raw), nil
+}
+
+func (serv *orderServ) fetchOrderByTransactionUUID(ctx context.Context, transactionUUID string) error {
+
+	return nil
 }
 
 func (serv *orderServ) ListUserOrder(ctx context.Context, userID uint) ([]*orderModel.Order, error) {

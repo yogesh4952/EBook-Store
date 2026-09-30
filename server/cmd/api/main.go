@@ -131,9 +131,10 @@ func main() {
 
 		paymentRoute := apiRoutes.Group("/payment")
 		{
-			paymentRoute.POST("/verify-payment", middleware.AuthRequired(), paymentHandler.VerifyPayment)
-			paymentRoute.GET("/success", paymentHandler.HandleSuccess)
+			paymentRoute.GET("/success", paymentHandler.ConfirmEsewaPayment)
+			paymentRoute.GET("/failure", paymentHandler.HandleEsewaFailure)
 		}
+
 
 		addressRoute := apiRoutes.Group("/address")
 		{

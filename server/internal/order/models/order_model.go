@@ -34,6 +34,7 @@ type Order struct {
 	gorm.Model
 	OrderCode       string        `json:"order_code" gorm:"unique;not null"`
 	TransactionUUID string        `gorm:"unique;" json:"transaction_uuid"`
+	TransactionCode string        `json:"transaction_code" gorm:"index;"`
 	PaymentMethod   PaymentMethod `json:"payment_method" gorm:"check:payment_method IN ('COD','ESEWA');not null;"`
 	PaymentStatus   PaymentStatus `json:"payment_status" gorm:"check:payment_status IN ('PAID','PENDING','REFUND');not null; default:'PENDING'"`
 	OrderStatus     OrderStatus   `json:"order_status" gorm:"check:order_status IN ('DELIVERED','CANCELLED' ,'PLACED'); default:''"`

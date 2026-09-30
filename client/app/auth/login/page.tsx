@@ -16,9 +16,20 @@ const Login = () => {
 
   const [step, setStep] = useState(1);
 
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+
   const handleSendOtp = async () => {
+    if (isSendingOtp) return;
+
+    if (!email.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    setIsSendingOtp(true);
+
     try {
-      let input = { email };
+      const input = { email };
 
       const result = await fetch("/api/auth/send-otp", {
         method: "POST",
@@ -40,6 +51,8 @@ const Login = () => {
     } catch (error) {
       toast.error("Internal server error");
       console.error(error);
+    } finally {
+      setIsSendingOtp(false);
     }
   };
   return (
@@ -127,10 +140,11 @@ const Login = () => {
             </div>
 
             <button
-              className="mt-8 h-12 w-full rounded-lg bg-primary text-white transition hover:opacity-90"
+              className="mt-8 h-12 w-full rounded-lg bg-primary text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:opacity-100"
               onClick={() => handleSendOtp()}
+              disabled={isSendingOtp}
             >
-              Send-OTP
+              {isSendingOtp ? "Sending..." : "Send-OTP"}
             </button>
 
             <p className="my-8 text-center text-gray-500">or continue with</p>
