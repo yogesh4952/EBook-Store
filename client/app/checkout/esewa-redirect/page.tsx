@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 // This is the type of the payload your Go backend just returned
 interface EsewaPayload {
@@ -27,7 +27,13 @@ interface CheckoutResponse {
     payment_status: string;
     order_status: string;
     address: string;
-    items: any[];
+    items: {
+      book_id: number;
+      title: string;
+      quantity: number;
+      unit_price: number;
+      subtotal: number;
+    }[];
     esewa_payload: EsewaPayload | null; // Will be null for COD
   };
 }
@@ -35,16 +41,10 @@ interface CheckoutResponse {
 export default function EsewaRedirect({
   response,
 }: {
-  response: CheckoutResponse;
+  response?: CheckoutResponse;
 }) {
-  const [isRedirecting, setIsRedirecting] = useState(true);
-
   useEffect(() => {
-    // 1. Safety check: Do we have the payload?
-    if (!response.data.esewa_payload) {
-      setIsRedirecting(false);
-      return;
-    }
+    if (!response?.data.esewa_payload) return;
 
     const payload = response.data.esewa_payload;
 
@@ -72,21 +72,15 @@ export default function EsewaRedirect({
     }, 500);
   }, [response]);
 
-  if (isRedirecting) {
+  if (!response) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-lg font-semibold text-gray-700">
-          Securely redirecting to eSewa...
-        </p>
-        <p className="text-sm text-gray-500 mt-2">
-          Please do not close this window.
-        </p>
+      <div className="p-8 text-center">
+        <h1 className="text-2xl font-bold">Payment status</h1>
+        <p className="mt-2 text-muted">No payment response was supplied.</p>
       </div>
     );
   }
 
-  // Fallback if there was no payload (e.g., user chose COD)
   return (
     <div className="p-8 text-center">
       <h1 className="text-2xl font-bold">Order Placed Successfully!</h1>

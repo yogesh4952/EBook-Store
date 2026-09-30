@@ -3,6 +3,7 @@ import { AiOutlineShoppingCart } from "react-icons/ai";
 import { CiHeart } from "react-icons/ci";
 import { FaBookOpen, FaSearch } from "react-icons/fa";
 import { MdOutlinePerson3 } from "react-icons/md";
+import Link from "next/link";
 
 const Navbar = () => {
   return (
@@ -49,14 +50,18 @@ const Navbar = () => {
           className="cursor-pointer hover:scale-105 transition-all"
           size={32}
         />
-        <AiOutlineShoppingCart
-          className="cursor-pointer hover:scale-105 transition-all"
-          size={32}
-        />
-        <MdOutlinePerson3
-          className="cursor-pointer hover:scale-105 transition-all"
-          size={32}
-        />
+        <Link href="/cart" aria-label="Shopping cart">
+          <AiOutlineShoppingCart
+            className="cursor-pointer hover:scale-105 transition-all"
+            size={32}
+          />
+        </Link>
+        <Link href="/orders" aria-label="Your orders">
+          <MdOutlinePerson3
+            className="cursor-pointer hover:scale-105 transition-all"
+            size={32}
+          />
+        </Link>
       </div>
     </nav>
   );

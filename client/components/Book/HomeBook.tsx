@@ -1,6 +1,5 @@
 import BookCard, { Ibook } from "./BookCard";
 import { ListBooks } from "@/lib/book";
-import FilterBar from "@/components/common/FilterBar";
 
 const HomeBook = async () => {
   const books: Ibook[] = await ListBooks();

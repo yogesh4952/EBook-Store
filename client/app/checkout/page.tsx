@@ -1,96 +1,107 @@
 "use client";
 
+import { placeOrder, type Order } from "@/lib/api";
+import { readCart, type CartItem } from "@/lib/cart";
 import { useState } from "react";
-import EsewaRedirect from "./esewa-redirect/page";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [checkoutResponse, setCheckoutResponse] = useState<any>(null);
+  const [addressId, setAddressId] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"COD" | "ESEWA">("COD");
+  const [items] = useState<CartItem[]>(() => readCart());
+  const [sellerId, setSellerId] = useState("");
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handlePlaceOrder = async () => {
-    setIsLoading(true);
-
-    try {
-      // 1. Call your Go backend
-      const response = await fetch(
-        "http://localhost:3000/api/proxy/order/place-order",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Add your auth token here if needed
-            // "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            payment_method: "ESEWA", // Or "COD"
-            user_address_id: 1,
-            items: [
-              {
-                book_id: 5,
-                quantity: 1,
-                seller_id: 1,
-              },
-            ],
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to place order");
-      }
-
-      // 2. Save the response.
-      // If it has an esewa_payload, the component below will automatically trigger the redirect.
-      setCheckoutResponse(data);
-    } catch (error) {
-      console.error("Checkout error:", error);
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!addressId || !items.length || !sellerId) {
+      toast.error("Add a book, address ID, and seller ID before ordering");
+      return;
     }
-  };
-
-  // 3. CONDITIONAL RENDERING:
-  // If we have a response AND it contains an eSewa payload, show the redirect component.
-  if (checkoutResponse?.data?.esewa_payload) {
-    return <EsewaRedirect response={checkoutResponse} />;
+    setLoading(true);
+    try {
+      const response = await placeOrder({
+        payment_method: paymentMethod,
+        user_address_id: Number(addressId),
+        items: items.map((item) => ({
+          book_id: item.book.id,
+          seller_id: item.book.seller_id || Number(sellerId),
+          quantity: item.quantity,
+        })),
+      });
+      setOrder(response.data);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Could not place order",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // 4. If it was COD (no payload), show a normal success message
-  if (checkoutResponse?.success && !checkoutResponse?.data?.esewa_payload) {
-    return (
-      <div className="p-8 text-center">
-        <h1 className="text-2xl font-bold text-green-600">
-          Order Placed Successfully!
-        </h1>
-        <p className="mt-2">
-          Your order code is: {checkoutResponse.data.order_code}
-        </p>
-        <p className="mt-1">Payment Method: Cash on Delivery</p>
-      </div>
-    );
-  }
-
-  // 5. Default: Show the actual checkout form
   return (
-    <div className="max-w-2xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Checkout</h1>
-
-      <div className="bg-gray-50 p-6 rounded-lg mb-6">
-        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-        <p>Total: Rs. 50,000</p>
-        <p className="text-sm text-gray-600 mt-2">Payment Method: eSewa</p>
-      </div>
-
-      <button
-        onClick={handlePlaceOrder}
-        disabled={isLoading}
-        className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
-      >
-        {isLoading ? "Processing..." : "Place Order & Pay with eSewa"}
-      </button>
-    </div>
+    <main className="mx-auto max-w-2xl px-4 py-10">
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-light">
+        Purchase
+      </p>
+      <h1 className="mt-2 text-4xl font-bold text-primary">Checkout</h1>
+      {order ? (
+        <section className="mt-8 rounded-2xl border border-green-200 bg-green-50 p-6">
+          <h2 className="text-2xl font-bold text-green-800">Order placed</h2>
+          <p className="mt-2 text-green-800">
+            Your order code is {order.order_code}.
+          </p>
+          <p className="mt-2">Total: Rs. {order.total_price}</p>
+        </section>
+      ) : (
+        <form
+          onSubmit={submit}
+          className="mt-8 space-y-5 rounded-2xl border border-border bg-surface p-6"
+        >
+          <label className="block text-sm font-semibold text-primary">
+            Address ID
+            <input
+              required
+              type="number"
+              value={addressId}
+              onChange={(e) => setAddressId(e.target.value)}
+              className="mt-2 h-12 w-full rounded-lg border border-border px-4"
+            />
+          </label>
+          <label className="block text-sm font-semibold text-primary">
+            Seller ID
+            <input
+              required
+              type="number"
+              value={sellerId}
+              onChange={(e) => setSellerId(e.target.value)}
+              className="mt-2 h-12 w-full rounded-lg border border-border px-4"
+            />
+          </label>
+          <p className="rounded-lg bg-background p-4 text-sm text-muted">
+            {items.length
+              ? `${items.length} book${items.length === 1 ? "" : "s"} ready from your cart.`
+              : "Your cart is empty. Add books before checkout."}
+          </p>
+          <select
+            value={paymentMethod}
+            onChange={(e) =>
+              setPaymentMethod(e.target.value as "COD" | "ESEWA")
+            }
+            className="h-12 w-full rounded-lg border border-border bg-white px-4"
+          >
+            <option value="COD">Cash on delivery</option>
+            <option value="ESEWA">eSewa</option>
+          </select>
+          <button
+            disabled={loading}
+            className="h-12 w-full rounded-lg bg-primary font-semibold text-white"
+          >
+            {loading ? "Placing order..." : "Place order"}
+          </button>
+        </form>
+      )}
+    </main>
   );
 }

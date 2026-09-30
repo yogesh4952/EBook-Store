@@ -1,31 +1,33 @@
-export interface Ibook {
-  title: string;
-  author_name: string;
-  genre: string;
-  category: string;
-  pages: string;
-  publication: string;
-  price: string;
-  cover_page_url: string;
-  seller: {
-    user: {
-      first_name: string;
-    };
-  };
-}
+"use client";
+
+import type { Book } from "@/lib/api";
+import { addToCart } from "@/lib/cart";
+import { useState } from "react";
+
+export type Ibook = Book;
 
 interface BookCardProps {
   book: Ibook;
 }
 
 const BookCard = ({ book }: BookCardProps) => {
+  const [added, setAdded] = useState(false);
+
+  function handleAddToCart() {
+    addToCart(book);
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1400);
+  }
+
   return (
     <div className="group overflow-hidden rounded-xl border border-border bg-surface text-text shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       {/* Book Cover */}
       <div
         className="relative h-72 w-full overflow-hidden bg-accent/20 bg-cover bg-center"
         style={{
-          backgroundImage: `url(${book.cover_page_url})`,
+          backgroundImage: book.cover_page_url
+            ? `url(${book.cover_page_url})`
+            : undefined,
         }}
       >
         {/* Overlay */}
@@ -47,10 +49,15 @@ const BookCard = ({ book }: BookCardProps) => {
 
         {/* Price */}
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-xl font-bold text-primary">${book.price}</span>
+          <span className="text-xl font-bold text-primary">
+            Rs. {book.price}
+          </span>
 
-          <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-light">
-            Add to cart
+          <button
+            onClick={handleAddToCart}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-light"
+          >
+            {added ? "Added" : "Add to cart"}
           </button>
         </div>
       </div>

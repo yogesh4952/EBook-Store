@@ -18,7 +18,7 @@ const Login = () => {
 
   const handleSendOtp = async () => {
     try {
-      let input = { email };
+      const input = { email };
 
       const result = await fetch("/api/auth/send-otp", {
         method: "POST",

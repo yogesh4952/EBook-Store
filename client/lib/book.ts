@@ -1,7 +1,6 @@
-export async function ListBooks() {
-    const res = await fetch("http://localhost:8080/api/book/list-books")
+import { listBooks } from "./api";
 
-    const data = await res.json()
-    return data.data
-    
+export async function ListBooks() {
+    const response = await listBooks();
+    return response.data;
 }
