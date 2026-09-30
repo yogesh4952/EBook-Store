@@ -2,20 +2,17 @@ package service
 
 import (
 	"context"
-	"crypto/hmac"
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/base32"
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/yogesh4952/ebookstore/internal/address/models"
 	bookModels "github.com/yogesh4952/ebookstore/internal/book/models"
 	orderModel "github.com/yogesh4952/ebookstore/internal/order/models"
 	"github.com/yogesh4952/ebookstore/internal/order/repository"
+	"github.com/yogesh4952/ebookstore/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -136,7 +133,7 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 	if orderPayload.PaymentMethod == orderModel.PayementEsewa {
 		totalAmountStr := fmt.Sprintf("%f", data.TotalPrice)
 
-		signature, err := generateSignature(
+		signature, err := utils.GenerateSignature(
 			totalAmountStr,
 			data.TransactionUUID,
 			"EPAYTEST",
@@ -161,23 +158,6 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 	}
 
 	return &res, nil
-}
-
-func generateSignature(totalPrice, TransactionUUID, productCode string) (string, error) {
-	message := fmt.Sprintf("total_amount=%s,transaction_uuid=%s,product_code=%s", totalPrice, TransactionUUID, productCode)
-	log.Printf("%s", message)
-	secretKey := "8gBm/:&EnhH.1/q"
-
-	if secretKey == "" {
-		return "", fmt.Errorf("empty secret key")
-	}
-
-	mac := hmac.New(sha256.New, []byte(secretKey))
-	mac.Write([]byte(message))
-	rawSignature := mac.Sum(nil)
-
-	signature := base64.StdEncoding.EncodeToString(rawSignature)
-	return signature, nil
 }
 
 func generateOrderCode() (string, error) {

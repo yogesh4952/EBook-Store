@@ -34,9 +34,9 @@ import (
 	orderService "github.com/yogesh4952/ebookstore/internal/order/service"
 	sellerrepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
 
-	paymentServ "github.com/yogesh4952/ebookstore/internal/payment/service"
-
+	paymentHandler "github.com/yogesh4952/ebookstore/internal/payment/handler"
 	paymentRepo "github.com/yogesh4952/ebookstore/internal/payment/repository"
+	paymentServ "github.com/yogesh4952/ebookstore/internal/payment/service"
 )
 
 // @title           EBook Store API
@@ -98,7 +98,7 @@ func main() {
 
 	paymentRepo := paymentRepo.NewPaymentRepo(db)
 	paymentService := paymentServ.NewPaymentService(paymentRepo)
-	paymentHandler := paymentService.NewPaymentHandler(paymentServ)
+	paymentHandler := paymentHandler.NewPaymentHandler(paymentService)
 
 	apiRoutes := router.Group("/api")
 	{
@@ -132,6 +132,7 @@ func main() {
 		paymentRoute := apiRoutes.Group("/payment")
 		{
 			paymentRoute.POST("/verify-payment", middleware.AuthRequired(), paymentHandler.VerifyPayment)
+			paymentRoute.GET("/success", paymentHandler.HandleSuccess)
 		}
 
 		addressRoute := apiRoutes.Group("/address")
