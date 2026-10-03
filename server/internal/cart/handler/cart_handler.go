@@ -89,6 +89,7 @@ func (ch *CartHandler) CartItems(c *gin.Context) {
 
 	userId := userIdValue.(uint)
 	data, err := ch.cartServ.GetCartItem(c.Request.Context(), userId)
+
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
@@ -96,7 +97,7 @@ func (ch *CartHandler) CartItems(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusUnauthorized, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Cart Item Fetched sucessfully",
 		"data":    data,

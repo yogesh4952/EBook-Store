@@ -140,6 +140,7 @@ func main() {
 		cartRoutes := apiRoutes.Group("/cart")
 		{
 			cartRoutes.POST("/add-to-cart", middleware.AuthRequired(), cartHandler.AddToCart)
+			cartRoutes.GET("/", middleware.AuthRequired(), cartHandler.CartItems)
 		}
 
 		paymentRoute := apiRoutes.Group("/payment")

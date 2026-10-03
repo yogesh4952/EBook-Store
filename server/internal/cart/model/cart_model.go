@@ -16,9 +16,9 @@ type AddToCartPayload struct {
 }
 
 type ItemResp struct {
-	Book     []models.Book
-	Quantity uint    `json:"quantity"`
-	Subtotal float32 `json:"subtotal"`
+	Data     models.Book `json:"data"`
+	Quantity uint        `json:"quantity"`
+	Subtotal float32     `json:"subtotal"`
 }
 type CartResponse struct {
 	Items []ItemResp `json:"items"`

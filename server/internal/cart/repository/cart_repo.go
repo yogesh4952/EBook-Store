@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -12,7 +14,7 @@ import (
 
 type ICartrepo interface {
 	AddToCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error)
-	GetCartItem(ctx context.Context, userId uint) (*model.CartResponse, error)
+	CartIds(ctx context.Context, userId uint) (map[string]string, error)
 	GetCartQuantity(ctx context.Context, userId uint, bookId uint) (int64, error)
 }
 
@@ -59,9 +61,15 @@ func (rp *cartRepo) AddToCart(
 	return cart, nil
 }
 
-func (rp *cartRepo) CartList(ctx context.Context, userId uint) (*model.CartResponse, error) {
-	// bookId := rp.rdc.HGet(ctx, userId)
-	return nil, nil
+func (rp *cartRepo) CartIds(ctx context.Context, userId uint) (map[string]string, error) {
+	key := fmt.Sprintf("cart:%d", userId)
+	redishHash := rp.rdc.HGetAll(ctx, key)
+	// log.Printf("%v", redishHash.Val())
+	// ids := slices.Sorted(maps.Keys(redishHash.Val()))
+
+	// book:=
+
+	return redishHash.Val(), nil
 
 }
 
@@ -70,8 +78,14 @@ func (rp *cartRepo) GetCartQuantity(ctx context.Context, userId uint, bookId uin
 	key := fmt.Sprintf("cart:%d", userId)
 	field := fmt.Sprintf("%d", bookId)
 	quantity, err := rp.rdc.HGet(ctx, key, field).Int64()
+
+	if errors.Is(err, redis.Nil) {
+		return 0, nil
+	}
 	if err != nil {
 		return 0, err
 	}
+
+	log.Printf("quantity: %v", quantity)
 	return quantity, nil
 }

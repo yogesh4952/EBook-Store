@@ -3,7 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
+	"slices"
+	"strconv"
 
+	"github.com/yogesh4952/ebookstore/internal/book/models"
 	bookModels "github.com/yogesh4952/ebookstore/internal/book/models"
 	"github.com/yogesh4952/ebookstore/internal/cart/model"
 )
@@ -16,7 +20,7 @@ type ICartService interface {
 type ICartRepo interface {
 	GetCartQuantity(ctx context.Context, userId uint, bookId uint) (int64, error)
 	AddToCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error)
-	CartList(ctx context.Context, userId uint) (*model.CartResponse, error)
+	CartIds(ctx context.Context, userId uint) (map[string]string, error)
 }
 
 type cartService struct {
@@ -29,6 +33,7 @@ type cartService struct {
 // package directly.
 type IBookLookup interface {
 	FindById(ctx context.Context, id uint) (*bookModels.Book, error)
+	FindByIds(ctx context.Context, ids []uint) ([]models.Book, error)
 }
 
 func NewCartService(cartRepo ICartRepo, br IBookLookup) *cartService {
@@ -54,5 +59,50 @@ func (cs *cartService) AddToCart(ctx context.Context, userId uint, payload model
 }
 
 func (cs *cartService) GetCartItem(ctx context.Context, userId uint) (*model.CartResponse, error) {
-	return cs.cartRepo.CartList(ctx, userId)
+	raw, err := cs.cartRepo.CartIds(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("Error during fetching cart items :%v", err)
+	}
+
+	out := make(map[uint]uint, len(raw))
+
+	for k, v := range raw {
+		bookId, err := strconv.ParseUint(k, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		qty, err := strconv.ParseUint(v, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		out[uint(bookId)] = uint(qty)
+
+	}
+
+	ids := make([]uint, 0, len(out))
+
+	for id := range out {
+		ids = append(ids, id)
+
+	}
+	slices.Sort(ids)
+	bookData, err := cs.bookRepo.FindByIds(ctx, ids)
+
+	if err != nil {
+		return nil, fmt.Errorf("Error fetching books: %v", err)
+	}
+
+	log.Printf("%v", bookData)
+
+	items := make([]model.ItemResp, 0, len(bookData))
+
+	for _, b := range bookData {
+		items = append(items, model.ItemResp{
+			Data:     b,
+			Quantity: out[b.ID],
+		})
+	}
+	return &model.CartResponse{Items: items}, nil
 }
