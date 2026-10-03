@@ -22,7 +22,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Add a shipping address for the authenticated user",
+                "description": "Add a shipping address. The ` + "`" + `user_id` + "`" + ` field is taken from the request body and is not checked against the authenticated user, so any authenticated caller can currently attach an address to another user's account. Both the city and the delivery address are required.",
                 "consumes": [
                     "application/json"
                 ],
@@ -46,14 +46,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "Accepted",
+                        "description": "Address added, containing success and message keys",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid request body, the user does not exist, or the address could not be saved",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid token",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -64,7 +71,7 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "Authenticate user and return JWT token",
+                "description": "Authenticate a user with the email and the one-time code sent by ` + "`" + `/auth/send-otp` + "`" + `, and return a JWT access token. The OTP is consumed on success and cannot be reused. Note that the success response contains ` + "`" + `message` + "`" + ` and ` + "`" + `token` + "`" + ` keys only, with no ` + "`" + `success` + "`" + ` key, whereas the error responses use an ` + "`" + `error` + "`" + ` key.",
                 "consumes": [
                     "application/json"
                 ],
@@ -88,21 +95,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Login successful, containing message and token keys",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid request body, containing an error key",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Incorrect or expired OTP, containing an error key",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -113,7 +120,7 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
-                "description": "Create a new user account (customer or seller)",
+                "description": "Create a new user account as either a customer or a seller. Registering with an email that already exists returns 409. Use a role of ` + "`" + `admin` + "`" + ` only for internal tooling; normal signups should use ` + "`" + `customer` + "`" + ` or ` + "`" + `seller` + "`" + `.",
                 "consumes": [
                     "application/json"
                 ],
@@ -137,21 +144,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Account created, containing success and message keys",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid request body, or an invalid role",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "409": {
-                        "description": "Conflict",
+                        "description": "Email is already registered",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Account could not be created",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -162,7 +176,7 @@ const docTemplate = `{
         },
         "/auth/send-otp": {
             "post": {
-                "description": "Send a one-time password to the user's email for verification",
+                "description": "Send a one-time password to the user's email for verification. The code is valid for five minutes and can only be used once. Note that this endpoint uses two different response envelopes: a 400 returns ` + "`" + `{\"error\": \"...\"}` + "`" + ` while a 500 returns ` + "`" + `{\"success\": false, \"message\": \"...\"}` + "`" + `.",
                 "consumes": [
                     "application/json"
                 ],
@@ -186,21 +200,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "OTP sent, containing success and message keys",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid request body, containing an error key",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Unknown email, or the code could not be generated, stored, or emailed",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -211,7 +225,7 @@ const docTemplate = `{
         },
         "/book/list-books": {
             "get": {
-                "description": "Get a paginated list of books",
+                "description": "Get a paginated list of books. The response echoes the ` + "`" + `page` + "`" + ` and ` + "`" + `limit` + "`" + ` actually applied by the server, which may differ from the requested values when out of range. Any service or database error is reported as 404.",
                 "produces": [
                     "application/json"
                 ],
@@ -237,14 +251,14 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Books fetched, containing success, message, the books under data, and the total, page, and limit counts",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Books could not be fetched",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -260,7 +274,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Seller creates a new book listing",
+                "description": "Create a new book listing. Restricted to the ` + "`" + `seller` + "`" + ` and ` + "`" + `admin` + "`" + ` roles; any other authenticated user receives 403. The authenticated user id is taken from the JWT and used as the book owner, so it cannot be spoofed in the request body.",
                 "consumes": [
                     "application/json"
                 ],
@@ -284,28 +298,42 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Book published, containing success and message keys",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid request body, or the book could not be saved",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Missing or invalid token, or no user identity on the request context",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Authenticated user is not a seller or admin",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "User id on the request context had an unexpected type",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "502": {
-                        "description": "Bad Gateway",
+                        "description": "The book service failed to process the request",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -321,7 +349,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update book details (owner only)",
+                "description": "Update book details (owner only)\nUpdate the details of a book the authenticated user owns. Only the fields present in the request body are modified. Restricted to the ` + "`" + `seller` + "`" + ` and ` + "`" + `admin` + "`" + ` roles; any other authenticated user receives 403.",
                 "consumes": [
                     "application/json"
                 ],
@@ -345,21 +373,153 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "Accepted",
+                        "description": "Book updated, containing success, message, and the updated book under data",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Missing user identity, invalid request body, or the update failed",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Missing or invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "403": {
+                        "description": "Authenticated user is not a seller or admin",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "User id on the request context had an unexpected type",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/add-to-cart": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add a quantity of a book to the authenticated user's cart. Quantities are additive: adding the same book twice increments the stored count rather than replacing it. The user id is taken from the JWT, so a caller can only ever modify their own cart.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "Add a book to the cart",
+                "parameters": [
+                    {
+                        "description": "Book and quantity to add",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_cart_model.AddToCartPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Book added to cart, containing success and message keys",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "User id on the request context had an unexpected type",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/order/list-user-order": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List every order belonging to the authenticated user, including their line items. The authenticated user id is taken from the JWT and cannot be overridden in the request.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "List User order",
+                "responses": {
+                    "202": {
+                        "description": "Orders fetched, containing the list of orders under data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Orders could not be fetched",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "User id on the request context had an unexpected type",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -375,7 +535,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new order with items, payment method, and shipping address",
+                "description": "Create a new order with items, payment method, and shipping address. For the ` + "`" + `COD` + "`" + ` payment method the order is created as PENDING. For the ` + "`" + `ESEWA` + "`" + ` method the response additionally carries a signed ` + "`" + `esewa_payload` + "`" + ` that the client must POST to eSewa's payment form; the order stays PENDING until the eSewa callback is confirmed at ` + "`" + `/payment/success` + "`" + `. Prices are always recalculated server-side from the book records, so any price in the request is ignored.",
                 "consumes": [
                     "application/json"
                 ],
@@ -399,35 +559,105 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "Accepted",
+                        "description": "Order placed, containing the order under data. For ESEWA orders this also includes the signed esewa_payload",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid request body, or an unsupported payment method",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Missing or invalid token",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Address id or one of the book ids was not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "User id on the request context had an unexpected type, or the order could not be created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/payment/failure": {
+            "get": {
+                "description": "Browser-facing endpoint that eSewa redirects the customer to when they cancel at the payment page or the payment is declined. There is no payment to verify on a cancel, so the attempt is logged and the browser is redirected to the frontend. This endpoint is unauthenticated because the caller is the customer's browser arriving from eSewa.\n\nThe order is deliberately left in the PENDING payment status: a cancelled checkout is not a dead order, and the customer is free to retry with the same transaction uuid.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Handle a cancelled or failed eSewa payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Transaction identifier sent by eSewa (also accepted as transaction_uuid)",
+                        "name": "TransactionUuid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Failure reason reported by eSewa",
+                        "name": "reason",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to FRONTEND_URL/payment-failure",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment/success": {
+            "get": {
+                "description": "Browser-facing endpoint that eSewa redirects the customer to after a payment. It decodes the base64 ` + "`" + `data` + "`" + ` query parameter, verifies the callback signature, confirms the transaction against eSewa's status API, marks the order paid, and redirects the browser to the frontend. This endpoint is unauthenticated because the caller is the customer's browser arriving from eSewa, which cannot present a JWT.\n\nOn success the response is a 302 redirect to ` + "`" + `FRONTEND_URL/payment-success?orderId=\u003ctransaction_uuid\u003e` + "`" + `. On a business failure it is a 302 redirect to ` + "`" + `FRONTEND_URL/payment-failure?reason=\u003creason\u003e` + "`" + `, where reason is one of ` + "`" + `invalid_signature` + "`" + `, ` + "`" + `order_not_found` + "`" + `, ` + "`" + `order_not_payable` + "`" + `, ` + "`" + `amount_mismatch` + "`" + `, ` + "`" + `payment_incomplete` + "`" + `, ` + "`" + `verification_unavailable` + "`" + `, or ` + "`" + `verification_failed` + "`" + `.\n\nA 400 is returned only when the ` + "`" + `data` + "`" + ` parameter itself is missing or undecodable. Replaying this endpoint for an already-paid order is safe: it returns the same success redirect without re-running fulfillment.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Confirm an eSewa payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Base64-encoded JSON callback signed by eSewa",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to FRONTEND_URL/payment-success with the order id as a query parameter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or undecodable data parameter",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -443,7 +673,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get all registered users",
+                "description": "Get all registered users. Responds with a bare JSON array of user objects; there is no response envelope on this endpoint. Note that a healthy but empty database also returns 500, because the service reports an empty result set as an error.",
                 "produces": [
                     "application/json"
                 ],
@@ -453,17 +683,16 @@ const docTemplate = `{
                 "summary": "List all users",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List of registered users",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": true
+                                "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.User"
                             }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Database error, or no users registered yet",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -565,8 +794,8 @@ const docTemplate = `{
                     "minimum": 10
                 },
                 "price": {
-                    "type": "integer",
-                    "minimum": 1000
+                    "type": "number",
+                    "minimum": 10
                 },
                 "publication": {
                     "type": "string"
@@ -612,8 +841,8 @@ const docTemplate = `{
                     "minimum": 10
                 },
                 "price": {
-                    "type": "integer",
-                    "minimum": 1000
+                    "type": "number",
+                    "minimum": 10
                 },
                 "publication": {
                     "type": "string"
@@ -629,6 +858,21 @@ const docTemplate = `{
                 "units": {
                     "type": "integer",
                     "minimum": 0
+                }
+            }
+        },
+        "github_com_yogesh4952_ebookstore_internal_cart_model.AddToCartPayload": {
+            "type": "object",
+            "required": [
+                "book_id",
+                "quantity"
+            ],
+            "properties": {
+                "book_id": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
                 }
             }
         },

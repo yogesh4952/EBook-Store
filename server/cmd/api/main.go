@@ -34,6 +34,10 @@ import (
 	orderService "github.com/yogesh4952/ebookstore/internal/order/service"
 	sellerrepo "github.com/yogesh4952/ebookstore/internal/sellers/repository"
 
+	cartHandler "github.com/yogesh4952/ebookstore/internal/cart/handler"
+	cartRepo "github.com/yogesh4952/ebookstore/internal/cart/repository"
+	cartServ "github.com/yogesh4952/ebookstore/internal/cart/service"
+
 	paymentHandler "github.com/yogesh4952/ebookstore/internal/payment/handler"
 	paymentRepo "github.com/yogesh4952/ebookstore/internal/payment/repository"
 	paymentServ "github.com/yogesh4952/ebookstore/internal/payment/service"
@@ -100,6 +104,10 @@ func main() {
 	paymentService := paymentServ.NewPaymentService(paymentRepo)
 	paymentHandler := paymentHandler.NewPaymentHandler(paymentService)
 
+	cartRepo := cartRepo.NewCartRepo(db, rdb)
+	cartServ := cartServ.NewCartService(cartRepo, bookRepo)
+	cartHandler := cartHandler.NewCartHandler(cartServ)
+
 	apiRoutes := router.Group("/api")
 	{
 
@@ -129,12 +137,16 @@ func main() {
 			orderRoutes.GET("/list-user-order", middleware.AuthRequired(), orderHandler.ListUserOrder)
 		}
 
+		cartRoutes := apiRoutes.Group("/cart")
+		{
+			cartRoutes.POST("/add-to-cart", middleware.AuthRequired(), cartHandler.AddToCart)
+		}
+
 		paymentRoute := apiRoutes.Group("/payment")
 		{
 			paymentRoute.GET("/success", paymentHandler.ConfirmEsewaPayment)
 			paymentRoute.GET("/failure", paymentHandler.HandleEsewaFailure)
 		}
-
 
 		addressRoute := apiRoutes.Group("/address")
 		{

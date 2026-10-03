@@ -18,13 +18,14 @@ func NewAddressHandler(serv service.IAddressService) *AddressHandler {
 
 // AddAddress godoc
 // @Summary      Add a new address
-// @Description  Add a shipping address for the authenticated user
+// @Description  Add a shipping address. The `user_id` field is taken from the request body and is not checked against the authenticated user, so any authenticated caller can currently attach an address to another user's account. Both the city and the delivery address are required.
 // @Tags         addresses
 // @Accept       json
 // @Produce      json
 // @Param        payload body models.UserAddress true "Address data"
-// @Success      202 {object} map[string]interface{}
-// @Failure      400 {object} map[string]interface{}
+// @Success      202 {object} map[string]interface{}  "Address added, containing success and message keys"
+// @Failure      400 {object} map[string]interface{}  "Invalid request body, the user does not exist, or the address could not be saved"
+// @Failure      401 {object} map[string]interface{}  "Missing or invalid token"
 // @Router       /address/add-address [post]
 // @Security     BearerAuth
 func (ah *AddressHandler) AddAddress(ctx *gin.Context) {
