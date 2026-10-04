@@ -11,6 +11,7 @@ import type { ICartItem } from "@/components/cart/CartItem";
 import {
   addAddress,
   cartToOrderItems,
+  clearCart,
   getCart,
   listUserAddresses,
   placeOrder,
@@ -154,7 +155,19 @@ export default function CheckoutPage() {
       }
 
       toast.success(`Order ${order.order_code} placed.`);
-      router.push(`/orders?placed=${encodeURIComponent(order.order_code)}`);
+
+      // Order is confirmed, so empty the cart. A failure here must not block
+      // navigation: the order already exists server-side.
+      try {
+        await clearCart();
+      } catch (error) {
+        console.error(error);
+        toast.error("Order placed, but we could not clear your cart.");
+      }
+
+      await router.push(
+        `/orders?placed=${encodeURIComponent(order.order_code)}`,
+      );
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Could not place your order",

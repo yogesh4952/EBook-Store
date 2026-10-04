@@ -5,17 +5,32 @@ import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { toast } from "sonner";
 
-import CartItem, {
-  type ICartItem,
-  type ICartResponse,
-} from "./CartItem";
+import CartItem, { type ICartItem } from "./CartItem";
+import { addToCart, getCart, removeFromCart } from "@/lib/checkout";
 
 const formatPrice = (value: number) =>
   `Rs. ${new Intl.NumberFormat("en-NP", {
     maximumFractionDigits: 0,
   }).format(value)}`;
 
-// TODO: replace once the cart module owns the state
+/** Applies a new quantity to one line, dropping the row when it hits zero. */
+const reduceItem = (
+  items: ICartItem[],
+  bookId: number,
+  quantity: number,
+): ICartItem[] =>
+  items
+    .map((item) =>
+      item.data.id === bookId
+        ? {
+            ...item,
+            quantity,
+            subtotal: item.data.price * quantity,
+          }
+        : item,
+    )
+    .filter((item) => item.quantity > 0);
+
 const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const [cartItems, setCartItems] = useState<ICartItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -34,29 +49,15 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
 
     const fetchCart = async () => {
       try {
-        // Trailing slash matters: /api/cart 301-redirects, and the redirect
-        // drops the Authorization header before it reaches Gin.
-        const resp = await fetch("/api/proxy/cart/", {
-          method: "GET",
-          credentials: "include",
-          cache: "no-store",
-          signal: controller.signal,
-        });
-
-        const payload = await resp.json();
-
-        if (!resp.ok) {
-          toast.error(payload.message ?? "Error fetching cart items");
-          return;
-        }
-
-        const data = payload.data as ICartResponse;
-        setCartItems(data?.items ?? []);
-        setTotal(data?.total ?? 0);
+        const cart = await getCart();
+        if (controller.signal.aborted) return;
+        setCartItems(cart?.items ?? []);
+        setTotal(cart?.total ?? 0);
       } catch (error) {
         if (controller.signal.aborted) return;
-        toast.error("Internal Server Error!");
-        console.error(error);
+        toast.error(
+          error instanceof Error ? error.message : "Error fetching cart items",
+        );
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
       }
@@ -64,8 +65,85 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
 
     fetchCart();
 
-    return () => controller.abort();
+    // Re-sync when the user comes back to the tab, so an order placed
+    // elsewhere does not leave stale items in the drawer.
+    window.addEventListener("focus", fetchCart);
+
+    return () => {
+      controller.abort();
+      window.removeEventListener("focus", fetchCart);
+    };
   }, []);
+
+  /**
+   * Applies a new quantity locally, then re-reads the cart so the displayed
+   * totals come from the server rather than from guesswork.
+   *
+   * Going up and going down hit different endpoints: the remove endpoint only
+   * decrements, so an increase has to go through add-to-cart. Decrementing sends
+   * the *amount to remove*, not the new quantity.
+   *
+   * The remove endpoint refuses to take more than the cart holds, which keeps
+   * the stored count from going negative.
+   */
+  const handleQuantityChange = async (bookId: number, quantity: number) => {
+    const current = cartItems.find((item) => item.data.id === bookId);
+    if (!current || quantity === current.quantity) return;
+
+    const previous = cartItems;
+    setCartItems(reduceItem(cartItems, bookId, quantity));
+    setTotal(
+      (prev) =>
+        prev - current.data.price * (current.quantity - quantity),
+    );
+
+    try {
+      if (quantity > current.quantity) {
+        await addToCart({ book_id: bookId, quantity: quantity - current.quantity });
+      } else {
+        await removeFromCart({
+          book_id: bookId,
+          quantity: current.quantity - quantity,
+        });
+      }
+
+      const cart = await getCart();
+      setCartItems(cart.items ?? []);
+      setTotal(cart.total ?? 0);
+    } catch (error) {
+      setCartItems(previous);
+      toast.error(
+        error instanceof Error ? error.message : "Could not update the cart",
+      );
+    } finally {
+      setPendingBookId(null);
+    }
+  };
+
+  const handleRemove = async (bookId: number) => {
+    const current = cartItems.find((item) => item.data.id === bookId);
+    if (!current) return;
+
+    const previous = cartItems;
+    setCartItems(cartItems.filter((item) => item.data.id !== bookId));
+    setTotal((prev) => prev - current.subtotal);
+
+    try {
+      await removeFromCart({ book_id: bookId, quantity: current.quantity });
+      const cart = await getCart();
+      setCartItems(cart.items ?? []);
+      setTotal(cart.total ?? 0);
+    } catch (error) {
+      setCartItems(previous);
+      toast.error(
+        error instanceof Error ? error.message : "Could not remove the item",
+      );
+    } finally {
+      setPendingBookId(null);
+    }
+  };
+
+  const [pendingBookId, setPendingBookId] = useState<number | null>(null);
 
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -95,7 +173,9 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           </div>
         ) : cartItems.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 px-5 py-4 text-center">
-            <p className="text-sm font-medium text-primary">Your cart is empty</p>
+            <p className="text-sm font-medium text-primary">
+              Your cart is empty
+            </p>
             <p className="text-sm text-muted">
               Browse the store and add a book to get started.
             </p>
@@ -111,7 +191,19 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           <>
             <ul className="flex-1 overflow-y-auto px-5">
               {cartItems.map((item) => (
-                <CartItem key={item.data.id} item={item} />
+                <CartItem
+                  key={item.data.id}
+                  item={item}
+                  isUpdating={pendingBookId === item.data.id}
+                  onQuantityChange={(bookId, quantity) => {
+                    setPendingBookId(bookId);
+                    handleQuantityChange(bookId, quantity);
+                  }}
+                  onRemove={(bookId) => {
+                    setPendingBookId(bookId);
+                    handleRemove(bookId);
+                  }}
+                />
               ))}
             </ul>
 

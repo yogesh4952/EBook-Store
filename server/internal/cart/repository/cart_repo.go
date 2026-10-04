@@ -16,6 +16,8 @@ type ICartrepo interface {
 	AddToCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error)
 	CartIds(ctx context.Context, userId uint) (map[string]string, error)
 	GetCartQuantity(ctx context.Context, userId uint, bookId uint) (int64, error)
+	ClearCart(c context.Context, userId uint) error
+	RemoveFromCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error)
 }
 
 type cartRepo struct {
@@ -42,6 +44,47 @@ func (rp *cartRepo) AddToCart(
 		field,
 		int64(payload.Quantity),
 	).Err(); err != nil {
+		return nil, err
+	}
+
+	if err := rp.rdc.Expire(
+		ctx,
+		cartKey,
+		7*24*time.Hour,
+	).Err(); err != nil {
+		return nil, err
+	}
+
+	cart, err := rp.rdc.HGetAll(ctx, cartKey).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return cart, nil
+}
+
+func (rp *cartRepo) RemoveFromCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error) {
+	cartKey := fmt.Sprintf("cart:%d", userId)
+	field := fmt.Sprintf("%d", payload.BookId)
+
+	current, err := rp.rdc.HGet(ctx, cartKey, field).Int64()
+	if errors.Is(err, redis.Nil) {
+		return nil, fmt.Errorf("book %d is not in the cart", payload.BookId)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	remaining := current - int64(payload.Quantity)
+	if remaining < 0 {
+		return nil, fmt.Errorf("cannot remove %d, only %d in cart", payload.Quantity, current)
+	}
+
+	if remaining == 0 {
+		if err := rp.rdc.HDel(ctx, cartKey, field).Err(); err != nil {
+			return nil, err
+		}
+	} else if err := rp.rdc.HIncrBy(ctx, cartKey, field, -int64(payload.Quantity)).Err(); err != nil {
 		return nil, err
 	}
 
@@ -88,4 +131,12 @@ func (rp *cartRepo) GetCartQuantity(ctx context.Context, userId uint, bookId uin
 
 	log.Printf("quantity: %v", quantity)
 	return quantity, nil
+}
+
+func (rp *cartRepo) ClearCart(c context.Context, userId uint) error {
+	key := fmt.Sprintf("cart:%d", userId)
+	if err := rp.rdc.Del(c, key).Err(); err != nil {
+		return err
+	}
+	return nil
 }

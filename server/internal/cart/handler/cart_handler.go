@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -77,6 +78,53 @@ func (ch *CartHandler) AddToCart(c *gin.Context) {
 	})
 }
 
+func (ch *CartHandler) RemoveFromCart(c *gin.Context) {
+	var addToCartPayload model.AddToCartPayload
+	if err := c.ShouldBindJSON(&addToCartPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userIdValue, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success": false,
+			"message": "unauthorized",
+		})
+		return
+	}
+
+	userID, ok := userIdValue.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "invalid user ID",
+		})
+		return
+	}
+
+	_, err := ch.cartServ.RemoveFromCart(c.Request.Context(), userID, addToCartPayload)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "Item removed from cart successfully",
+		"data": gin.H{
+			"book_id":  addToCartPayload.BookId,
+			"quantity": addToCartPayload.Quantity,
+		},
+	})
+}
+
 func (ch *CartHandler) CartItems(c *gin.Context) {
 	userIdValue, exists := c.Get("userId")
 	if !exists {
@@ -103,4 +151,49 @@ func (ch *CartHandler) CartItems(c *gin.Context) {
 		"data":    data,
 	})
 
+}
+
+// ClearCart godoc
+// @Summary      Clear the authenticated user's cart
+// @Description  Remove every item from the caller's cart. Ownership is taken from the JWT, so one user can never clear another user's cart. Clearing an already-empty cart is not an error and returns 200 with the same message.
+// @Tags         cart
+// @Produce      json
+// @Success      200 {object} map[string]interface{}  "Cart cleared, containing success and message keys"
+// @Failure      401 {object} map[string]interface{}  "Missing or invalid token"
+// @Failure      500 {object} map[string]interface{}  "User id on the request context had an unexpected type"
+// @Failure      503 {object} map[string]interface{}  "The cart store was unreachable"
+// @Router       /cart/clear-cart [post]
+// @Security     BearerAuth
+func (ch *CartHandler) ClearCart(c *gin.Context) {
+	userIdValue, exist := c.Get("userId")
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success": false,
+			"message": "User id not available",
+		})
+		return
+	}
+
+	userId, ok := userIdValue.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "invalid user ID",
+		})
+		return
+	}
+
+	err := ch.cartServ.ClearCart(c.Request.Context(), userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": fmt.Errorf("Error clearing cart: %v", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Cart cleared successfully",
+	})
 }

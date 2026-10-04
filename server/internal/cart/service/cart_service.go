@@ -12,14 +12,18 @@ import (
 )
 
 type ICartService interface {
-	AddToCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error)
+	RemoveFromCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error)
 	GetCartItem(ctx context.Context, userId uint) (*model.CartResponse, error)
+	ClearCart(c context.Context, userId uint) error
+	AddToCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error)
 }
 
 type ICartRepo interface {
 	GetCartQuantity(ctx context.Context, userId uint, bookId uint) (int64, error)
 	AddToCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error)
+	RemoveFromCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error)
 	CartIds(ctx context.Context, userId uint) (map[string]string, error)
+	ClearCart(c context.Context, userId uint) error
 }
 
 type cartService struct {
@@ -57,6 +61,23 @@ func (cs *cartService) AddToCart(ctx context.Context, userId uint, payload model
 	return cs.cartRepo.AddToCart(ctx, userId, payload)
 }
 
+func (cs *cartService) RemoveFromCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error) {
+	book, err := cs.bookRepo.FindById(ctx, payload.BookId)
+	if err != nil {
+		return nil, fmt.Errorf("book %d not found: %w", payload.BookId, err)
+	}
+
+	redisQuantity, err := cs.cartRepo.GetCartQuantity(ctx, userId, payload.BookId)
+	if err != nil {
+		return nil, err
+	}
+
+	if (book.Units < payload.Quantity) || (redisQuantity+int64(payload.Quantity)) > int64(book.Units) {
+		return nil, fmt.Errorf("only %d units of book %d available", book.Units, payload.BookId)
+	}
+
+	return cs.cartRepo.RemoveFromCart(ctx, userId, payload)
+}
 func (cs *cartService) GetCartItem(ctx context.Context, userId uint) (*model.CartResponse, error) {
 	raw, err := cs.cartRepo.CartIds(ctx, userId)
 	if err != nil {
@@ -113,4 +134,9 @@ func (cs *cartService) GetCartItem(ctx context.Context, userId uint) (*model.Car
 	}
 
 	return &model.CartResponse{Items: items, Total: total}, nil
+}
+
+func (cs *cartService) ClearCart(c context.Context, userId uint) error {
+
+	return cs.cartRepo.ClearCart(c, userId)
 }

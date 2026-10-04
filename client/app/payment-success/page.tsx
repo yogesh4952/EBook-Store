@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import ClearCartOnSuccess from "@/components/checkout/ClearCartOnSuccess";
+
 interface PageProps {
   searchParams: Promise<{ orderId?: string }>;
 }
@@ -11,6 +13,7 @@ export default async function PaymentSuccessPage({
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6">
+      <ClearCartOnSuccess />
       <div className="w-full max-w-md rounded-2xl bg-surface p-10 text-center shadow-lg">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
           <svg

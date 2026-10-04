@@ -53,7 +53,8 @@ async function readJson<T>(response: Response): Promise<T> {
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
     const message =
-      (payload as ApiError | null)?.message ?? `Request failed (${response.status})`;
+      (payload as ApiError | null)?.message ??
+      `Request failed (${response.status})`;
     throw new Error(message);
   }
   return payload as T;
@@ -80,6 +81,58 @@ export async function placeOrder(body: PlaceOrderPayload) {
   });
   const payload = await readJson<{ data: PlaceOrderResponse }>(response);
   return payload.data;
+}
+
+/**
+ * Add units of a book to the cart. Quantities are additive, so this is also how
+ * the cart increments a line.
+ *
+ * The server rejects the call when the resulting quantity would exceed the
+ * book's remaining units.
+ */
+export async function addToCart(input: {
+  book_id: number;
+  quantity: number;
+}): Promise<void> {
+  const response = await fetch("/api/proxy/cart/add-to-cart", {
+    method: "POST",
+    credentials: "include",
+    headers: jsonHeaders,
+    body: JSON.stringify(input),
+  });
+  await readJson<{ success: boolean; message: string }>(response);
+}
+
+export async function clearCart(): Promise<void> {
+  const response = await fetch("/api/proxy/cart/clear-cart", {
+    method: "POST",
+    credentials: "include",
+  });
+  await readJson<{ success: boolean; message: string }>(response);
+}
+
+/**
+ * Decrement a book's quantity in the cart, or drop it entirely when the
+ * remaining quantity is exactly the amount removed.
+ *
+ * Two things to know about the endpoint:
+ *  - It decrements with HIncrBy rather than deleting the field, so removing
+ *    more than the cart holds leaves a negative count that makes GET /cart/
+ *    fail to parse. Callers must never send a quantity above what is held.
+ *  - It responds 201 with an "added to cart" message, so status and body text
+ *    are both misleading on success. Success is read from `success` only.
+ */
+export async function removeFromCart(input: {
+  book_id: number;
+  quantity: number;
+}): Promise<void> {
+  const response = await fetch("/api/proxy/cart/remove-from-cart", {
+    method: "POST",
+    credentials: "include",
+    headers: jsonHeaders,
+    body: JSON.stringify(input),
+  });
+  await readJson<{ success: boolean; message: string }>(response);
 }
 
 export interface UserAddress {
