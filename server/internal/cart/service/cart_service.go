@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"log"
 	"slices"
 	"strconv"
 
@@ -94,15 +93,24 @@ func (cs *cartService) GetCartItem(ctx context.Context, userId uint) (*model.Car
 		return nil, fmt.Errorf("Error fetching books: %v", err)
 	}
 
-	log.Printf("%v", bookData)
-
 	items := make([]model.ItemResp, 0, len(bookData))
 
+	var subtotal float32
+	subtotal = 0
+
+	var total float32
 	for _, b := range bookData {
+		subtotal = b.Price * float32(out[b.ID])
+
 		items = append(items, model.ItemResp{
 			Data:     b,
 			Quantity: out[b.ID],
+			Subtotal: subtotal,
 		})
+
+		total += subtotal
+
 	}
-	return &model.CartResponse{Items: items}, nil
+
+	return &model.CartResponse{Items: items, Total: total}, nil
 }
