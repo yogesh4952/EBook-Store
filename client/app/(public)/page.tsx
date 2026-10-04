@@ -3,11 +3,9 @@ import Homepage from "@/components/Home/Homepage";
 
 export default function Home() {
   return (
-    <div className="">
-      
+    <div>
       <Homepage />
-
-      <HomeBook/>
+      <HomeBook />
     </div>
   );
 }

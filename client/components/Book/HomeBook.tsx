@@ -1,15 +1,30 @@
-import BookCard, { Ibook } from "./BookCard";
+import BookCard, { type Ibook } from "./BookCard";
 import { ListBooks } from "@/lib/book";
-import FilterBar from "@/components/common/FilterBar";
 
 const HomeBook = async () => {
   const books: Ibook[] = await ListBooks();
+
+  if (!books?.length) {
+    return (
+      <p className="mt-6 rounded-xl border border-border bg-surface px-6 py-10 text-center text-sm text-muted">
+        No books published yet.
+      </p>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
-      {books.map((book, index) => (
-        <BookCard book={book} key={index} />
-      ))}
-    </div>
+    <section className="mt-5">
+      <div className="mb-3 flex items-baseline justify-between">
+        <h2 className="text-lg font-semibold text-primary">Browse books</h2>
+        <span className="text-xs text-muted">{books.length} titles</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
+        {books.map((book) => (
+          <BookCard book={book} key={book.id} />
+        ))}
+      </div>
+    </section>
   );
 };
 
