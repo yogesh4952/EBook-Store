@@ -1,7 +1,7 @@
 package models
 
 import (
-	"gorm.io/gorm"
+	baseModels "github.com/yogesh4952/ebookstore/pkg/models"
 )
 
 type Role string
@@ -13,7 +13,7 @@ const (
 )
 
 type User struct {
-	gorm.Model
+	baseModels.Base
 	Firstname   string `json:"first_name" `
 	Lastname    string `json:"last_name"`
 	Email       string `json:"email" gorm:"unique;not null"`

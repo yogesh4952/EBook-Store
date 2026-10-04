@@ -2,11 +2,11 @@ package models
 
 import (
 	userModel "github.com/yogesh4952/ebookstore/internal/user/models"
-	"gorm.io/gorm"
+	baseModels "github.com/yogesh4952/ebookstore/pkg/models"
 )
 
 type Seller struct {
-	gorm.Model
+	baseModels.Base
 
 	UserID       uint           `json:"user_id" gorm:"not null"`
 	User         userModel.User `json:"user,omitempty" gorm:"foreignKey:UserID"`

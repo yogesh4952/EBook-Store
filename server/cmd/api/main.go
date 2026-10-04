@@ -152,6 +152,7 @@ func main() {
 		addressRoute := apiRoutes.Group("/address")
 		{
 			addressRoute.POST("/add-address", middleware.AuthRequired(), addressHandler.AddAddress)
+			addressRoute.GET("/", middleware.AuthRequired(), addressHandler.ListUserAddress)
 		}
 		apiRoutes.GET("/", middleware.AuthRequired())
 	}

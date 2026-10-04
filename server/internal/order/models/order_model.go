@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/yogesh4952/ebookstore/internal/user/models"
-	"gorm.io/gorm"
+	baseModels "github.com/yogesh4952/ebookstore/pkg/models"
 )
 
 type (
@@ -31,7 +31,7 @@ const (
 )
 
 type Order struct {
-	gorm.Model
+	baseModels.Base
 	OrderCode       string        `json:"order_code" gorm:"unique;not null"`
 	TransactionUUID string        `gorm:"unique;" json:"transaction_uuid"`
 	TransactionCode string        `json:"transaction_code" gorm:"index;"`

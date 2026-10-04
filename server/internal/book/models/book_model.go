@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/yogesh4952/ebookstore/internal/sellers/models"
-	"gorm.io/gorm"
+	baseModels "github.com/yogesh4952/ebookstore/pkg/models"
 )
 
 type Status string
@@ -13,7 +13,7 @@ const (
 )
 
 type Book struct {
-	gorm.Model
+	baseModels.Base
 	Title        string         `json:"title"`
 	AuthorName   string         `json:"author_name"`
 	Genre        string         `json:"genre"`

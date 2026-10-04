@@ -9,9 +9,9 @@ import (
 )
 
 type IAddressrepo interface {
-	FindUserAddressById(ctx context.Context, addreessId uint) (*models.UserAddress, error)
 	AddAddress(ctx context.Context, data *models.UserAddress) error
 	FindUserAddressByIdAndUser(ctx context.Context, id uint, userId uint) (*models.UserAddress, error)
+	FindAllByUser(ctx context.Context, userId uint) ([]models.UserAddress, error)
 }
 
 type addressRepo struct {
@@ -30,19 +30,19 @@ func (ar *addressRepo) AddAddress(ctx context.Context, data *models.UserAddress)
 	return nil
 }
 
-func (ar *addressRepo) FindUserAddressById(ctx context.Context, id uint) (*models.UserAddress, error) {
-	var address models.UserAddress
-	result := ar.db.WithContext(ctx).First(&address, id)
-	if result.Error != nil {
-		return nil, fmt.Errorf("Invalid address Id")
-	}
-	return &address, nil
-}
-
 func (ar *addressRepo) FindUserAddressByIdAndUser(ctx context.Context, id uint, userId uint) (*models.UserAddress, error) {
 	var address models.UserAddress
 	if err := ar.db.WithContext(ctx).Where("id = ? AND user_id = ?", id, userId).First(&address).Error; err != nil {
 		return nil, err
 	}
 	return &address, nil
+}
+
+// repo
+func (ar *addressRepo) FindAllByUser(ctx context.Context, userId uint) ([]models.UserAddress, error) {
+	var addresses []models.UserAddress
+	if err := ar.db.WithContext(ctx).Where("user_id = ?", userId).Find(&addresses).Error; err != nil {
+		return nil, err
+	}
+	return addresses, nil
 }

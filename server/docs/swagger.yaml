@@ -4,15 +4,15 @@ definitions:
     properties:
       city:
         type: string
-      createdAt:
+      created_at:
         type: string
-      deletedAt:
+      deleted_at:
         $ref: '#/definitions/gorm.DeletedAt'
       delivery_address:
         type: string
       id:
         type: integer
-      updatedAt:
+      updated_at:
         type: string
       user:
         $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.User'
@@ -21,7 +21,6 @@ definitions:
     required:
     - city
     - delivery_address
-    - user_id
     type: object
   github_com_yogesh4952_ebookstore_internal_auth_models.RegisterPayload:
     properties:
@@ -172,9 +171,9 @@ definitions:
     - Roleseller
   github_com_yogesh4952_ebookstore_internal_user_models.User:
     properties:
-      createdAt:
+      created_at:
         type: string
-      deletedAt:
+      deleted_at:
         $ref: '#/definitions/gorm.DeletedAt'
       email:
         type: string
@@ -188,7 +187,7 @@ definitions:
         type: string
       role:
         $ref: '#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.Role'
-      updatedAt:
+      updated_at:
         type: string
     type: object
   gorm.DeletedAt:
@@ -223,14 +222,49 @@ info:
   title: EBook Store API
   version: "1.0"
 paths:
+  /address/:
+    get:
+      description: Return every shipping address belonging to the caller. Ownership
+        is taken from the JWT and enforced in the query, so one user can never receive
+        another user's addresses. A user with no saved addresses gets an empty array
+        and a 200, not a 404.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Addresses fetched, containing the list under data
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Missing or invalid token
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Addresses could not be fetched
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: User id on the request context had an unexpected type
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List the authenticated user's addresses
+      tags:
+      - addresses
   /address/add-address:
     post:
       consumes:
       - application/json
-      description: Add a shipping address. The `user_id` field is taken from the request
-        body and is not checked against the authenticated user, so any authenticated
-        caller can currently attach an address to another user's account. Both the
-        city and the delivery address are required.
+      description: Add a shipping address owned by the authenticated caller. The owner
+        is always taken from the JWT, so any `user_id` in the request body is ignored
+        and a caller cannot attach an address to another account. Both the city and
+        the delivery address are required. The created record is returned under `data`
+        so the client can use its id.
       parameters:
       - description: Address data
         in: body
@@ -242,7 +276,8 @@ paths:
       - application/json
       responses:
         "202":
-          description: Address added, containing success and message keys
+          description: Address added, containing success and message keys, and the
+            created record under data
           schema:
             additionalProperties: true
             type: object
@@ -254,6 +289,11 @@ paths:
             type: object
         "401":
           description: Missing or invalid token
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: User id on the request context had an unexpected type
           schema:
             additionalProperties: true
             type: object

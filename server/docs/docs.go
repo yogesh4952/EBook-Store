@@ -15,6 +15,53 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/address/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Return every shipping address belonging to the caller. Ownership is taken from the JWT and enforced in the query, so one user can never receive another user's addresses. A user with no saved addresses gets an empty array and a 200, not a 404.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "addresses"
+                ],
+                "summary": "List the authenticated user's addresses",
+                "responses": {
+                    "200": {
+                        "description": "Addresses fetched, containing the list under data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Addresses could not be fetched",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "User id on the request context had an unexpected type",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/address/add-address": {
             "post": {
                 "security": [
@@ -22,7 +69,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Add a shipping address. The ` + "`" + `user_id` + "`" + ` field is taken from the request body and is not checked against the authenticated user, so any authenticated caller can currently attach an address to another user's account. Both the city and the delivery address are required.",
+                "description": "Add a shipping address owned by the authenticated caller. The owner is always taken from the JWT, so any ` + "`" + `user_id` + "`" + ` in the request body is ignored and a caller cannot attach an address to another account. Both the city and the delivery address are required. The created record is returned under ` + "`" + `data` + "`" + ` so the client can use its id.",
                 "consumes": [
                     "application/json"
                 ],
@@ -46,7 +93,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "Address added, containing success and message keys",
+                        "description": "Address added, containing success and message keys, and the created record under data",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -61,6 +108,13 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Missing or invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "User id on the request context had an unexpected type",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -707,17 +761,16 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "city",
-                "delivery_address",
-                "user_id"
+                "delivery_address"
             ],
             "properties": {
                 "city": {
                     "type": "string"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "deletedAt": {
+                "deleted_at": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "delivery_address": {
@@ -726,7 +779,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 },
                 "user": {
@@ -946,10 +999,10 @@ const docTemplate = `{
         "github_com_yogesh4952_ebookstore_internal_user_models.User": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "deletedAt": {
+                "deleted_at": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "email": {
@@ -970,7 +1023,7 @@ const docTemplate = `{
                 "role": {
                     "$ref": "#/definitions/github_com_yogesh4952_ebookstore_internal_user_models.Role"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 }
             }

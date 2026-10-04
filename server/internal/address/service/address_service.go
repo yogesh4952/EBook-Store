@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/yogesh4952/ebookstore/internal/address/models"
 	"github.com/yogesh4952/ebookstore/internal/address/repository"
@@ -13,6 +14,7 @@ type UserMethod interface {
 }
 type IAddressService interface {
 	AddAddress(ctx context.Context, payload *models.UserAddress) error
+	ListUserAddress(ctx context.Context, userId uint) ([]models.UserAddress, error)
 }
 
 type addressService struct {
@@ -44,6 +46,12 @@ func (as *addressService) AddAddress(ctx context.Context, payload *models.UserAd
 
 	return nil
 
-	// data, err := as.userRepo.()
+}
 
+func (as *addressService) ListUserAddress(ctx context.Context, userId uint) ([]models.UserAddress, error) {
+	data, err := as.addressRepo.FindAllByUser(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching user addresses: %w", err)
+	}
+	return data, nil
 }
