@@ -16,6 +16,8 @@ type IBookService interface {
 	UpdateBook(ctx context.Context, userId uint, data *models.UpdateBookPayload) (*models.Book, error)
 	ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error)
 	BatchBookSeed(data []*models.PublishBookPayload) error
+	ListGenre(ctx context.Context) ([]string, error)
+	ListCategory(ctx context.Context) ([]string, error)
 }
 
 type bookService struct {
@@ -114,6 +116,16 @@ func (b *bookService) UpdateBook(ctx context.Context, userId uint, data *models.
 func (b *bookService) ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error) {
 
 	return b.bookRepo.ListBooks(ctx, p)
+}
+
+func (b *bookService) ListGenre(ctx context.Context) ([]string, error) {
+
+	return b.bookRepo.ListGenre(ctx)
+}
+
+func (b *bookService) ListCategory(ctx context.Context) ([]string, error) {
+
+	return b.bookRepo.ListCategory(ctx)
 }
 
 func (b *bookService) BatchBookSeed(payloads []*models.PublishBookPayload) error {

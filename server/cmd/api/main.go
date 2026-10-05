@@ -129,6 +129,8 @@ func main() {
 			bookRoutes.POST("/publish-book", middleware.AuthRequired(), middleware.AuthorizeRoles("seller", "admin"), bookHandler.PublishBook)
 			bookRoutes.PATCH("/update-book", middleware.AuthRequired(), middleware.AuthorizeRoles("seller", "admin"), bookHandler.UpdateBook)
 			bookRoutes.GET("/list-books", bookHandler.ListBooks)
+			bookRoutes.GET("/genre", bookHandler.Genre)
+			bookRoutes.GET("/category", bookHandler.Category)
 		}
 
 		orderRoutes := apiRoutes.Group("/order")

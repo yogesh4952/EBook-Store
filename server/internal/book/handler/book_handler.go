@@ -182,3 +182,41 @@ func (h *BookHandler) ListBooks(c *gin.Context) {
 		"limit":   p.Getlimit(),
 	})
 }
+
+func (h *BookHandler) Genre(c *gin.Context) {
+
+	genre, err := h.service.ListGenre(c.Request.Context())
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Book Genre  fetches successfully",
+		"data":    genre,
+	})
+}
+
+func (h *BookHandler) Category(c *gin.Context) {
+
+	category, err := h.service.ListCategory(c.Request.Context())
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Book Category  fetches successfully",
+		"data":    category,
+	})
+}

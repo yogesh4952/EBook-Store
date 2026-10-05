@@ -17,6 +17,8 @@ type IBookRepo interface {
 	FindByIds(ctx context.Context, ids []uint) ([]models.Book, error)
 	ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error)
 	SeedBooks(books []*models.Book) error
+	ListGenre(ctx context.Context) ([]string, error)
+	ListCategory(ctx context.Context) ([]string, error)
 }
 
 type bookRepo struct {
@@ -59,6 +61,7 @@ func (b *bookRepo) UpdateBook(ctx context.Context, book *models.Book) (models.Bo
 	}
 	return *book, nil
 }
+
 func (b *bookRepo) ListBooks(ctx context.Context, p utils.Pagination) ([]models.Book, int64, error) {
 	var books []models.Book
 	var total int64
@@ -78,6 +81,37 @@ func (b *bookRepo) ListBooks(ctx context.Context, p utils.Pagination) ([]models.
 	}
 
 	return books, total, nil
+
+}
+
+func (b *bookRepo) ListGenre(ctx context.Context) ([]string, error) {
+	var genre []string
+
+	err := b.db.
+		Table("books").
+		Select("genre").
+		Find(&genre).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return genre, nil
+
+}
+func (b *bookRepo) ListCategory(ctx context.Context) ([]string, error) {
+	var category []string
+
+	err := b.db.
+		Table("books").
+		Select("category").
+		Find(&category).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return category, nil
 
 }
 
