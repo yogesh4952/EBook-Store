@@ -29,7 +29,11 @@ export default async function BookPage({
     if (categoryFilter && b.category !== categoryFilter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      if (!b.title.toLowerCase().includes(q) && !b.author_name.toLowerCase().includes(q)) return false;
+      if (
+        !b.title.toLowerCase().includes(q) &&
+        !b.author_name.toLowerCase().includes(q)
+      )
+        return false;
     }
     if (minPrice !== undefined && b.price < minPrice) return false;
     if (maxPrice !== undefined && b.price > maxPrice) return false;
@@ -44,7 +48,10 @@ export default async function BookPage({
     <div className="min-h-screen bg-background px-6 py-10">
       <div className="mx-auto max-w-7xl space-y-8">
         <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-1 text-sm text-muted hover:text-primary">
+          <Link
+            href="/"
+            className="flex items-center gap-1 text-sm text-muted hover:text-primary"
+          >
             <HiOutlineChevronLeft size={16} /> Home
           </Link>
           <span className="text-muted">/</span>
@@ -54,7 +61,12 @@ export default async function BookPage({
         <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
           <form method="get" className="flex flex-wrap gap-3 items-end">
             <div>
-              <label htmlFor="q" className="block text-xs font-medium text-muted mb-1">Search</label>
+              <label
+                htmlFor="q"
+                className="block text-xs font-medium text-muted mb-1"
+              >
+                Search
+              </label>
               <input
                 id="q"
                 name="q"
@@ -65,7 +77,12 @@ export default async function BookPage({
               />
             </div>
             <div>
-              <label htmlFor="genre" className="block text-xs font-medium text-muted mb-1">Genre</label>
+              <label
+                htmlFor="genre"
+                className="block text-xs font-medium text-muted mb-1"
+              >
+                Genre
+              </label>
               <select
                 id="genre"
                 name="genre"
@@ -73,13 +90,20 @@ export default async function BookPage({
                 className="h-9 rounded-lg border border-border bg-background px-2 text-sm outline-none focus:border-primary"
               >
                 <option value="">All genres</option>
-                {genres.map((g) => (
-                  <option key={g} value={g}>{g}</option>
+                {genres.map((g, i) => (
+                  <option key={i} value={g}>
+                    {g}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label htmlFor="category" className="block text-xs font-medium text-muted mb-1">Category</label>
+              <label
+                htmlFor="category"
+                className="block text-xs font-medium text-muted mb-1"
+              >
+                Category
+              </label>
               <select
                 id="category"
                 name="category"
@@ -87,13 +111,20 @@ export default async function BookPage({
                 className="h-9 rounded-lg border border-border bg-background px-2 text-sm outline-none focus:border-primary"
               >
                 <option value="">All categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>{category}</option>
+                {categories.map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label htmlFor="min" className="block text-xs font-medium text-muted mb-1">Min Rs.</label>
+              <label
+                htmlFor="min"
+                className="block text-xs font-medium text-muted mb-1"
+              >
+                Min Rs.
+              </label>
               <input
                 id="min"
                 name="min"
@@ -103,7 +134,12 @@ export default async function BookPage({
               />
             </div>
             <div>
-              <label htmlFor="max" className="block text-xs font-medium text-muted mb-1">Max Rs.</label>
+              <label
+                htmlFor="max"
+                className="block text-xs font-medium text-muted mb-1"
+              >
+                Max Rs.
+              </label>
               <input
                 id="max"
                 name="max"
@@ -113,7 +149,12 @@ export default async function BookPage({
               />
             </div>
             <div>
-              <label htmlFor="stock" className="block text-xs font-medium text-muted mb-1">Stock</label>
+              <label
+                htmlFor="stock"
+                className="block text-xs font-medium text-muted mb-1"
+              >
+                Stock
+              </label>
               <select
                 id="stock"
                 name="stock"
@@ -140,10 +181,14 @@ export default async function BookPage({
         </div>
 
         {filtered.length === 0 && (
-          <p className="text-center text-sm text-muted">No books match your filters.</p>
+          <p className="text-center text-sm text-muted">
+            No books match your filters.
+          </p>
         )}
 
-        <div className="text-sm text-muted">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</div>
+        <div className="text-sm text-muted">
+          {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+        </div>
       </div>
     </div>
   );

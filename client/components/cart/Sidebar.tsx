@@ -192,7 +192,7 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           </div>
         ) : (
           <>
-            <ul className="flex-1 overflow-y-auto px-5">
+            <ul className="scrollbar-slim flex-1 overflow-y-auto px-5">
               {cartItems.map((item) => (
                 <CartItem
                   key={item.data.id}

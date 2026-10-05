@@ -3,8 +3,11 @@ import { CiHeart } from "react-icons/ci";
 import { FaBookOpen, FaSearch } from "react-icons/fa";
 import { MdOutlinePerson3 } from "react-icons/md";
 import CartBadge from "./CartBadge";
+import { getCategoriesFromApi } from "@/lib/book-api";
 
-const Navbar = () => {
+const Navbar = async () => {
+  const categories = await getCategoriesFromApi();
+
   return (
     <nav className="w-full min-h-24 grid grid-cols-[1fr_2fr_1fr] items-center gap-4 px-6">
       {/* Logo */}
@@ -14,34 +17,45 @@ const Navbar = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="flex h-11 border border-accent rounded-lg overflow-hidden">
+      <form
+        action="/book"
+        method="get"
+        role="search"
+        className="flex h-11 border border-accent rounded-lg overflow-hidden"
+      >
         {/* Input */}
         <input
-          type="text"
-          name="search_book"
+          type="search"
+          name="q"
           id="search_book"
           placeholder="Search by title, author..."
-          className="flex-1 px-4 outline-none"
+          className="min-w-0 flex-1 bg-surface px-4 outline-none placeholder:text-muted"
         />
 
         {/* Category */}
         <select
-          name="categories"
+          name="category"
           id="categories"
-          className="w-40 px-3 border-l border-accent bg-white outline-none text-sm"
+          aria-label="Filter by category"
+          className="max-w-40 border-l border-accent bg-surface px-3 outline-none text-sm"
         >
           <option value="">All Categories</option>
-          <option value="romance">Romance</option>
-          <option value="sci-fi">Sci-Fi</option>
-          <option value="manhwa">Manhwa</option>
-          <option value="manga">Manga</option>
+          {categories.map((category, i) => (
+            <option key={i} value={category}>
+              {category}
+            </option>
+          ))}
         </select>
 
         {/* Search Button */}
-        <button className="w-12 flex items-center justify-center bg-primary text-white hover:opacity-90">
+        <button
+          type="submit"
+          aria-label="Search books"
+          className="w-12 flex items-center justify-center bg-primary text-white hover:opacity-90"
+        >
           <FaSearch size={18} />
         </button>
-      </div>
+      </form>
 
       {/* Icons */}
       <div className="flex justify-end gap-5 items-center">

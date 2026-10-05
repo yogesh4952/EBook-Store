@@ -1,6 +1,8 @@
 import type { ICartItem, ICartResponse } from "@/components/cart/CartItem";
 
 export type PaymentMethod = "COD" | "ESEWA";
+export type PaymentStatus = "PAID" | "PENDING" | "REFUND";
+export type OrderStatus = "PLACED" | "DELIVERED" | "CANCELLED";
 
 export interface OrderItemResponse {
   book_id: number;
@@ -181,3 +183,53 @@ export const cartToOrderItems = (items: ICartItem[]) =>
     quantity: item.quantity,
     seller_id: item.data.seller_id ?? 0,
   }));
+
+/**
+ * A line item as it comes back inside a listed order.
+ *
+ * The list endpoint returns the whole `OrderItem` row, which carries the joined
+ * `book` record. That is the only place a cover image survives, so `book` is
+ * used for the thumbnail and treated as optional for rows written before the
+ * preload existed.
+ */
+export interface OrderLineItem {
+  order_id: number;
+  book_id: number;
+  quantity: number;
+  unit_price: number;
+  created_at?: string;
+  updated_at?: string;
+  book?: {
+    id: number;
+    title: string;
+    author_name: string;
+    cover_page_url: string;
+  };
+}
+
+export interface UserOrder {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  order_code: string;
+  transaction_uuid: string;
+  transaction_code: string;
+  payment_method: PaymentMethod;
+  payment_status: PaymentStatus;
+  order_status: OrderStatus | "";
+  total_price: number;
+  shipping_city: string;
+  shipping_delivery_address: string;
+  order_items: OrderLineItem[];
+}
+
+export async function listUserOrders(): Promise<UserOrder[]> {
+  const response = await fetch("/api/proxy/order/list-user-order", {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store",
+  });
+  const payload = await readJson<{ data: UserOrder[] | null }>(response);
+
+  return payload.data ?? [];
+}

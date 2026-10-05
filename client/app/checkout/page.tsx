@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FaHandHoldingDollar } from "react-icons/fa6";
 import { toast } from "sonner";
 
 import EsewaRedirect from "@/components/checkout/EsewaRedirect";
@@ -27,16 +28,20 @@ const PAYMENT_METHODS: {
   value: PaymentMethod;
   label: string;
   description: string;
+  logo?: string;
+  Icon?: typeof FaHandHoldingDollar;
 }[] = [
   {
     value: "ESEWA",
     label: "Pay with eSewa",
     description: "Redirects to eSewa to complete payment.",
+    logo: "/esewa_logo.jpg",
   },
   {
     value: "COD",
     label: "Cash on delivery",
     description: "Pay in cash when your order arrives.",
+    Icon: FaHandHoldingDollar,
   },
 ];
 
@@ -367,6 +372,22 @@ export default function CheckoutPage() {
                     onChange={() => setPaymentMethod(method.value)}
                     className="mt-1 accent-[#4B2E20]"
                   />
+                  {method.logo ? (
+                    <Image
+                      src={method.logo}
+                      alt=""
+                      width={36}
+                      height={36}
+                      className="mt-0.5 size-9 shrink-0 rounded-lg border border-border object-cover"
+                    />
+                  ) : (
+                    method.Icon && (
+                      <method.Icon
+                        size={28}
+                        className="mt-1 shrink-0 text-primary"
+                      />
+                    )
+                  )}
                   <span>
                     <span className="block text-sm font-medium text-primary">
                       {method.label}

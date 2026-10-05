@@ -48,6 +48,7 @@ export interface Ibook {
 
 interface BookCardProps {
   book: Ibook;
+  priority?: boolean;
 }
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -55,7 +56,7 @@ const LOW_STOCK_THRESHOLD = 5;
 const formatPrice = (value: number) =>
   `Rs. ${new Intl.NumberFormat("en-NP", { maximumFractionDigits: 0 }).format(value)}`;
 
-const BookCard = ({ book }: BookCardProps) => {
+const BookCard = ({ book, priority }: BookCardProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
@@ -90,6 +91,7 @@ const BookCard = ({ book }: BookCardProps) => {
             alt={`Cover of ${book.title}`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            priority={priority}
             className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
 

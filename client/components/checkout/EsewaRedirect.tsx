@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import type { EsewaPayload } from "@/lib/checkout";
@@ -38,6 +39,14 @@ export default function EsewaRedirect({
   if (isRedirecting) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-6">
+        <Image
+          src="/esewa_logo.jpg"
+          alt="eSewa"
+          width={48}
+          height={48}
+          priority
+          className="size-12 rounded-xl border border-border object-cover"
+        />
         <span className="size-10 animate-spin rounded-full border-2 border-border border-t-primary" />
         <h1 className="text-lg font-semibold text-primary">
           Redirecting to eSewa…
@@ -58,6 +67,14 @@ export default function EsewaRedirect({
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-6 text-center">
+      <Image
+        src="/esewa_logo.jpg"
+        alt="eSewa"
+        width={48}
+        height={48}
+        priority
+        className="size-12 rounded-xl border border-border object-cover"
+      />
       <h1 className="text-lg font-semibold text-primary">
         Automatic redirect did not start
       </h1>

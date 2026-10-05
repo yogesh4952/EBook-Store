@@ -30,13 +30,13 @@ const Section = ({ title, books, emptyMessage }: SectionProps) => {
       </div>
 
       <div className="relative group">
-        <div className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        <div className="scrollbar-slim flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory">
           {books.map((book) => (
             <div
               key={book.id}
               className="w-44 shrink-0 snap-start sm:w-48 md:w-52"
             >
-              <BookCard book={book} />
+              <BookCard book={book} priority />
             </div>
           ))}
         </div>
@@ -95,17 +95,18 @@ const HomeBook = ({ books }: HomeBookProps) => {
           </Link>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-2">
           {categoryData.map(({ category, count }) => (
-            <Link
-              key={category}
-              href={`/book?category=${encodeURIComponent(category)}`}
-              className="rounded-full border border-border bg-surface px-3 py-1 text-sm font-medium text-primary hover:border-accent hover:bg-accent/10"
-            >
-              {category} ({count})
-            </Link>
+            <li key={category}>
+              <Link
+                href={`/book?category=${encodeURIComponent(category)}`}
+                className="block rounded-full border border-border bg-surface px-3 py-1 text-sm font-medium text-primary hover:border-accent hover:bg-accent/10"
+              >
+                {category} ({count})
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
       <div>
