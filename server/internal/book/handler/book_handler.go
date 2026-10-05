@@ -183,6 +183,13 @@ func (h *BookHandler) ListBooks(c *gin.Context) {
 	})
 }
 
+// ListGenres godoc
+// @Summary      List all genres
+// @Description  Get distinct genre values from books
+// @Tags         books
+// @Produce      json
+// @Success      200 {object} map[string]interface{}  "Genres fetched"
+// @Router       /book/genre [get]
 func (h *BookHandler) Genre(c *gin.Context) {
 
 	genre, err := h.service.ListGenre(c.Request.Context())
@@ -202,6 +209,13 @@ func (h *BookHandler) Genre(c *gin.Context) {
 	})
 }
 
+// ListCategories godoc
+// @Summary      List all categories
+// @Description  Get distinct category values from books
+// @Tags         books
+// @Produce      json
+// @Success      200 {object} map[string]interface{}  "Categories fetched"
+// @Router       /book/category [get]
 func (h *BookHandler) Category(c *gin.Context) {
 
 	category, err := h.service.ListCategory(c.Request.Context())

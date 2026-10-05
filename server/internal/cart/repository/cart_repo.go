@@ -44,23 +44,14 @@ func (rp *cartRepo) AddToCart(
 		field,
 		int64(payload.Quantity),
 	).Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to increment cart item: %w", err)
 	}
 
-	if err := rp.rdc.Expire(
-		ctx,
-		cartKey,
-		7*24*time.Hour,
-	).Err(); err != nil {
-		return nil, err
+	if err := rp.rdc.Expire(ctx, cartKey, 7*24*time.Hour).Err(); err != nil {
+		return nil, fmt.Errorf("failed to refresh cart expiration: %w", err)
 	}
 
-	cart, err := rp.rdc.HGetAll(ctx, cartKey).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	return cart, nil
+	return rp.rdc.HGetAll(ctx, cartKey).Result()
 }
 
 func (rp *cartRepo) RemoveFromCart(ctx context.Context, userId uint, payload model.AddToCartPayload) (map[string]string, error) {

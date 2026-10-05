@@ -4,7 +4,7 @@ import { HiOutlineChevronLeft } from "react-icons/hi2";
 
 import BookCard, { type Ibook } from "@/components/Book/BookCard";
 import { getAllBooks } from "@/lib/book-actions";
-import { getCategories, getGenres } from "@/lib/book-utils";
+import { getGenresFromApi, getCategoriesFromApi } from "@/lib/book-api";
 
 export default async function BookPage({
   searchParams,
@@ -37,8 +37,8 @@ export default async function BookPage({
     return true;
   });
 
-  const categories = getCategories(books);
-  const genres = getGenres(books);
+  const categories = await getCategoriesFromApi();
+  const genres = await getGenresFromApi();
 
   return (
     <div className="min-h-screen bg-background px-6 py-10">
@@ -87,7 +87,7 @@ export default async function BookPage({
                 className="h-9 rounded-lg border border-border bg-background px-2 text-sm outline-none focus:border-primary"
               >
                 <option value="">All categories</option>
-                {categories.map(({ category }) => (
+                {categories.map((category) => (
                   <option key={category} value={category}>{category}</option>
                 ))}
               </select>

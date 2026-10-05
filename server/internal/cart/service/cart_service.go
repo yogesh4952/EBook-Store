@@ -49,15 +49,14 @@ func (cs *cartService) AddToCart(ctx context.Context, userId uint, payload model
 		return nil, fmt.Errorf("book %d not found: %w", payload.BookId, err)
 	}
 
-	redisQuantity, err := cs.cartRepo.GetCartQuantity(ctx, userId, payload.BookId)
+	currentQuantity, err := cs.cartRepo.GetCartQuantity(ctx, userId, payload.BookId)
 	if err != nil {
 		return nil, err
 	}
 
-	if (book.Units < payload.Quantity) || (redisQuantity+int64(payload.Quantity)) > int64(book.Units) {
+	if currentQuantity+int64(payload.Quantity) > int64(book.Units) {
 		return nil, fmt.Errorf("only %d units of book %d available", book.Units, payload.BookId)
 	}
-
 	return cs.cartRepo.AddToCart(ctx, userId, payload)
 }
 
