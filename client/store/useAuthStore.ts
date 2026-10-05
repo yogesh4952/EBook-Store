@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
-interface User {
-  id: string;
-  email: string;
-  name?: string;
+export interface AuthUser {
+  id?: number;
+  email?: string;
+  role?: string;
 }
 
 interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   fetchUser: () => Promise<void>;
   logout: () => Promise<void>;
@@ -20,21 +20,28 @@ export const useAuthStore = create<AuthState>((set) => ({
   fetchUser: async () => {
     set({ loading: true });
     try {
-      const res = await fetch("/api/me");
-      if (res.ok) {
-        const data = await res.json();
-        set({ user: data, loading: false });
-      } else {
+      const res = await fetch("/api/auth/me", { cache: "no-store" });
+
+      if (!res.ok) {
         set({ user: null, loading: false });
+        return;
       }
+
+      const payload = await res.json();
+      set({ user: payload.data ?? null, loading: false });
     } catch {
       set({ user: null, loading: false });
     }
   },
 
   logout: async () => {
-    await fetch("/api/logout", { method: "POST" });
-    set({ user: null });
-    window.location.href = "/auth/login";
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      // Clear locally even if the request failed, so the UI never keeps
+      // showing a signed-in state that the cookie no longer backs.
+      set({ user: null });
+      window.location.href = "/auth/login";
+    }
   },
 }));

@@ -1,7 +1,17 @@
-import { AUTH_COOKIE_NAME, API_ENDPOINTS } from "@/lib/config";
+import { decodeJwtClaims } from "@/helper/jwtExp";
+import { AUTH_COOKIE_NAME } from "@/lib/config";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+/**
+ * Returns the caller's identity from the access token cookie.
+ *
+ * Claims are read straight out of the token instead of calling the backend,
+ * because the Go API has no /auth/me endpoint to call. That is acceptable
+ * here: the token's signature was already verified when it was issued, and
+ * every other request re-verifies it server-side. This is a convenience
+ * endpoint for the UI, not an authorization gate.
+ */
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -14,19 +24,30 @@ export async function GET() {
       );
     }
 
-    const response = await fetch(API_ENDPOINTS.me, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      cache: "no-cache",
-    });
+    const claims = decodeJwtClaims(token);
 
-    const data = await response.json();
-    if (!response.ok) {
-      return NextResponse.json(data, { status: response.status });
+    if (!claims) {
+      return NextResponse.json(
+        { message: "Invalid access token" },
+        { status: 401 },
+      );
     }
 
-    return NextResponse.json(data);
+    if (claims.exp && claims.exp * 1000 <= Date.now()) {
+      return NextResponse.json(
+        { message: "Access token expired" },
+        { status: 401 },
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: claims.user_id,
+        email: claims.email,
+        role: claims.role,
+      },
+    });
   } catch {
     return NextResponse.json(
       { message: "Internal Server Error" },

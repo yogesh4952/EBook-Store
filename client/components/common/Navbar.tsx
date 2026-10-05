@@ -1,8 +1,8 @@
 import React from "react";
 import { CiHeart } from "react-icons/ci";
 import { FaBookOpen, FaSearch } from "react-icons/fa";
-import { MdOutlinePerson3 } from "react-icons/md";
 import CartBadge from "./CartBadge";
+import ProfileMenu from "./ProfileMenu";
 import { getCategoriesFromApi } from "@/lib/book-api";
 
 const Navbar = async () => {
@@ -64,10 +64,7 @@ const Navbar = async () => {
           size={32}
         />
         <CartBadge />
-        <MdOutlinePerson3
-          className="cursor-pointer hover:scale-105 transition-all"
-          size={32}
-        />
+        <ProfileMenu />
       </div>
     </nav>
   );

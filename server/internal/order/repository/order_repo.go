@@ -45,7 +45,7 @@ func (r *orderRepo) ListUserOrder(ctx context.Context, userId uint) ([]*models.O
 
 	var order []*models.Order
 
-	if err := r.db.Preload("OrderItem").WithContext(ctx).Where("user_id = ?", userId).Find(&order).Error; err != nil {
+	if err := r.db.Preload("OrderItem").Preload("OrderItem.Book").WithContext(ctx).Where("user_id = ?", userId).Find(&order).Error; err != nil {
 		return nil, err
 	}
 	return order, nil
