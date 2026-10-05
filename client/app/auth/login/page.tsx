@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import OtpVerification from "@/components/OtpVerification";
 import { useState } from "react";
 import {
@@ -146,6 +147,16 @@ const Login = () => {
             >
               {isSendingOtp ? "Sending..." : "Send-OTP"}
             </button>
+
+            <p className="mt-6 text-center text-sm text-gray-500">
+              New to Book-Store Nepal?{" "}
+              <Link
+                href="/auth/register"
+                className="font-semibold text-primary underline underline-offset-4"
+              >
+                Create an account
+              </Link>
+            </p>
 
             <p className="my-8 text-center text-gray-500">or continue with</p>
 

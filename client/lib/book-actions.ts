@@ -3,8 +3,9 @@
 import type { Ibook } from "@/components/Book/BookCard";
 
 export async function getAllBooks(page = 1, limit = 24): Promise<Ibook[]> {
+  const BACKEND_URI= process.env.BACKEND_URL
   const res = await fetch(
-    `http://localhost:8080/api/book/list-books?page=${page}&limit=${limit}`,
+    `${BACKEND_URI}/api/book/list-books?page=${page}&limit=${limit}`,
     { next: { revalidate: 60 } },
   );
 
