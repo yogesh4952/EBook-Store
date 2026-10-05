@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-background px-6 py-4">
-      <body className={inter.variable}>
+      <body className={inter.variable} suppressHydrationWarning>
         <Toaster position="top-right" />
 
         {children}

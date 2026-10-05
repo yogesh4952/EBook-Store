@@ -32,7 +32,6 @@ export interface PlaceOrderResponse {
   order_status: string;
   address: string;
   items: OrderItemResponse[];
-  // Absent for COD, present for ESEWA.
   esewa_payload?: EsewaPayload | null;
 }
 

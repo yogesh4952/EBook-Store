@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import CartItem, { type ICartItem } from "./CartItem";
 import { addToCart, getCart, removeFromCart } from "@/lib/checkout";
+import { refreshCart } from "@/store/useCartStore";
 
 const formatPrice = (value: number) =>
   `Rs. ${new Intl.NumberFormat("en-NP", {
@@ -110,6 +111,7 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
       const cart = await getCart();
       setCartItems(cart.items ?? []);
       setTotal(cart.total ?? 0);
+      refreshCart();
     } catch (error) {
       setCartItems(previous);
       toast.error(
@@ -133,6 +135,7 @@ const Sidebar = ({ onClose }: { onClose?: () => void }) => {
       const cart = await getCart();
       setCartItems(cart.items ?? []);
       setTotal(cart.total ?? 0);
+      refreshCart();
     } catch (error) {
       setCartItems(previous);
       toast.error(

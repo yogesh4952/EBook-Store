@@ -1,8 +1,8 @@
 import React from "react";
-import { AiOutlineShoppingCart } from "react-icons/ai";
 import { CiHeart } from "react-icons/ci";
 import { FaBookOpen, FaSearch } from "react-icons/fa";
 import { MdOutlinePerson3 } from "react-icons/md";
+import CartBadge from "./CartBadge";
 
 const Navbar = () => {
   return (
@@ -49,10 +49,7 @@ const Navbar = () => {
           className="cursor-pointer hover:scale-105 transition-all"
           size={32}
         />
-        <AiOutlineShoppingCart
-          className="cursor-pointer hover:scale-105 transition-all"
-          size={32}
-        />
+        <CartBadge />
         <MdOutlinePerson3
           className="cursor-pointer hover:scale-105 transition-all"
           size={32}

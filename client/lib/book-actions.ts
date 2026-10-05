@@ -1,8 +1,8 @@
+"use server";
+
 import type { Ibook } from "@/components/Book/BookCard";
 
-const PAGE_SIZE = 24;
-
-export async function ListBooks(page = 1, limit = PAGE_SIZE): Promise<Ibook[]> {
+export async function getAllBooks(page = 1, limit = 24): Promise<Ibook[]> {
   const res = await fetch(
     `http://localhost:8080/api/book/list-books?page=${page}&limit=${limit}`,
     { next: { revalidate: 60 } },

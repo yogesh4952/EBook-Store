@@ -7,9 +7,13 @@ import { toast } from "sonner";
 
 import Sidebar from "../cart/Sidebar";
 import { addToCart } from "@/lib/checkout";
+import { refreshCart } from "@/store/useCartStore";
 
 export interface Ibook {
   id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
   title: string;
   author_name: string;
   genre: string;
@@ -22,8 +26,22 @@ export interface Ibook {
   cover_page_url: string;
   seller_id: number | null;
   seller?: {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    user_id: number;
+    seller_number: number;
     user?: {
+      id: number;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string | null;
       first_name: string;
+      last_name: string;
+      email: string;
+      role: "seller";
+      phone_number: string;
     };
   };
 }
@@ -51,6 +69,7 @@ const BookCard = ({ book }: BookCardProps) => {
     setIsAdding(true);
     try {
       await addToCart({ book_id: book.id, quantity: 1 });
+      refreshCart();
       setIsSidebarOpen(true);
       toast.success(`${book.title} added to cart`);
     } catch (error) {
@@ -65,7 +84,6 @@ const BookCard = ({ book }: BookCardProps) => {
   return (
     <>
       <article className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-md">
-        {/* Cover */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-accent/20">
           <Image
             src={book.cover_page_url}
@@ -86,7 +104,6 @@ const BookCard = ({ book }: BookCardProps) => {
           )}
         </div>
 
-        {/* Body */}
         <div className="flex flex-1 flex-col p-3">
           <h3
             title={book.title}
