@@ -12,8 +12,23 @@ import {
 import { FaPeopleGroup, FaShield } from "react-icons/fa6";
 import { toast } from "sonner";
 import { FRONTEND_URL } from "@/lib/config";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 const Login = () => {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const err = searchParams.get("error");
+    if (err === "AuthenticationFailed") {
+      toast.error("Google login failed due to server error (duplicate phone / DB issue).");
+    } else if (err === "DBConflict") {
+      toast.error("Account creation failed: phone number conflict.");
+    } else if (err) {
+      toast.error("Login error: " + err);
+    }
+  }, [searchParams]);
+
   const [email, setEmail] = useState("");
 
   const [step, setStep] = useState(1);
@@ -60,7 +75,10 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    console.log("[CLIENT] handleGoogleLogin start, clientId:", clientId ? "SET" : "MISSING");
+    console.log(
+      "[CLIENT] handleGoogleLogin start, clientId:",
+      clientId ? "SET" : "MISSING",
+    );
     console.log("[CLIENT] FRONTEND_URL:", FRONTEND_URL);
 
     const redirectUri = `${FRONTEND_URL}/api/auth/google/callback`;
@@ -190,11 +208,6 @@ const Login = () => {
               >
                 <FaGoogle />
                 Continue with Google
-              </button>
-
-              <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:cursor-pointer hover:bg-gray-50">
-                <FaFacebook />
-                Continue with Facebook
               </button>
             </div>
 

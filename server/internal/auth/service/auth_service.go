@@ -177,36 +177,43 @@ func (s *authService) Google(ctx context.Context, code string) (string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
 		return "", fmt.Errorf("failed to decode google response: %w", err)
 	}
-	log.Printf("TOKEN: %s", tokenResp.IDToken)
 
 	parts := strings.Split(tokenResp.IDToken, ".")
 	if len(parts) < 2 {
-		return "", fmt.Errorf("invalid google id_token")
+		return "", fmt.Errorf("invalid google id_token structure")
 	}
-	payloadB64 := parts[1]
-	switch len(payloadB64) % 4 {
-	case 2:
-		payloadB64 += "=="
-	case 3:
-		payloadB64 += "="
-	}
-	payloadBytes, err := base64.URLEncoding.DecodeString(payloadB64)
+
+	// Use RawURLEncoding to decode unpadded Base64 payload safely
+	payloadBytes, err := base64.RawURLEncoding.DecodeString(parts[1])
 	if err != nil {
 		return "", fmt.Errorf("failed to decode google id_token payload: %w", err)
 	}
+
 	var claims map[string]interface{}
 	if err := json.Unmarshal(payloadBytes, &claims); err != nil {
 		return "", fmt.Errorf("failed to unmarshal google claims: %w", err)
 	}
+	log.Printf("[GOOGLE DEBUG] Raw Claims: %+v\n", claims)
 	email, _ := claims["email"].(string)
-	firstname, _ := claims["first_name"].(string)
-	lastname, _ := claims["last_name"].(string)
 	if email == "" {
 		return "", fmt.Errorf("google id_token missing email")
 	}
+
+	firstname, _ := claims["given_name"].(string)
+	lastname, _ := claims["family_name"].(string)
+
 	if firstname == "" {
-		firstname = "Google"
+		if fullName, ok := claims["name"].(string); ok && fullName != "" {
+			parts := strings.SplitN(strings.TrimSpace(fullName), " ", 2)
+			firstname = parts[0]
+			if len(parts) > 1 {
+				lastname = parts[1]
+			}
+		} else {
+			firstname = "Google"
+		}
 	}
+
 	if lastname == "" {
 		lastname = "User"
 	}
@@ -217,14 +224,14 @@ func (s *authService) Google(ctx context.Context, code string) (string, error) {
 			Lastname:    lastname,
 			Email:       email,
 			Role:        models.RoleCustomer,
-			PhoneNumber: "0000000000",
+			PhoneNumber: "",
 		}
 		if regErr := s.repo.RegisterUser(ctx, userRegistration); regErr != nil {
-			return "", fmt.Errorf("Failed to register user: %w", regErr)
+			return "", fmt.Errorf("failed to register user: %w", regErr)
 		}
 		user, err = s.userStore.FindByEmail(ctx, email)
 		if err != nil {
-			return "", fmt.Errorf("Failed to find registered user: %w", err)
+			return "", fmt.Errorf("failed to find registered user: %w", err)
 		}
 	}
 

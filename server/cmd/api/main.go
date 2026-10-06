@@ -113,7 +113,8 @@ func main() {
 
 		userRoutes := apiRoutes.Group("/users")
 		{
-			userRoutes.GET("", userHandler.ListUser)
+			userRoutes.GET("", middleware.AuthRequired(), middleware.AuthorizeRoles("admin"), userHandler.ListUser)
+			userRoutes.PATCH("", middleware.AuthRequired(), userHandler.EditUserData)
 		}
 
 		authRoutes := apiRoutes.Group("/auth")

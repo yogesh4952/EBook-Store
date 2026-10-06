@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 
+	"github.com/gin-gonic/gin"
 	"github.com/yogesh4952/ebookstore/internal/user/models"
 	userrepo "github.com/yogesh4952/ebookstore/internal/user/repository"
 )
 
 type UserService interface {
 	GetAllUsers(ctx context.Context) ([]models.User, error)
+	EditUserData(c *gin.Context, req models.EditUserPayload) error
 }
 
 type userService struct {
@@ -31,4 +33,8 @@ func (u *userService) GetAllUsers(ctx context.Context) ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+func (u *userService) EditUserData(c *gin.Context, req models.EditUserPayload) error {
+	return u.repo.EditUserData(c, req)
 }

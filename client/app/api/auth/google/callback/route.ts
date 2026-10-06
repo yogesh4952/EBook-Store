@@ -31,13 +31,15 @@ export async function GET(request: Request) {
       backendResponse.ok,
     );
     if (!backendResponse.ok) {
+      const text = await backendResponse.text();
       console.log(
         "[BFF] backend error response:",
-        await backendResponse.text(),
+        text,
       );
-      return NextResponse.redirect(
-        new URL("/login?error=AuthenticationFailed", request.url),
-      );
+      const redirectUrl = text.includes("duplicate key")
+        ? new URL("/login?error=DBConflict", request.url)
+        : new URL("/login?error=AuthenticationFailed", request.url);
+      return NextResponse.redirect(redirectUrl);
     }
     const data = await backendResponse.json();
 

@@ -1,9 +1,12 @@
 package userhandler
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/yogesh4952/ebookstore/internal/user/models"
 	"github.com/yogesh4952/ebookstore/internal/user/service"
 )
 
@@ -33,4 +36,42 @@ func (uh *UserHandler) ListUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, users)
+}
+
+func (uh *UserHandler) EditUserData(c *gin.Context) {
+	var req models.EditUserPayload
+
+	if err := c.ShouldBindBodyWithJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"sucess":  false,
+			"message": fmt.Errorf("%v: error request", err.Error()),
+		})
+		return
+	}
+
+	userId, exist := c.Get("userId")
+	log.Printf("%v: USERID", userId)
+	if !exist {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"sucess":  false,
+			"message": "UserId doesn't exist!",
+		})
+		return
+	}
+	req.ID = userId.(uint)
+
+	err := uh.service.EditUserData(c, req)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"sucess":  false,
+			"message": err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"sucess":  false,
+		"message": "User data edited sucessfully",
+	})
+
 }

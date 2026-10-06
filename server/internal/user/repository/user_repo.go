@@ -3,6 +3,7 @@ package userrepo
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/yogesh4952/ebookstore/internal/user/models"
 	"gorm.io/gorm"
@@ -12,6 +13,7 @@ type IUser interface {
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
 	FetchAllUsers(ctx context.Context) ([]models.User, error)
 	FindById(ctx context.Context, id uint) (*models.User, error)
+	EditUserData(ctx context.Context, req models.EditUserPayload) error
 }
 
 type userRepository struct {
@@ -55,4 +57,16 @@ func (u *userRepository) FetchAllUsers(ctx context.Context) ([]models.User, erro
 	}
 	return users, nil
 
+}
+
+func (u *userRepository) EditUserData(ctx context.Context, req models.EditUserPayload) error {
+	err := u.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("id = ?", req.ID).
+		Updates(req).Error
+
+	if err != nil {
+		return fmt.Errorf("failed to patch user %d: %w", req.ID, err)
+	}
+	return nil
 }
