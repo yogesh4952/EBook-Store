@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { FaPeopleGroup, FaShield } from "react-icons/fa6";
 import { toast } from "sonner";
+import { BACKEND_URL, FRONTEND_URL } from "@/lib/config";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -55,6 +56,25 @@ const Login = () => {
     } finally {
       setIsSendingOtp(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+    const redirectUri = `${FRONTEND_URL}/api/auth/google/callback`;
+
+    const scope = "openid email profile";
+    const responseType = "code";
+
+    const googleAuthUrl =
+      `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${clientId}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=${responseType}` +
+      `&scope=${encodeURIComponent(scope)}` +
+      `&prompt=select_account`;
+
+    window.location.href = googleAuthUrl;
   };
   return (
     <div className="grid min-h-[750px] grid-cols-2 gap-8">
@@ -161,7 +181,10 @@ const Login = () => {
             <p className="my-8 text-center text-gray-500">or continue with</p>
 
             <div className="space-y-4">
-              <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:cursor-pointer hover:bg-gray-50">
+              <button
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:cursor-pointer hover:bg-gray-50"
+                onClick={handleGoogleLogin}
+              >
                 <FaGoogle />
                 Continue with Google
               </button>

@@ -121,6 +121,7 @@ func main() {
 			authRoutes.POST("/send-otp", authHandler.SendOTP)
 			authRoutes.POST("/login", authHandler.Login)
 			authRoutes.POST("/register", authHandler.Register)
+			authRoutes.POST("/google", authHandler.Google)
 
 		}
 

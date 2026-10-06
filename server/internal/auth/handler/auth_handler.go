@@ -2,6 +2,8 @@ package handler
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -141,7 +143,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		if errors.Is(err, auth.ErrDuplicateEmail) {
 			c.JSON(http.StatusConflict, gin.H{
 				"success": false,
-				"message": err.Error(),
+				"message": fmt.Errorf("Duplicate email: %v", err.Error()),
 			})
 			return
 		}
@@ -155,7 +157,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": err.Error(),
+			"message": fmt.Errorf("Internal server error: %v", err.Error()),
 		})
 		return
 	}
@@ -163,5 +165,16 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		"success": true,
 		"message": result,
 	})
+
+}
+
+func (h *AuthHandler) Google(c *gin.Context) {
+	var code string
+	if err := c.ShouldBindJSON(&code); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	log.Printf("CODE:%s", code)
 
 }

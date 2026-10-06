@@ -33,7 +33,9 @@ const ROLES: {
 const Register = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [age, setAge] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [role, setRole] = useState<Role>("customer");
 
   const [isRegistering, setIsRegistering] = useState(false);
@@ -54,8 +56,18 @@ const Register = () => {
       return;
     }
 
+    if (!age || Number(age) < 13 || Number(age) > 120) {
+      toast.error("Enter a valid age (13–120)");
+      return;
+    }
+
     if (!email.trim()) {
       toast.error("Enter your email address");
+      return;
+    }
+
+    if (!phoneNumber.trim()) {
+      toast.error("Enter your phone number");
       return;
     }
 
@@ -68,10 +80,9 @@ const Register = () => {
           first_name: firstName.trim(),
           last_name: lastName.trim(),
           email: email.trim(),
+          phone_number: phoneNumber.trim(),
           role,
-          // The backend binds this as required but never stores it, so a
-          // placeholder keeps validation satisfied without inventing data.
-          age: 0,
+          age: Number(age),
         }),
         headers: { "Content-Type": "application/json" },
       });
@@ -206,6 +217,22 @@ const Register = () => {
                 className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
               />
             </div>
+
+            <div className="sm:col-span-2">
+              <label htmlFor="age" className="mb-2 block font-medium">
+                Age
+              </label>
+              <input
+                id="age"
+                name="age"
+                type="number"
+                min={13}
+                max={120}
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
+              />
+            </div>
           </div>
 
           <div>
@@ -220,6 +247,21 @@ const Register = () => {
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               placeholder="you@example.com"
+              className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="phone_number" className="mb-2 block font-medium">
+              Phone number
+            </label>
+            <input
+              id="phone_number"
+              name="phone_number"
+              type="tel"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              placeholder="98xxxxxxxx"
               className="h-12 w-full rounded-lg border border-gray-300 px-4 outline-none transition focus:border-primary"
             />
           </div>
