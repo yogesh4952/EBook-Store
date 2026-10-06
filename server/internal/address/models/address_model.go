@@ -10,5 +10,5 @@ type UserAddress struct {
 	City            string      `json:"city" binding:"required" gorm:"not null"`
 	DeliveryAddress string      `json:"delivery_address" binding:"required" gorm:"not null"`
 	UserId          uint        `json:"user_id" binding:"omitempty"`
-	User            models.User `json:"user" gorm:"foreignKey:UserId"`
+	User            models.User `json:"user" gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
 }

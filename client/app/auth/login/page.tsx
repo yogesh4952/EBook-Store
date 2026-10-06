@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import { FaPeopleGroup, FaShield } from "react-icons/fa6";
 import { toast } from "sonner";
-import { BACKEND_URL, FRONTEND_URL } from "@/lib/config";
+import { FRONTEND_URL } from "@/lib/config";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -60,6 +60,8 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    console.log("[CLIENT] handleGoogleLogin start, clientId:", clientId ? "SET" : "MISSING");
+    console.log("[CLIENT] FRONTEND_URL:", FRONTEND_URL);
 
     const redirectUri = `${FRONTEND_URL}/api/auth/google/callback`;
 
@@ -74,6 +76,7 @@ const Login = () => {
       `&scope=${encodeURIComponent(scope)}` +
       `&prompt=select_account`;
 
+    console.log("[CLIENT] google URL:", googleAuthUrl);
     window.location.href = googleAuthUrl;
   };
   return (

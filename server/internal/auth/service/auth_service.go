@@ -2,8 +2,15 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/yogesh4952/ebookstore/internal/auth"
@@ -17,6 +24,7 @@ type AuthService interface {
 	VerifyOTP(ctx context.Context, email, inputOTP string) (bool, error)
 	Login(ctx context.Context, email, inputotp string) (string, error)
 	Register(ctx context.Context, data *authmodels.RegisterPayload) (string, error)
+	Google(ctx context.Context, code string) (string, error)
 }
 
 type UserLookup interface {
@@ -37,6 +45,7 @@ type authService struct {
 	userStore    UserLookup
 	tokenGen     TokenGenerator
 	emailService EmailSender
+	client       *http.Client
 }
 
 func NewAuthService(
@@ -49,10 +58,10 @@ func NewAuthService(
 		userStore:    userStore,
 		tokenGen:     tokenGen,
 		emailService: emailService,
+		client:       &http.Client{Timeout: 5 * time.Second},
 	}
 }
 
-// SendOTP is a func that sent otp to the user and store in redis
 func (s *authService) SendOTP(ctx context.Context, email string) error {
 
 	if _, err := s.userStore.FindByEmail(ctx, email); err != nil {
@@ -73,20 +82,16 @@ func (s *authService) SendOTP(ctx context.Context, email string) error {
 
 }
 
-// VerifyOTP is a func that is used to compare the otp from user written and the otp store in the redis
-
 func (s *authService) VerifyOTP(ctx context.Context, email, inputOTP string) (bool, error) {
 	storedOTP, err := s.repo.GetOTP(ctx, email)
 	if err != nil {
 		return false, err
 	}
 
-	// 2. Compare inputs
 	if storedOTP != inputOTP {
 		return false, errors.New("invalid verification code")
 	}
 
-	// 3. Delete from Redis immediately (Single-use enforcement)
 	_ = s.repo.DeleteOTP(ctx, email)
 
 	return true, nil
@@ -129,7 +134,103 @@ func (s *authService) Register(ctx context.Context, payload *authmodels.Register
 		return "", fmt.Errorf("registration failed: %w", err)
 	}
 
-	//role vayevane
-
 	return "User registered successfully", nil
+}
+
+func (s *authService) Google(ctx context.Context, code string) (string, error) {
+	base := os.Getenv("GOOGLE_URL")
+	redirectURI := os.Getenv("GOOGLE_REDIRECT_URI")
+	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	clientID := os.Getenv("GOOGLE_CLIENT_ID")
+
+	log.Printf("[GOOGLE] base=%q redirectURI=%q clientID=%q secret_len=%d", base, redirectURI, clientID, len(clientSecret))
+	if base == "" || redirectURI == "" || clientID == "" || clientSecret == "" {
+		return "", fmt.Errorf("google credentials not set")
+	}
+
+	data := url.Values{}
+	data.Set("code", code)
+	data.Set("client_id", clientID)
+	data.Set("client_secret", clientSecret)
+	data.Set("redirect_uri", redirectURI)
+	data.Set("grant_type", "authorization_code")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, base, strings.NewReader(data.Encode()))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("google server unavailable: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var errBody map[string]interface{}
+		_ = json.NewDecoder(resp.Body).Decode(&errBody)
+		return "", fmt.Errorf("google token exchange failed with status %d: %v", resp.StatusCode, errBody)
+	}
+
+	var tokenResp authmodels.GoogleTokenResponse
+	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+		return "", fmt.Errorf("failed to decode google response: %w", err)
+	}
+	log.Printf("TOKEN: %s", tokenResp.IDToken)
+
+	parts := strings.Split(tokenResp.IDToken, ".")
+	if len(parts) < 2 {
+		return "", fmt.Errorf("invalid google id_token")
+	}
+	payloadB64 := parts[1]
+	switch len(payloadB64) % 4 {
+	case 2:
+		payloadB64 += "=="
+	case 3:
+		payloadB64 += "="
+	}
+	payloadBytes, err := base64.URLEncoding.DecodeString(payloadB64)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode google id_token payload: %w", err)
+	}
+	var claims map[string]interface{}
+	if err := json.Unmarshal(payloadBytes, &claims); err != nil {
+		return "", fmt.Errorf("failed to unmarshal google claims: %w", err)
+	}
+	email, _ := claims["email"].(string)
+	firstname, _ := claims["first_name"].(string)
+	lastname, _ := claims["last_name"].(string)
+	if email == "" {
+		return "", fmt.Errorf("google id_token missing email")
+	}
+	if firstname == "" {
+		firstname = "Google"
+	}
+	if lastname == "" {
+		lastname = "User"
+	}
+	user, err := s.userStore.FindByEmail(ctx, email)
+	if err != nil {
+		userRegistration := &models.User{
+			Firstname:   firstname,
+			Lastname:    lastname,
+			Email:       email,
+			Role:        models.RoleCustomer,
+			PhoneNumber: "0000000000",
+		}
+		if regErr := s.repo.RegisterUser(ctx, userRegistration); regErr != nil {
+			return "", fmt.Errorf("Failed to register user: %w", regErr)
+		}
+		user, err = s.userStore.FindByEmail(ctx, email)
+		if err != nil {
+			return "", fmt.Errorf("Failed to find registered user: %w", err)
+		}
+	}
+
+	jwtToken, err := s.tokenGen.GenerateJwt(user, time.Hour)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate internal jwt: %w", err)
+	}
+	return jwtToken, nil
 }

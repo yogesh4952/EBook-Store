@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -169,12 +168,28 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 func (h *AuthHandler) Google(c *gin.Context) {
-	var code string
-	if err := c.ShouldBindJSON(&code); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	var req authmodels.GoogleAuthRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid request payload: 'code' field is required",
+		})
 		return
 	}
 
-	log.Printf("CODE:%s", code)
+	token, err := h.service.Google(c.Request.Context(), req.Code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": fmt.Sprintf("Error during Google login: %v", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Login successful",
+		"token":   token,
+	})
 
 }

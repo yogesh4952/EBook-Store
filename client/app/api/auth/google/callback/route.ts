@@ -2,6 +2,8 @@ import { BACKEND_URL } from "@/lib/config";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
+  console.log("[BFF] CALLBACK HIT", new URL(request.url).toString());
+  console.log("[BFF] BACKEND_URL:", process.env.BACKEND_URL || "NOT SET");
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
@@ -13,6 +15,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    console.log("[BFF] sending to backend code length:", code?.length);
     const backendResponse = await fetch(`${BACKEND_URL}/api/auth/google`, {
       method: "POST",
       headers: {
@@ -21,7 +24,17 @@ export async function GET(request: Request) {
       body: JSON.stringify({ code }),
     });
 
+    console.log(
+      "[BFF] backend status:",
+      backendResponse.status,
+      "ok:",
+      backendResponse.ok,
+    );
     if (!backendResponse.ok) {
+      console.log(
+        "[BFF] backend error response:",
+        await backendResponse.text(),
+      );
       return NextResponse.redirect(
         new URL("/login?error=AuthenticationFailed", request.url),
       );
@@ -30,7 +43,7 @@ export async function GET(request: Request) {
 
     const response = NextResponse.redirect(new URL("/", request.url));
 
-    response.cookies.set("app_session", data.token, {
+    response.cookies.set("accessToken", data.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

@@ -44,7 +44,7 @@ type Order struct {
 	ShippingCity            string `json:"shipping_city" binding:"required" gorm:"not null"`
 	ShippingDeliveryAddress string `json:"shipping_delivery_address" binding:"required" gorm:"not null"`
 
-	User      models.User `gorm:"foreignKey:UserId"`
+	User      models.User `gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE"`
 	OrderItem []OrderItem `json:"order_items" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 

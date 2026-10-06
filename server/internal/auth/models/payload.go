@@ -12,3 +12,15 @@ type RegisterPayload struct {
 	Age         uint            `json:"age" binding:"required"`
 	PhoneNumber string          `json:"phone_number" binding:"required"`
 }
+
+type GoogleTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	IDToken      string `json:"id_token"`
+	ExpiresIn    int    `json:"expires_in"`
+	TokenType    string `json:"token_type"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type GoogleAuthRequest struct {
+	Code string `json:"code" binding:"required"`
+}

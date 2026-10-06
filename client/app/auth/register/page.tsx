@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaGoogle } from "react-icons/fa";
 import { FaCircleUser, FaStore } from "react-icons/fa6";
 import { toast } from "sonner";
 
@@ -46,6 +46,13 @@ const Register = () => {
    * OTP proves the address is reachable before a session is issued. So the
    * account is posted, and only on success do we ask for a code.
    */
+  const handleGoogleRegister = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const redirectUri = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/auth/google/callback`;
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent("openid email profile")}&prompt=select_account`;
+    window.location.href = url;
+  };
+
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -318,6 +325,14 @@ const Register = () => {
             className="h-12 w-full rounded-lg bg-primary text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isRegistering ? "Creating account..." : "Create account"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGoogleRegister}
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:bg-gray-50"
+          >
+            <FaGoogle /> Continue with Google
           </button>
 
           <Link
