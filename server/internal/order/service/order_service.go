@@ -159,12 +159,6 @@ func (serv *orderServ) PlaceOrder(ctx context.Context, userID uint, orderPayload
 		}
 	}
 
-	pdfBytes, err := utils.GenerateOrderInvoice(utils.OrderData{
-		OrderID:      res.OrderID,
-		CustomerName: "YOGESH",
-		TotalAmount:  float64(res.TotalPrice),
-	})
-
 	if err != nil {
 		return nil, fmt.Errorf("Expected no error, got %v", err)
 	}
