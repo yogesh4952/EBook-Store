@@ -36,4 +36,4 @@ jobs:
         working-directory: ./client
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: ${{secrets.NEXT_PUBLIC_API_URL}}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
