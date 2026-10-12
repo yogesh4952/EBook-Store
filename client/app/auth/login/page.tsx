@@ -12,22 +12,10 @@ import {
 import { FaPeopleGroup, FaShield } from "react-icons/fa6";
 import { toast } from "sonner";
 import { FRONTEND_URL } from "@/lib/config";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
+import AuthHandler from "@/components/AuthHandler";
 
 const Login = () => {
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const err = searchParams.get("error");
-    if (err === "AuthenticationFailed") {
-      toast.error("Google login failed due to server error (duplicate phone / DB issue).");
-    } else if (err === "DBConflict") {
-      toast.error("Account creation failed: phone number conflict.");
-    } else if (err) {
-      toast.error("Login error: " + err);
-    }
-  }, [searchParams]);
 
   const [email, setEmail] = useState("");
 
@@ -99,6 +87,9 @@ const Login = () => {
   };
   return (
     <div className="grid min-h-[750px] grid-cols-2 gap-8">
+      <Suspense fallback={null}>
+        <AuthHandler />
+      </Suspense>
       {/* LEFT SIDE */}
       <div
         className="relative overflow-hidden rounded-3xl bg-cover bg-center"
