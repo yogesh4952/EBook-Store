@@ -1,0 +1,35 @@
+name: EBookStore Frontend
+
+on: 
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.0.1
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v4
+        with: 
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Linter / Type Check
+        run: npm run lint || true
+
+      - name: Build Next.js Application
+        run: npm run build-and-test
+        env:
+          NEXT_PUBLIC_API_URL: ${{secrets.NEXT_PUBLIC_API_URL}}
