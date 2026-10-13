@@ -27,7 +27,7 @@ func main() {
 		logger.Fatal("Failed to initialize DB: %v", err)
 	}
 
-	bookFile, err := os.Open("/home/yst/code/EBook-Store/server/data/book.json")
+	bookFile, err := os.Open("data/book.json")
 
 	if err != nil {
 		logger.Error("%v", err)
