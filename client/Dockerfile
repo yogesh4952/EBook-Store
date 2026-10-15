@@ -1,18 +1,15 @@
-FROM node:26-alpine3.23 as builder
+FROM node:latest
 
-WORKDIR /app
+WORKDIR /app 
 
-COPY package*.json .
-
+COPY package*.json ./ 
 RUN npm install
 
-COPY . .
-
 EXPOSE 3000
-
+COPY . .
 RUN npm run build
 
+RUN useradd app
+USER app
 
-FROM node:24-alpine as runner
-WORKDIR /app /app
-ENTRYPOINT [ "npm" , "start" ]
+CMD ["npm","start"]
