@@ -3,6 +3,7 @@ services:
     build:
       context: ./client
     container_name: ebookstore-frontend
+    restart: unless-stopped
     ports:
       - "3000:3000"
     env_file:
@@ -27,6 +28,7 @@ services:
   db:
     image: postgres:16-alpine
     container_name: ebookstore-db
+    restart: always
     environment:
       POSTGRES_USER: yogesh
       POSTGRES_PASSWORD: yogesh
