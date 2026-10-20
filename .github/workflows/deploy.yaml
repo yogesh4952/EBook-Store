@@ -46,16 +46,8 @@ jobs:
           script: |
             cd ~/EBook-Store
             git pull origin main
-            
-            # Install and build frontend on server
-            cd client
-            npm ci
-            npm run build
-            
-            # Build Go backend binary
-            cd ~/EBook-Store/server
-            go build -o server-binary main.go
-            
-            # Restart PM2 processes
-            pm2 restart ebook-server
-            pm2 restart ebook-client
+
+            docker compose down
+            docker compose up --build -deploy
+
+            docker image prune -f

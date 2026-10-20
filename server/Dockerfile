@@ -14,7 +14,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o app ./cmd/api
 # Stage 2: Run the binary
 FROM alpine:latest
 
-WORKDIR /root/
+WORKDIR /app
 
 COPY --from=builder /app/app ./app
 

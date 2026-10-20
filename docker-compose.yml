@@ -14,10 +14,11 @@ services:
     build:
       context: ./server
     container_name: ebookstore-backend
+    restart: on-failure
     ports:
       - "8080:8080"
     environment:
-      - DSN=postgres://yogesh:yogesh@db:5432/ebookstore?sslmode=disable
+      - DSN=postgres://yogesh:yogesh@172.20.0.2:5432/ebookstore?sslmode=disable
     depends_on:
       db:
         condition: service_healthy
@@ -33,7 +34,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL","pg_isready -U yogesh -d ebookstore"]
+      test: ["CMD-SHELL", "pg_isready -U yogesh -d ebookstore"]
       interval: 5s
       timeout: 5s
       retries: 5
