@@ -46,8 +46,7 @@ jobs:
           script: |
             cd ~/EBook-Store
             git pull origin main
-
             docker compose down
-            docker compose up --build -deploy
+            docker compose up -d 
 
-            docker image prune -f
+            docker images prune -f
