@@ -2,6 +2,7 @@ package initializers
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -15,6 +16,7 @@ func InitDb() (*gorm.DB, error) {
 	dsn := os.Getenv("DSN")
 
 	if dsn == "" {
+		log.Println("No .env file found; using system environment variables")
 		return nil, fmt.Errorf("DSN environment variable is not set")
 	}
 
