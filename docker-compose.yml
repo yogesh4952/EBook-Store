@@ -19,10 +19,14 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DSN=postgres://yogesh:yogesh@172.20.0.2:5432/ebookstore?sslmode=disable
+      - DSN=postgres://yogesh:yogesh@db:5432/ebookstore?sslmode=disable
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - ebookstore-network
   db:
@@ -33,6 +37,8 @@ services:
       POSTGRES_USER: yogesh
       POSTGRES_PASSWORD: yogesh
       POSTGRES_DB: ebookstore
+    networks:
+      - ebookstore-network
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -40,6 +46,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  redis:
+    image: redis:alpine
+    container_name: ebookstore-redis
+    restart: always
+    networks:
+      - ebookstore-network
 volumes:
   postgres_data:
 
