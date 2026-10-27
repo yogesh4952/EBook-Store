@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#4B2E20"/>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#grad)"/>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D4A853" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#D4A853" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(80, 120)">
+    <rect width="352" height="272" rx="12" fill="#D4A853"/>
+    <rect x="20" y="20" width="312" height="32" rx="4" fill="#4B2E20"/>
+    <rect x="20" y="70" width="280" height="4" rx="2" fill="#4B2E20"/>
+    <rect x="20" y="86" width="240" height="4" rx="2" fill="#4B2E20"/>
+    <rect x="20" y="102" width="260" height="4" rx="2" fill="#4B2E20"/>
+    <rect x="20" y="118" width="200" height="4" rx="2" fill="#4B2E20"/>
+    <rect x="20" y="134" width="280" height="4" rx="2" fill="#4B2E20"/>
+    <rect x="20" y="150" width="240" height="4" rx="2" fill="#4B2E20"/>
+    <rect x="20" y="166" width="260" height="4" rx="2" fill="#4B2E20"/>
+    <rect x="20" y="182" width="220" height="4" rx="2" fill="#4B2E20"/>
+    <rect x="20" y="198" width="280" height="4" rx="2" fill="#4B2E20"/>
+    <rect x="20" y="214" width="240" height="4" rx="2" fill="#4B2E20"/>
+    <circle cx="310" cy="240" r="18" fill="#D4A853"/>
+    <path d="M302 240l7 7 16-16" stroke="#4B2E20" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="520" y="200" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#D4A853">
+    Book Store
+  </text>
+  <text x="520" y="280" font-family="Arial, sans-serif" font-size="48" font-weight="300" fill="#D4A853">
+    Nepal
+  </text>
+  <text x="520" y="360" font-family="Arial, sans-serif" font-size="28" fill="#D4A853" opacity="0.8">
+    Your trusted online bookstore
+  </text>
+  <text x="520" y="420" font-family="Arial, sans-serif" font-size="24" fill="#D4A853" opacity="0.7">
+    Thousands of books · Fast delivery · Cash on delivery & eSewa
+  </text>
+</svg>

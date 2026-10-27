@@ -41,11 +41,6 @@ const Register = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
-  /**
-   * Registration is a two-step handshake: the account is created first, then the
-   * OTP proves the address is reachable before a session is issued. So the
-   * account is posted, and only on success do we ask for a code.
-   */
   const handleGoogleRegister = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     const redirectUri = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/auth/google/callback`;
@@ -174,7 +169,7 @@ const Register = () => {
           </div>
 
           <div className="rounded bg-white/80 px-4 py-2 text-black">
-            <p className="text-5xl text-primary">&quot;</p>
+            <p className="text-5xl text-primary">"</p>
             <p>A book is a device to ignite the imagination.</p>
             <p className="text-primary">- Alan Bennett</p>
           </div>
@@ -330,7 +325,7 @@ const Register = () => {
           <button
             type="button"
             onClick={handleGoogleRegister}
-            className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition hover:bg-gray-50"
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white shadow-sm transition:hover:bg-gray-50"
           >
             <FaGoogle /> Continue with Google
           </button>

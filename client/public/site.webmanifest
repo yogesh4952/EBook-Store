@@ -1,0 +1,23 @@
+{
+  "name": "Book Store Nepal",
+  "short_name": "Book Nepal",
+  "description": "Book Store Nepal - Your trusted online bookstore in Nepal. Browse thousands of books with fast delivery across Nepal.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4B2E20",
+  "theme_color": "#4B2E20",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["shopping", "books"],
+  "lang": "en"
+}

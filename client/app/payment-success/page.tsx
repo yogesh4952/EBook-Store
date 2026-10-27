@@ -1,6 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import ClearCartOnSuccess from "@/components/checkout/ClearCartOnSuccess";
+
+export const metadata: Metadata = {
+  title: "Order Confirmed - Book Store Nepal",
+  description:
+    "Your book order has been successfully placed at Book Store Nepal. Thank you for your purchase.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface PageProps {
   searchParams: Promise<{ orderId?: string }>;

@@ -16,17 +16,19 @@ services:
       context: ./server
     container_name: ebookstore-backend
     restart: on-failure
-    ports:
-      - "8080:8080"
+    env_file:
+      - ./server/.env
     environment:
-      - DSN=postgres://yogesh:yogesh@db:5432/ebookstore?sslmode=disable
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - DSN=postgres://yogesh:yogesh@db:5432/ebookstore?sslmode=disable
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
     networks:
       - ebookstore-network
   db:
@@ -52,9 +54,29 @@ services:
     restart: always
     networks:
       - ebookstore-network
+  rabbitmq:
+    image: rabbitmq:4.3.7-management-alpine
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - ebookstore-network
+
 volumes:
   postgres_data:
-
+  rabbitmq_data:
 
 networks:
   ebookstore-network:

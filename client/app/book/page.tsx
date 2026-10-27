@@ -1,10 +1,18 @@
 import React from "react";
 import Link from "next/link";
 import { HiOutlineChevronLeft } from "react-icons/hi2";
+import type { Metadata } from "next";
 
 import BookCard, { type Ibook } from "@/components/Book/BookCard";
 import { getAllBooks } from "@/lib/book-actions";
 import { getGenresFromApi, getCategoriesFromApi } from "@/lib/book-api";
+
+export const metadata: Metadata = {
+  title: "Browse Books - Book Store Nepal",
+  description:
+    "Browse thousands of books at Book Store Nepal. Filter by category, genre, price, and availability.",
+  robots: { index: true, follow: true },
+};
 
 export default async function BookPage({
   searchParams,

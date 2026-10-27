@@ -1,0 +1,32 @@
+User-agent: *
+Allow: /
+
+# Crawl budget optimization
+Crawl-delay: 1
+
+# Specific directives for known bots
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+# Disallow sensitive areas
+Disallow: /api/
+Disallow: /_next/
+Disallow: /auth/login
+Disallow: /auth/register
+Disallow: /checkout
+Disallow: /orders
+Disallow: /addresses
+Disallow: /payment-success
+Disallow: /payment-failure
+
+# Sitemap location
+Sitemap: https://book.yogeshthakuri.com/sitemap.xml

@@ -1,13 +1,19 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login - Book Store Nepal",
+  description:
+    "Login to your Book Store Nepal account. Access your orders, saved addresses, and continue your reading journey with thousands of books.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
 export default function AuthLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
-  return (
-    <main className="flex justify-center bg-background mt-10">
-      <div className="w-[60vw] rounded-xl bg-white p-8 shadow-lg">
-        {children}
-      </div>
-    </main>
-  );
+}>) {
+  return <>{children}</>;
 }
